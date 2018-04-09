@@ -84,7 +84,7 @@ plot_3way <- function(z, name, limits, cols, xaxis, yaxis) {
 	
 }
 graphics.off()
-png('MAP_vs_Tree_vs_vars.png', width = 7, height = 7, units = 'in', res = 300)
+png('figs/MAP_vs_Tree_vs_vars.png', width = 7, height = 7, units = 'in', res = 300)
 	lmat = rbind(c(3:4, 1), c(5:6, 0), c(7, 2, 0), c(7, 0, 0))
 	layout(lmat, widths = c(1, 1, 0.5), heights = c(1, 1, 0.5, 0.5))
 	par(mar = c(0, 0, 2, 0), oma = c(3.5, 3.5, 0, 0))
@@ -99,4 +99,4 @@ png('MAP_vs_Tree_vs_vars.png', width = 7, height = 7, units = 'in', res = 300)
 
 	mtext.units(xlab, side = 1, line = 2.3)
 	mtext.units(ylab, outer = TRUE, side = 2, line = 2.3)
-dev.off()
+dev.off.gitWatermark()
