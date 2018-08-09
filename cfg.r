@@ -25,6 +25,7 @@ makeDir(ens_dir)
 ensemble_no = round(seq(1,4200, length.out = 100) )
 
 sourceAllLibs('libs/')
-sourceAllLibs('LimTREE_r')
+sourceAllLibs('libs/LimTREE_r/')
+sourceAllLibs('libs/plotting/')
 
 paramFile = 'outputs/params.csv'
