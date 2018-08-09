@@ -1,0 +1,30 @@
+library(benchmarkMetrics)
+library(gitBasedProjects)
+library(raster)
+library(ncdf4)
+library(rasterExtras)
+library(rasterPlot)
+library(plotrix)
+library(mapdata)
+library(mapplots)
+library(ellipse)
+library(vegan)
+library(RcppEigen)
+library(parallel)
+library(snow)
+library(reldist)
+data(worldHiresMapEnv)
+
+sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
+sourceAllLibs('../rasterextrafuns/rasterExtras/R/')
+
+setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
+ens_dir = paste(outputs_dir, '/ensembles/', sep = '')
+makeDir(ens_dir)
+
+ensemble_no = round(seq(1,4200, length.out = 100) )
+
+sourceAllLibs('libs/')
+sourceAllLibs('LimTREE_r')
+
+paramFile = 'outputs/params.csv'
