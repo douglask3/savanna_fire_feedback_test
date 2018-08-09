@@ -15,7 +15,7 @@ makeOrLoadEnsembles <- function(grab_cache = TRUE, invert =TRUE) {
 		dname = paste(ens_dir, 'ensemble_', line, '/', sep = '')
 		makeDir(dname)
 		
-		fnames =  paste(dname, names(dat), '.nc', sep = '')
+		fnames =  paste(dname, names(dats), '.nc', sep = '')
 		
 		run <- function(dat, fname)
 			out = runIfNoFile(fname, runLimTREE, line, dat, test = grab_cache)
