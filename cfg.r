@@ -19,7 +19,7 @@ sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
 sourceAllLibs('../rasterextrafuns/rasterExtras/R/')
 
 setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
-ens_dir = paste(outputs_dir, '/ensembles/', sep = '')
+ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
 ensemble_no = round(seq(1,4200, length.out = 100) )
