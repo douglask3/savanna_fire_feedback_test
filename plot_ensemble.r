@@ -39,5 +39,5 @@ png('figs/TreeCover_ensemble_summary_abs.png', height = 5 * 4.3/4.6, width = 10,
 	
 	names = c('reconstructed', paste('No', expNames[-1]))	
 	mapply(plotStandardMap.sd, out, txt = names, MoreArgs = list(100, limits = limits, cols = cols))
-	addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
+	addStandardLegend(out[[1]], limits, cols, add = FALSE)
 dev.off.gitWatermark()

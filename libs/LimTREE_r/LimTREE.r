@@ -41,6 +41,7 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 				
 	popDen = 1 - exp(popDen * (-1/k_popDen))
 	drought = ((n_drought-1) * drought + 0.5)/n_drought
+	drought = log(1 - drought) * (-1)
 	
 	f_MAP  = LimMAP  (MAP, MAP0 , MAPk)
 	f_MAT  = LimMAT  (MAT, MAT0 , MATk)
@@ -56,7 +57,7 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck)
 	
 	Tree = f_MAP * f_MAT * f_SW * f_Mort * f_Exc * maxT
-
+	
 	return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
