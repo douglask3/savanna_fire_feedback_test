@@ -1,19 +1,4 @@
-library(benchmarkMetrics)
-library(gitBasedProjects)
-library(raster)
-library(ncdf4)
-library(rasterExtras)
-library(rasterPlot)
-library(plotrix)
-library(mapdata)
-library(mapplots)
-library(ellipse)
-library(vegan)
-library(RcppEigen)
-library(parallel)
-library(snow)
-library(reldist)
-data(worldHiresMapEnv)
+source("cfg.r")
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc", "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc", "MAP" = "Prc2000-2014.nc",
@@ -54,11 +39,15 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 	return(list(SW1, SW2))
 }
 
-dryDays <- function(r, ...) 30 * annualAverageMax(1-r)
+dryDays <- function(r, ...) annualAverageMax(1-r)
 
 FUNS = c("TreeCover" = annualAverage, "MAT" = annualAverage, "MTWM" = annualAverageMax, "MAP" = annualAverage12,
 			  "sunshine" = sunshineHours, "BurntArea" = annualAverage12, "Drought" = dryDays, "PopDen" = annualAverage,
 			  "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage)
+			  
+scaling = c("TreeCover" = 1/100, "MAT" = 1, "MTWM" = 1, "MAP" = 1,
+			  "sunshine" = 1, "BurntArea" = 1, "Drought" = 1, "PopDen" = 1,
+			  "urban" = 1/100, "crop" = 1/100, "pas" = 1/100)
 			  
 makeVar <- function(filename, FUN) {
 	r = brick(paste(data_dir, filename, sep = '/'))
@@ -70,11 +59,12 @@ ins = mapply(makeVar, variables, FUNS)
 
 mask = is.na(sum(layer.apply(ins, function(i) layer.apply(i, function(j) j))))
 
-writeVar <- function(nme, r) {
+writeVar <- function(nme, r, sc) {
 	writeSub <- function(nmei, ri) {
 		ri[mask] = NaN
 		fname = paste('data/', nmei, '.nc', sep = '')
 		ri =  crop(ri, extent(c(-180, 180, -30, 30)))
+		ri = ri * sc
 		ri = writeRaster(ri, fname, overwrite = TRUE)
 		return(ri)
 	}
@@ -86,7 +76,7 @@ writeVar <- function(nme, r) {
 	return(r)
 }
 
-mapply(writeVar, names(variables), ins)
+mapply(writeVar, names(variables), ins, scaling)
 
 
 
