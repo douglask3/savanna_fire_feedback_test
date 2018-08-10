@@ -8,7 +8,7 @@ dats = list(control   = loadInputData(),
 				
 expNames = c('Control', 'fire', 'drought', 'population effect', 'cropland', 'pasture', 'humans')
 
-makeOrLoadEnsembles <- function(grab_cache = TRUE, invert =TRUE) {
+makeOrLoadEnsembles <- function(grab_cache = FALSE, invert =TRUE) {
 	
 
 	run_member <- function(line) {

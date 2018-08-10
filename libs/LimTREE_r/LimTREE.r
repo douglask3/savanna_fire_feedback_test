@@ -40,13 +40,12 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 					includeSW = FALSE) {
 				
 	popDen = 1 - exp(popDen * (-1/k_popDen))
-	drought = ((n_drought-1) * drought + 0.5)/n_drought
-	drought = log(1 - drought) * (-1)
+	drought = drought#^n_drought
 	
 	f_MAP  = LimMAP  (MAP, MAP0 , MAPk)
 	f_MAT  = LimMAT  (MAT, MAT0 , MATk)
 	
-	if (includeSW) f_SW   = LimSW   (SW1, SW2  , d,  SW0  , SWk )
+	if (includeSW) f_SW   = LimSW(SW1, SW2  , d,  SW0  , SWk )
 	else {
 		f_SW = f_MAT
 		f_SW[!is.na(f_SW)] = 1.0

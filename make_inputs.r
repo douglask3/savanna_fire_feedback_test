@@ -39,7 +39,11 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 	return(list(SW1, SW2))
 }
 
-dryDays <- function(r, ...) annualAverageMax(1-r)
+dryDays <- function(r, ...) {
+	out = PolarConcentrationAndPhase(r)[[2]]
+	names(out) = "layer"
+	return(out)
+}
 
 FUNS = c("TreeCover" = annualAverage, "MAT" = annualAverage, "MTWM" = annualAverageMax, "MAP" = annualAverage12,
 			  "sunshine" = sunshineHours, "BurntArea" = annualAverage12, "Drought" = dryDays, "PopDen" = annualAverage,
@@ -63,7 +67,7 @@ writeVar <- function(nme, r, sc) {
 	writeSub <- function(nmei, ri) {
 		ri[mask] = NaN
 		fname = paste('data/', nmei, '.nc', sep = '')
-		ri =  crop(ri, extent(c(-180, 180, -30, 30)))
+		ri =  crop(ri, extent(extent))
 		ri = ri * sc
 		ri = writeRaster(ri, fname, overwrite = TRUE)
 		return(ri)
