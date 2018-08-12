@@ -16,7 +16,6 @@ out = makeOrLoadEnsembles()
 out = selectOutput(out)
 dout = lapply(out[-1], function(i) out[[1]] - i)
 
-
 ########################################
 ## plot              			      ##
 ########################################
