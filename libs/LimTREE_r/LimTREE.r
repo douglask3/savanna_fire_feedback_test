@@ -21,7 +21,7 @@ runLimTREE <- function(line, dat = NULL, ...) {
 }
 
 LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, crop, pas,
-			        d, k_popDen, n_drought, min_maxTemp, max_maxTemp, p_maxTemp,
+			        d, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
 					v_drought, v_maxTemp, v_popDen, v_crop, v_pas,
 					MAP0, MAPk, MAT0, MATk, SW0, SWk, Mort0, Mortk, Exc0, Exck, maxT,
 					includeSW = FALSE) {
@@ -36,7 +36,7 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 	}
 	
 	f_Mort = LimMort (fire, drought, maxTemp, popDen, v_drought, v_maxTemp, v_popDen,
-					  k_popDen, min_maxTemp, max_maxTemp, p_maxTemp,
+					  k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
 					  Mort0, -Mortk)
 						   
 	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck)
@@ -81,11 +81,11 @@ LimTREE.maxTemp <- function(maxTemp, mn, mx, p) {
 
 
 LimMort <- function(fire, drought, maxTemp, popDen, v_drought, v_maxTemp, v_popDen,
-				    k_popDen, min_maxTemp, max_maxTemp, p_maxTemp,...) {
+				    k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,...) {
 		
 	popDen  = LimTREE.popDen(popDen, k_popDen)
 	maxTemp = LimTREE.maxTemp(maxTemp, min_maxTemp, max_maxTemp, p_maxTemp)
-	drought = drought#^n_drought
+	drought = drought^p_drought
 	LimList(c(fire, drought, maxTemp, popDen), c(v_drought, v_maxTemp, v_popDen), ...)
 }
 

@@ -41,7 +41,8 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 
 dryDays <- function(r, ...) {
 	out = PolarConcentrationAndPhase(r)[[2]]
-	names(out) = "layer"
+	#out = 1-mean(r)
+	#names(out) = "layer"
 	return(out)
 }
 
