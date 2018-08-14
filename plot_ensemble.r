@@ -63,7 +63,7 @@ plotExps <- function(fname, ExpID) {
 	dev.off.gitWatermark()
 }
 
-#plotExps('mortalityAndExclusion', 5:12)
-#plotExps('MAPvsNonClim', c(2,4))
+plotExps('mortalityAndExclusion', 5:12)
+plotExps('MAPvsNonClim', c(2,4))
 plotExps('allVars', 2:12)
 	
