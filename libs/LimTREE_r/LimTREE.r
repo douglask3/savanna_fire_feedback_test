@@ -18,19 +18,6 @@ runLimTREE <- function(line, dat = NULL, ...) {
 			params['max_T'], ...)
 	
 	return(out)
-}       
-
-loadInputData <- function(remove = NULL) {
-	files = list.files('data/')
-	files = files[grepl('.nc', files)]
-	
-	dat = lapply(paste('data', files, sep = '/'), raster)
-	names(dat) = unlist(strsplit(files, '.nc'))
-	
-	if (!is.null(remove))
-		for (i in remove) dat[[i]][!is.na(dat[[i]])] = 0.0
-	
-	return(dat)
 }
 
 LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, crop, pas,
@@ -99,7 +86,6 @@ LimMort <- function(fire, drought, maxTemp, popDen, v_drought, v_maxTemp, v_popD
 	popDen  = LimTREE.popDen(popDen, k_popDen)
 	maxTemp = LimTREE.maxTemp(maxTemp, min_maxTemp, max_maxTemp, p_maxTemp)
 	drought = drought#^n_drought
-	
 	LimList(c(fire, drought, maxTemp, popDen), c(v_drought, v_maxTemp, v_popDen), ...)
 }
 
