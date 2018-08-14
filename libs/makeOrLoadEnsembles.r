@@ -1,14 +1,16 @@
 dats = list(control   = loadInputData(),
 				nofire    = loadInputData(remove = c("BurntArea")),
 				noDrought = loadInputData(remove = c("Drought")),
+				noTempMort= loadInputData(remove = c("MTWM")),
 				noPop     = loadInputData(remove = c("PopDen")),
+				noUrban   = loadInputData(remove = c("urban")),
 				noCrop    = loadInputData(remove = c("crop")),
 				noPas     = loadInputData(remove = c("pas")),
 				noHumans  = loadInputData(remove = c("PopDen", "urban", "crop", "pas")))
 				
-expNames = c('Control', 'fire', 'drought', 'population effect', 'cropland', 'pasture', 'humans')
+expNames = c('Control', 'fire', 'drought', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans')
 
-makeOrLoadEnsembles <- function(grab_cache = FALSE, invert =TRUE) {
+makeOrLoadEnsembles <- function(grab_cache = FALSE, invert = TRUE) {
 	
 
 	run_member <- function(line) {
