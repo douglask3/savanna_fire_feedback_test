@@ -20,25 +20,50 @@ dout = lapply(out[-1], function(i) out[[1]] - i)
 ########################################
 ## plot              			      ##
 ########################################
-png('figs/TreeCover_ensemble_summary.png', height = 5 * 5.6/4.6, width = 10, unit = 'in', res = 300)
-	layout(rbind(1:2, 3, 4:5, 6:7, 8:9, 10:11, 12), heights = c(1, 0.3, 1, 1, 1, 1, 0.3))
-	par(mar = rep(0, 4))
-	plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
-	plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
-	addStandardLegend(out[[1]], limits, cols, add = FALSE)
 
-	mtext('Impact of ...', side = 1, line = 0, exp = NA)
-	mapply(plotStandardMap.sd, dout, txt = expNames[-1], MoreArgs = list(100, limits = dlimits, cols = dcols))
-	addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
-dev.off.gitWatermark()
-
-png('figs/TreeCover_ensemble_summary_abs.png', height = 5 * 5.3/4.6, width = 10, unit = 'in', res = 300)
-	layout(rbind(1:2, 3:4, 5:6, 7:8, 9:10, 11), heights = c(1, 1, 1, 1, 1, 0.3))
-	par(mar = rep(0, 4))
-	plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+plotExps <- function(fname, ExpID) {
+	fname = paste('figs/TreeCover_ensemble_summary-', fname, c('-diff', '-abs'), '.png')
 	
-	names = c('reconstructed', paste('No', expNames[-1]))	
-	mapply(plotStandardMap.sd, out, txt = names, MoreArgs = list(100, limits = limits, cols = cols))
-	addStandardLegend(out[[1]], limits, cols, add = FALSE)
-dev.off.gitWatermark()
+	ExpIDp = 1:length(ExpID)
+	if (!is.even(length(ExpID))) ExpIDp = c(ExpIDp, NaN)
+	ExpIDp = ExpIDp - min(ExpIDp, na.rm = TRUE) + 1
+	
+	
+	p_rows = (length(ExpIDp)/2)
+	
+	png(fname[1], height = 5 * (p_rows + 1.6)/4.6, width = 10, unit = 'in', res = 300)
+		
+		lmat = rbind(1:2, 3,t(matrix(ExpIDp, nrow = 2)) + 3, max(ExpIDp, na.rm = TRUE) + 4)
+		lmat[is.na(lmat)] = 0.0
+		
+		layout(lmat, heights = c(1, 0.3, rep(1, p_rows), 0.3))
+		par(mar = rep(0, 4))
+		
+		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+		plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
+		addStandardLegend(out[[1]], limits, cols, add = FALSE)
+
+		mtext('Impact of ...', side = 1, line = 0, exp = NA)
+		mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID], MoreArgs = list(100, limits = dlimits, cols = dcols))
+		addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
+	dev.off.gitWatermark()
+
+	png(fname[2], height = 5 * (p_rows + 1.3)/4.6, width = 10, unit = 'in', res = 300)
+	
+		lmat = rbind(1:2, t(matrix(ExpIDp, nrow = 2)) + 2, max(ExpIDp, na.rm = TRUE) + 3)
+		lmat[is.na(lmat)] = 0.0
+		
+		layout(lmat, heights = c(1, rep(1, p_rows), 0.3))
+		par(mar = rep(0, 4))
+		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+		
+		names = c('reconstructed', paste('No', expNames[ExpID]))	
+		mapply(plotStandardMap.sd, out[c(1,ExpID)], txt = names, MoreArgs = list(100, limits = limits, cols = cols))
+		addStandardLegend(out[[2]], limits, cols, add = FALSE)
+	dev.off.gitWatermark()
+}
+
+#plotExps('mortalityAndExclusion', 5:12)
+#plotExps('MAPvsNonClim', c(2,4))
+plotExps('allVars', 2:12)
 	
