@@ -10,7 +10,7 @@ out = selectOutput(out)
 dout = lapply(out[-1], function(i) 1-out[[1]]/i)
 png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	par(mar = c(3, 3, 1, 1))
-	plot(c(0.0003, 1), c(0, 1), axes = FALSE, xlab = '', ylab = '', xaxs = 'i', yaxs = 'i', log = 'x', type ='n')
+	plot(c(0.001, 1), c(0, 1), axes = FALSE, xlab = '', ylab = '', xaxs = 'i', yaxs = 'i', log = 'x', type ='n')
 	
 	labs = c(0.001, 0.003, 0.01, 0.03, 0.3, 0.3, 1)
 	axis(1, at = labs, labels = labs * 100) 
