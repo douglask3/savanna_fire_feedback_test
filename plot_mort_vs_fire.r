@@ -10,9 +10,9 @@ out = selectOutput(out)
 dout = lapply(out[-1], function(i) 1-out[[1]]/i)
 png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	par(mar = c(3, 3, 1, 1))
-	plot(c(0.001, 1), c(0, 1), axes = FALSE, xlab = '', ylab = '', xaxs = 'i', yaxs = 'i', log = 'x')
+	plot(c(0.0003, 1), c(0, 1), axes = FALSE, xlab = '', ylab = '', xaxs = 'i', yaxs = 'i', log = 'x', type ='n')
 	
-	labs = c(0.001, 0.003, 0.01, 0.03, 0.3, 0.2, 1)
+	labs = c(0.001, 0.003, 0.01, 0.03, 0.3, 0.3, 1)
 	axis(1, at = labs, labels = labs * 100) 
 	mtext(side = 1, 'Burnt Area (%)', line = 2)
 
@@ -29,7 +29,7 @@ png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	layer.apply(dout[[4]], addPolygon)
 	x = seq(0, 1, 0.001)
 	#lines(x, 1-logistic(x, params[1, 'mort_x0'], -params[1, 'mort_k'])/logistic(0, params[1, 'mort_x0'], -params[1, 'mort_k']), col = 'red')
-	lines(c(0, 1), c(0, 1), col = 'blue', lwd = 2)
+	lines(x,x, lty = 2,lwd = 2)
 
 
 	openJulesTree <- function(dir, levels = c(1,2,5), varname = 'landCoverFrac') {
@@ -70,7 +70,9 @@ png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	lines((10^xp), yp, col = 'blue', lwd = 2)
 
 	legendFun <- function(col, lwd)
-		legend('topleft', legend = c('JULES', '   - best fit', 'Bayes'), bty = 'n', pch = 19, pt.cex = c(0.5, 0.0, 0.0), col = c('blue', 'blue', col), lty = c(0,1,1), lwd = c(0, 2, lwd))
+		legend('topleft', legend = c('JULES', '   - best fit', 'Bayes', '1:1'), 
+			   bty = 'n', pch = 19, pt.cex = c(0.5, 0.0, 0.0, 0.0), col = c('blue', 'blue', col, 'black'), 
+			   lty = c(0, 1, 1, 2), lwd = c(0, 2, lwd, 2))
 		
 
 	for (i in 1:(floor(length(ensemble_no))/3)) {
