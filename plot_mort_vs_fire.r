@@ -22,9 +22,9 @@ png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 
 	addPolygon <- function(y, x = dat[['BurntArea']]) { 
 		#browser()
-		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.0, 1.0), between = TRUE, col = make.transparent('black', 0.99))
-		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.1, 0.9), between = TRUE, col = make.transparent('#330000', 0.99))
-		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.25, 0.75), between = TRUE, col = make.transparent('red', 0.98))
+		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.0, 1.0), between = TRUE, xlog = TRUE, col = make.transparent('black', 0.99))
+		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.1, 0.9), between = TRUE, xlog = TRUE, col = make.transparent('#330000', 0.99))
+		quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.25, 0.75), between = TRUE, xlog = TRUE, col = make.transparent('red', 0.98))
 	}
 	layer.apply(dout[[4]], addPolygon)
 	x = seq(0, 1, 0.001)

@@ -1,6 +1,6 @@
 quantileDesnityPoly <- function(x, y, xlim = range(x, na.rm = TRUE), nbins = 100, 
 								quantiles = c(0.01, 0.05, 0.1, 0.5, 0.9, 0.95, 0.99),
-								ymin = 0.000001, xlog = TRUE, col = make.transparent('black', 0.7), between = FALSE) {#seq(0.01, 0.99, 0.01)
+								ymin = 0.000001, xlog = FALSE, col = make.transparent('black', 0.7), between = FALSE) {#seq(0.01, 0.99, 0.01)
 	x0 = x; y0 = y
 	
 	if (xlog) {
