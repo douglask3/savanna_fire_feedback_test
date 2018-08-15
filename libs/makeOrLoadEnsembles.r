@@ -1,7 +1,7 @@
 dats = list(control     = loadInputData(),
 			noMAP       = loadInputData(maxout = c("MAP")),
-			noMAT       = loadInputData(maxout = c("MAT")),
-			noClimOther = loadInputData(maxout = c("MAT"), remove = c("MTWM", "Drought")),
+			noMAT       = loadInputData(replace = c("MAT" = 39)),
+			noClimOther = loadInputData(replace = c("MAT" = 30), remove = c("MTWM", "Drought")),
 			nofire      = loadInputData(remove = c("BurntArea")),
 			noDrought   = loadInputData(remove = c("Drought")),
 			noTempMort  = loadInputData(remove = c("MTWM")),
@@ -9,9 +9,10 @@ dats = list(control     = loadInputData(),
 			noUrban     = loadInputData(remove = c("urban")),
 			noCrop      = loadInputData(remove = c("crop")),
 			noPas       = loadInputData(remove = c("pas")),
-			noHumans    = loadInputData(remove = c("PopDen", "urban", "crop", "pas")))
+			noHumans    = loadInputData(remove = c("PopDen", "urban", "crop", "pas")),
+			noExclusion = loadInputData(remove = c("urban", "crop", "pas")))
 				
-expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans')
+expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use')
 
 makeOrLoadEnsembles <- function(grab_cache = TRUE, invert = TRUE) {
 	
