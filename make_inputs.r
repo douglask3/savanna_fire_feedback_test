@@ -2,7 +2,7 @@ source("cfg.r")
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc", "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc", "MAP" = "Prc2000-2014.nc",
-			  "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc", "Drought" = "Wet2000-2014.nc", "PopDen" = "population_density2000-2014.nc",
+			  "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc", "Drought" = "Prc2000-2014.nc", "PopDen" = "population_density2000-2014.nc",
 			  "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc", "pas" = "pasture2000-2014.nc")
 			  
 annualAverage <- function(...) mean(...)
@@ -40,9 +40,11 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 }
 
 dryDays <- function(r, ...) {
-	out = PolarConcentrationAndPhase(r)[[2]]
-	#out = 1-mean(r)
-	#names(out) = "layer"
+	#out = PolarConcentrationAndPhase(r)[[2]]
+	out = annualAverageMax(r*(-1))
+	out = 1-(out * (-1)/mean(r))
+	
+	names(out) = "layer"
 	return(out)
 }
 
