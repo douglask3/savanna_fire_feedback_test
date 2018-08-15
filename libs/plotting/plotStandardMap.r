@@ -9,4 +9,4 @@ plotStandardMap <- function(x, limits, cols, txt = '', add_legend = FALSE,...) {
 
 plotStandardMap.sd <- function(x, sc = 1, ...)
 	plotStandardMap(mean(x) * sc, 
-					e = sd.raster(x), ePatternRes = 30, ePatternThick = 0.4, limits_error = c(0.1, 0.25),...)
+					e = sd.raster(x), ePatternRes = 35, ePatternThick = 0.4, limits_error = c(0.1, 0.25),...)
