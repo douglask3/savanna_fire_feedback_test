@@ -69,18 +69,18 @@ png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	yp = predict(fit, data.frame(x = xp))
 	lines((10^xp), yp, col = 'blue', lwd = 2)
 
-	legendFun <- function(col, lwd)
+	legendFun <- function(col, lwd, bty = 'n')
 		legend('topleft', legend = c('JULES', '   - best fit', 'Bayes', '1:1'), 
-			   bty = 'n', pch = 19, pt.cex = c(0.5, 0.0, 0.0, 0.0), col = c('blue', 'blue', col, 'black'), 
-			   lty = c(0, 1, 1, 2), lwd = c(0, 2, lwd, 2))
+			   pch = 19, pt.cex = c(0.5, 0.0, 0.0, 0.0), col = c('blue', 'blue', col, 'black'), 
+			   lty = c(0, 1, 1, 2), lwd = c(0, 2, lwd, 2), bty =bty)
 		
-
+	legendFun(make.transparent('black', 0.99), 21, bty = '0')
 	for (i in 1:(floor(length(ensemble_no))/3)) {
-		legendFun(make.transparent('black', 0.99), 18)
+		legendFun(make.transparent('black', 0.99),19.5)
 		legendFun(make.transparent('black', 0.99), 15)
 		legendFun(make.transparent('#330000', 0.99), 12)
 		legendFun(make.transparent('#330000', 0.99), 9)
 		legendFun(make.transparent('red', 0.98), 6)
 		legendFun(make.transparent('red', 0.98), 3)
 	}
-dev.off.gitWatermark()
+dev.off.gitWatermark(x = 1.01)
