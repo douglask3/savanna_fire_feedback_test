@@ -24,12 +24,12 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 			        min_mat, max_mat, d, p_fire, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
 					v_drought, v_maxTemp, v_popDen, v_crop, v_pas,
 					MAP0, MAPk, MAT0, MATk, SW0, SWk, Mort0, Mortk, Exc0, Exck, maxT,
-					includeSW = FALSE) {
+					includeSW = FALSE, ...) {
 	
-	f_MAP  = LimMAP  (MAP, MAP0 , MAPk)
-	f_MAT  = LimMAT  (MAT, min_mat, max_mat, MAT0 , MATk)
+	f_MAP  = LimMAP  (MAP, MAP0 , MAPk, ...)
+	f_MAT  = LimMAT  (MAT, min_mat, max_mat, MAT0 , MATk, ...)
 	
-	if (includeSW) f_SW   = LimSW(SW1, SW2  , d,  SW0  , SWk )
+	if (includeSW) f_SW   = LimSW(SW1, SW2  , d,  SW0  , SWk, ...)
 	else {
 		f_SW = f_MAT
 		f_SW[!is.na(f_SW)] = 1.0
@@ -37,17 +37,24 @@ LimTREE <- function(MAP, MAT, SW1, SW2, fire, drought, maxTemp, popDen, urban, c
 	
 	f_Mort = LimMort (fire, drought, maxTemp, popDen, v_drought, v_maxTemp, v_popDen,
 					  p_fire, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
-					  Mort0, -Mortk)
+					  Mort0, -Mortk, ...)
 						   
-	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck)
+	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck, ...)
 	
 	Tree = f_MAP * f_MAT * f_SW * f_Mort * f_Exc * maxT
 	
 	return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
-logistic <- function(x, x0, k) 
-	1 / (1 + exp(-k * (x - x0)))
+logistic <- function(x, x0, k, sensitivity = FALSE) {
+	FUN <- function(xi = x, ki = k)  1 / (1 + exp(-ki * (xi - x0)))
+	dFUN <- function(xi) FUN(xi, k) * FUN(xi, -k)
+	if (sensitivity)
+		out = dFUN(x)/ dFUN(x0)
+	else
+		out = FUN()
+	return(out)
+}
 
 LimMAP <- function(...)  logistic(...)
 

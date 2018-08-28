@@ -10,9 +10,10 @@ dats = list(control     = loadInputData(),
 			noCrop      = loadInputData(remove = c("crop")),
 			noPas       = loadInputData(remove = c("pas")),
 			noHumans    = loadInputData(remove = c("PopDen", "urban", "crop", "pas")),
-			noExclusion = loadInputData(remove = c("urban", "crop", "pas")))
+			noExclusion = loadInputData(remove = c("urban", "crop", "pas")),
+			sensitivity = loadInputData())
 				
-expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use')
+expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use', 'sensitivity')
 
 makeOrLoadEnsembles <- function(grab_cache = TRUE, invert = TRUE) {
 	
@@ -23,9 +24,20 @@ makeOrLoadEnsembles <- function(grab_cache = TRUE, invert = TRUE) {
 		
 		fnames =  paste(dname, names(dats), '.nc', sep = '')
 		
-		run <- function(dat, fname)
-			out = runIfNoFile(fname, runLimTREE, line, dat, test = grab_cache)
-		
+		run <- function(dat, fname) {
+			runCache <- function() {
+				out = runLimTREE(line, dat, sensitivity = FALSE)
+				if (grepl('sensitivity', fname)) {
+					
+					grad =  runLimTREE(line, dat, sensitivity = TRUE)
+					index = 1:(nlayers(grad) - 1)
+					grad = layer.apply(index, function(i) grad[[-1]][[i]] * prod(out[[-1]][[-i]]))
+					out = addLayer(out[[1]], grad)
+				}
+				return(out)
+			}
+			out = runIfNoFile(fname, runCache, test = grab_cache)
+		}
 		out = mapply(run, dats, fnames)
 	}
 
