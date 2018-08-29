@@ -43,8 +43,6 @@ xscale = list(1, param('max_mat') - param('min_mat'), 100, 100)
 xscale = list(1,1, 100, 100)
 xshift = list(0, param('min_mat'), 0, 0)
 
-plot_title = c('MAP', 'MAT', 'Disturbance', 'Exclusion')
-
 units = c('mm/yr', 'C', 'Disturbance area (%)', 'Land use (%)')
 
 

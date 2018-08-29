@@ -10,6 +10,7 @@ cols = c("white", "#AAAA00", "#003300")
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
 dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
 items = c(2:3, 5:6)
+
 ########################################
 ## load and analyes  			      ##
 ########################################
@@ -24,14 +25,10 @@ limits = c(0.1, 0.25, 0.5)
 cols = c("FF", "BB","88", "44", "00")
 	
 xy = xyFromCell(lim[[1]], 1:length(lim[[1]]))
-mlim = lapply(lim, mean)
-#mlim[[1 ]][] =  100
+mlim = lim
+
 nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
 nlim = lapply(mlim, '/', nlim)
-
-sen = lapply(sen, mean)
-#nsen = sen[[1]] + sen[[2]] + sen[[3]] + sen[[4]]
-#sen = lapply(sen, '/', nsen)
 
 plotMap <- function(x, fname = '', normalise = FALSE) {
 	fname = paste('figs/limPlot', fname, '.png', sep = '')
@@ -43,30 +40,24 @@ plotMap <- function(x, fname = '', normalise = FALSE) {
 				 6)
 	
 	layout(lmat, heights = c(1,1,2,0.5))
-	par(mar = rep(0,4))
-	
-	cutQuantuiles <- function(i) {
-		lims = quantile(i, c(0.25, 0.5, 0.75))
-		cut_results(i, lims)
-	}
-	
+	par(mar = rep(0,4))	
 	x = lapply(x, function(i) max.raster(i, na.rm = TRUE) * (i-min.raster(i, na.rm = TRUE))/diff(range.raster(i, na.rm = TRUE)))
-	#x = lapply(x, function(i) i[is.na(i)] = 1)
+	
 	x[c(1, 3)] = lapply(x[c(1, 3)], function(i) {i[1:20, 345:420][is.na(i[1:20, 345:420])] = max.raster(i, na.rm = TRUE); i})
 	x[c(2, 4)] = lapply(x[c(2, 4)], function(i) {i[1:20, 345:420][is.na(i[1:20, 345:420])] = quantile(i, 0.1); i})
-	#x = lapply(x, cutQuantuiles)
-	#x[[1]][] = 0
-	#x[[2]][] = 100
-	#x[[3]][] = 0
-	plotFun <- function(i, cols) {
+	
+	plotFun <- function(i, cols, title) {
 		plot_raster_from_raster(i, cols = cols, limits = seq(0.0, 1.0, 0.1), add_legend=FALSE, interior = FALSE)
 		addStandardLegend(i, seq(0.0, 1.0, 0.1) , cols, units = '')
+		mtext(side = 3, adj = 0.2, title, line = -1)
 	}
+	
+	
 	mapply(plotFun, x, 
 			cols = list(c("white", '#00FFFF', '#000011'),
 			            c("white", '#888800', "#001100"),
 						c("white", "#FF00FF", "#110000"),
-						c("white", "black")))
+						c("white", "black")), plot_title)
 	
 	
 	#2.5:4.5
@@ -88,7 +79,19 @@ plotMap <- function(x, fname = '', normalise = FALSE) {
 					   labs = c('<- Moisture', 'Fuel ->', 'Igntions ->', 'Land Use'))
 	dev.off.gitWatermark()
 }	
+plotMaps <- function(x, fname, ...) {
+	plotStuff <- function(ID1, ext, FUN1, FUN2) {
+		fname = paste(fname, ext, sep = '-')
+		x[[ID1]] = FUN1(x[[ID1]])
+		x[-ID1] = lapply(x[-ID1], FUN2)
+		plotMap(x, fname, ...)
+	}
+	plotStuff(1, 'mean', mean, mean)
+	mapply(plotStuff, 1:4, paste('max', 1:4), MoreArgs = list( function(i) max(i),  function(i) min(i)))
+	mapply(plotStuff, 1:4, paste('min', 1:4), MoreArgs = list( function(i) min(i),  function(i) max(i)))
+	
+}
 
-plotMap(mlim, 'standard')
-plotMap(nlim, 'potential')
-plotMap(sen, 'sensitivity', TRUE)
+plotMaps(mlim, 'standard')
+plotMaps(nlim, 'potential')
+plotMaps(sen, 'sensitivity', TRUE)
