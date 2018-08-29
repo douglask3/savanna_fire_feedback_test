@@ -45,12 +45,12 @@ plot_4way <- function(x, y, A, B, C, D, x_range = c(-180, 180), y_range = c(-90,
 		C[mag == 0] = 0.33
 		D[mag == 0] = 0.33
     } else {
-		Ai = (B + C)/2
-		Bi = (A + C)/2
-		Ci = (A + B)/2
-		A = Ai
-		B = Bi
-		C = Ci
+		#Ai = (B + C)/2
+		#Bi = (A + C)/2
+		#Ci = (A + B)/2
+		#A = Ai
+		#B = Bi
+		#C = Ci
 	}
 	
     out = rasterFromXYZ(cbind(x, y, D))
