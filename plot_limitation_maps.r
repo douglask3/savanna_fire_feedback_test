@@ -21,7 +21,7 @@ lim = lapply(items, function(i) 1-selectOutput(out, i)[[1]])
 sen = lapply(items, function(i)  tail(selectOutput(out, i), 1)[[1]])
 
 
-limits = c(0.1, 0.25, 0.5)
+limits = c(0.2, 0.4, 0.6, 0.8)
 cols = c("FF", "BB","88", "44", "00")
 	
 xy = xyFromCell(lim[[1]], 1:length(lim[[1]]))
@@ -40,7 +40,7 @@ plotMap <- function(x, fname = '', normalise = FALSE) {
 				 6)
 	
 	layout(lmat, heights = c(1,1,2,0.5))
-	par(mar = rep(0,4))	
+	par(mar = rep(0,4), oma = c(0,0,0.5, 0))	
 	x = lapply(x, function(i) max.raster(i, na.rm = TRUE) * (i-min.raster(i, na.rm = TRUE))/diff(range.raster(i, na.rm = TRUE)))
 	
 	x[c(1, 3)] = lapply(x[c(1, 3)], function(i) {i[1:20, 345:420][is.na(i[1:20, 345:420])] = max.raster(i, na.rm = TRUE); i})
@@ -48,8 +48,8 @@ plotMap <- function(x, fname = '', normalise = FALSE) {
 	
 	plotFun <- function(i, cols, title) {
 		plot_raster_from_raster(i, cols = cols, limits = seq(0.0, 1.0, 0.1), add_legend=FALSE, interior = FALSE)
-		addStandardLegend(i, seq(0.0, 1.0, 0.1) , cols, units = '')
-		mtext(side = 3, adj = 0.2, title, line = -1)
+		addStandardLegend(i, rev(seq(0.0, 1.0, 0.1) * 100) , cols, units = '')
+		mtext(side = 3, adj = 0.2, title, line = -1.15, cex = 1.5)
 	}
 	
 	

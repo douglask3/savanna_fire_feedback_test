@@ -4,7 +4,7 @@ plotStandardMap <- function(x, limits, cols, txt = '', add_legend = FALSE,...) {
                             transpose = FALSE, srt = 0,
                             plot_loc = c(0.35,0.83,0.01,0.04),
                             quick = TRUE, add_legend = add_legend, ...)
-    mtext(txt,side = 3, line = -1)
+    mtext(txt,side = 3, line = -1.5)
 }
 
 plotStandardMap.sd <- function(x, sc = 1, ...)
