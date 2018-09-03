@@ -31,25 +31,12 @@ png('figs/BA_impact.png', width = 5, height = 5, res = 300, unit = 'in')
 	#lines(x, 1-logistic(x, params[1, 'mort_x0'], -params[1, 'mort_k'])/logistic(0, params[1, 'mort_x0'], -params[1, 'mort_k']), col = 'red')
 	lines(x,x, lty = 2,lwd = 2)
 
-
-	openJulesTree <- function(dir, levels = c(1,2,5), varname = 'landCoverFrac') {
-		files = list.files(dir, full.names=TRUE)
-		yrs = sapply(files, function(i) strsplit(i, 'Monthly.')[[1]][2])
-		yrs = as.numeric(unlist(strsplit(yrs, '.nc')))
-		index = yrs >= 2000 & yrs <= 2014
-		files = files[index]
-		TC = layer.apply(files, process.jules.file, levels, varname)
-		TC = mean(TC)
-
-		TC = convert_pacific_centric_2_regular(TC)
-	}
-
 	Jules_fire_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-2/'
 	Jules_fire_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF2/'
 
-	Jules_fire = openJulesTree(Jules_fire_on_fname,  1, "burnt_area_gb") * 60 * 60 * 24 * 365
-	Jules_TC_fire_on = openJulesTree(Jules_fire_on_fname)
-	Jules_TC_fire_off = openJulesTree(Jules_fire_off_fname)
+	Jules_fire = openJulesTree(Jules_fire_on_LU_on_fname,  1, "burnt_area_gb") * 60 * 60 * 24 * 365
+	Jules_TC_fire_on = openJulesTree(Jules_fire_on_LU_on_fname)
+	Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_on_fname)
 
 	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))
 	#addPolygon(Jules_dout, Jules_fire)

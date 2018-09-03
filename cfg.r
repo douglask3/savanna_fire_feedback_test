@@ -33,3 +33,8 @@ paramFile = 'outputs/params.csv'
 extent = c(-180, 180, -30, 30)
 
 plot_title = c('MAP', 'MAT', 'Disturbance', 'Exclusion')
+
+Jules_fire_off_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S2/'
+Jules_fire_off_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S3/'
+Jules_fire_on_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF2/'
+Jules_fire_on_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-2/'
