@@ -16,7 +16,7 @@ dats = list(control     = loadInputData(),
 				
 expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use', 'sensitivity')
 
-makeOrLoadEnsembles <- function(grab_cache = TRUE, invert = TRUE) {
+makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE) {
 	
 
 	run_member <- function(line) {
