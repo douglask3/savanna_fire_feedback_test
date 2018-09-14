@@ -22,7 +22,7 @@ setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
-ensemble_no = round(seq(1,4200, length.out = 11) )
+ensemble_no = round(seq(1,4200, length.out = 6) )
 
 sourceAllLibs('libs/')
 sourceAllLibs('libs/LimTREE_r/')
