@@ -4,8 +4,7 @@
 source("cfg.r")
 graphics.off()
 
-breaks = seq(0.1, 0.8, 0.01)
-hrange = range(breaks)
+breaks_default = seq(0.1, 0.8, 0.01)
 axis_at = seq(0.1, 0.8, 0.1)
 
 anomilies = TRUE
@@ -41,10 +40,12 @@ addAnololie <- function(r_exp, r_obs, r_cnt, maxV = 0.8) {
 
 if (anomilies) aout = lapply(out,addAnololie, dat, out[[1]]) else aout = out
 
-
-plot_hist <- function(r, title, axis = TRUE, yline = NULL, poly = TRUE, maxY = NULL) {
+dout = lapply(out, function(i) i -out[[1]])
+plot_hist <- function(r, title, axis = TRUE, yline = NULL, poly = TRUE, maxY = NULL,
+				      breaks = breaks_default, hrange = range(breaks), log = '') {
 	print(maxY)
-	plot(hrange, c(0, 1.2), axes = FALSE, type = 'n', xlab = '', ylab = '')
+	if (log == 'y') yrange = c(0.001, 1.0) else yrange = c(0, 1.2)
+	plot(hrange, yrange, axes = FALSE, type = 'n', xlab = '', ylab = '', log = log)
 	if (axis) axis(1, at = axis_at, labels = axis_at * 100)
 	mtext(title, line = -3)
 	plotPoly <- function(v, alpha = 0.9, poly = TRUE) {
@@ -52,9 +53,9 @@ plot_hist <- function(r, title, axis = TRUE, yline = NULL, poly = TRUE, maxY = N
 		x = hr$mids
 		y = hr$density
 		if (is.null(maxY)) maxY = max(y)
-		#print(maxY)
-		y = y/maxY
 		
+		y = y/maxY
+		if (log == 'y') y[y < 0.001] = 0.001
 		if (poly) {
 			polygon(c(x, rev(x)), c(y, rep(0, length(y))),
 					border = NA, col =  make.transparent('black', alpha))
@@ -71,7 +72,6 @@ plot_hist <- function(r, title, axis = TRUE, yline = NULL, poly = TRUE, maxY = N
 	return(list(vr, maxY_out))
 }
 
-
 out = plot_hist(dat, 'obs', poly = FALSE)
 vdat = out[[1]][[1]]; maxY = out[[2]][[1]]
 
@@ -81,5 +81,13 @@ png(paste('figs/killer_histergrams', transform, '.png', sep = '-'), height = 9, 
 	par(mfrow = c(4,2), mar = c(0.45, 0.5, 0.1, 0.5), oma = c(2, 0.5, 0.4, 0.5))
 	mapply(plot_hist, aout[5:12], names(dats)[5:12], axis = c(rep(F, 6), T, T), 
 		   MoreArgs = list(vdat, maxY = maxY))
+	   
+dev.off.gitWatermark()
+
+png(paste('figs/shift_histergrams', transform, '.png', sep = '-'), height = 9, width = 7, unit = 'in', res = 200)
+
+	par(mfrow = c(4,2), mar = c(0.45, 0.5, 0.1, 0.5), oma = c(2, 0.5, 0.4, 0.5))
+	mapply(plot_hist, dout[5:12], names(dats)[5:12], axis = c(rep(F, 6), T, T), 
+		   MoreArgs = list(maxY = NULL, breaks = seq(0.01, 0.5, 0.01), log = ''))
 	   
 dev.off.gitWatermark()
