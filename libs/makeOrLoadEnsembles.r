@@ -11,6 +11,7 @@ dats = list(control     = loadInputData(),
 			noPas       = loadInputData(remove = c("pas")),
 			noHumans    = loadInputData(remove = c("PopDen", "urban", "crop", "pas")),
 			noExclusion = loadInputData(remove = c("urban", "crop", "pas")),
+			noMortality = loadInputData(remove = c("MTWM", "PopDen", "Drought", "BurntArea")),
 			sensitivity = loadInputData())
 				
 expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use', 'sensitivity')
