@@ -56,7 +56,7 @@ plotControl <- function(x, unlogX, xlim, xscale, xshift, x0, k, ksc, sc, title, 
 	
 	if (unlogX) xp = exp(x) else xp = x
 	xp = xp * xscale + xshift
-	quantileDesnityPoly(xp, y * 100, xlim)
+	quantileDesnityPoly(xp, y * 100/0.8, xlim, quantiles = c(0.9, 0.95, 0.99, 0.999))
 	
 	
 	xscale = rep(xscale, length.out = length(ensemble_no))
@@ -70,7 +70,7 @@ plotControl <- function(x, unlogX, xlim, xscale, xshift, x0, k, ksc, sc, title, 
 	
 	x0 = params[ensemble_no, x0]; k = params[ensemble_no,k]
 		
-	y  =  mapply(logistic, xd, x0, k * ksc)# * t(sc)
+	y  =  mapply(logistic, xd, x0, k * ksc) #* 0.8# * t(sc)
 	y = sweep(y, 2, sc, '*')
 	
 	if (ksc == -1) y = sweep(y, 2, logistic(0, x0, k*ksc), '/')
