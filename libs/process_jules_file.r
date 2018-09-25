@@ -1,6 +1,7 @@
 process.jules.file <- function(file, level, varName) {
 	
-	nc = nc_open(file)
+	nc = try(nc_open(file))
+	if (class(nc) == "try-error") return(NULL)
 	vars = names(nc$var)
 	
 	if (all(vars != varName)) {
@@ -36,7 +37,7 @@ process.jules.file <- function(file, level, varName) {
 		return(r)
 	}
 	
-	if (length(dim(dat)) == 2) r = layer.apply(1:12, monthizeData, singleLayer)
+	if (length(dim(dat)) == 2 && ncol(dat) == 12) r = layer.apply(1:12, monthizeData, singleLayer)
 		else if (length(dim(dat)) == 3) {
 			if (varName != "landCoverFrac") {
 				openWeightLayer <- function(fracLevel, varLevel) {
@@ -47,7 +48,7 @@ process.jules.file <- function(file, level, varName) {
 				ri = mapply(openWeightLayer, list(1, 2, 3:5, 6:8, 9), 1:5)
 				r = ri[[1]] + ri[[2]] + ri[[3]] + ri[[4]] + ri[[5]]				
 			} else r = layer.apply(1:12, monthizeData, multiLayer)
-		} else browser()
+		} else r = sum(rasterFromXYZ(cbind(lon, lat, dat))[[level]])
 	
 	return(r)
 }
