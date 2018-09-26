@@ -1,5 +1,5 @@
 process.jules.file <- function(file, level, varName) {
-	
+	print(file)
 	nc = try(nc_open(file))
 	if (class(nc) == "try-error") return(NULL)
 	vars = names(nc$var)

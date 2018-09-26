@@ -22,7 +22,7 @@ setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
-ensemble_no = round(seq(1,4200, length.out = 21) )
+ensemble_no = round(seq(1,4200, length.out = 51) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
@@ -39,3 +39,8 @@ Jules_fire_off_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-IN
 Jules_fire_off_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S3/'
 Jules_fire_on_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF2/'
 Jules_fire_on_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-2/'
+
+Jules_fire_on_LU_on_fnames = c(Jules_fire_on_LU_on_fname, 
+							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mortHlf/",
+							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort10th/",
+							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort100th/")
