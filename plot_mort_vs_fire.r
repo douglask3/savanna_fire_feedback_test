@@ -7,11 +7,6 @@ graphics.off()
 dat = loadInputData()
 params = read.csv(paramFile, stringsAsFactors=FALSE)
 
-Jules_fire_on_LU_on_fnames = c(Jules_fire_on_LU_on_fname, 
-							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mortHlf/",
-							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort10th/",
-							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort100th/")
-
 temp_file = 'temp/plot_mort_dat.Rd'
 grab_cache = TRUE
 
@@ -34,7 +29,7 @@ if (file.exists(temp_file) & grab_cache) {
 	out = selectOutput(out)
 
 	## Jules		   
-	Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
+	Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_on_fname)
 	Jules_fire = layer.apply(Jules_fire_on_LU_on_fnames, openJulesTree,  1, "burnt_area_gb") * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
 	Jules_fire = raster::resample(Jules_fire, Jules_TC_fire_off)
 	Jules_TC_fire_on = layer.apply(Jules_fire_on_LU_on_fnames, openJulesTree)
@@ -42,6 +37,7 @@ if (file.exists(temp_file) & grab_cache) {
 
 	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
 	Jules_dout =  squeeze(Jules_dout, 500)
+	Jules_dout[ Jules_dout < treeMin] = treeMin + treeMin/10
 	dout = lapply(out, function(i) 1-out[[1]]/i)
 	
 	save(out, Jules_TC_fire_off, Jules_fire, Jules_TC_fire_on, Jules_dout, dout, file = temp_file)
@@ -82,18 +78,18 @@ do_the_plot <- function(jules_fire, jules_dout, xaxis = FALSE, yaxis = FALSE, ad
 	#lines(x, 1-logistic(x, params[1, 'mort_x0'], -params[1, 'mort_k'])/logistic(0, params[1, 'mort_x0'], -params[1, 'mort_k']), col = 'red')
 	lines(x,x, lty = 2,lwd = 2)
 	
-	
+	jules_dout[ jules_dout < treeMin] = treeMin + treeMin/10
 	mask = !is.na(jules_fire + jules_dout) & jules_fire > fireMin & jules_dout > treeMin
 	k <- kde2d(log10(jules_fire[mask]), log10(jules_dout[mask]), n = c(100, 200))
 	k[[1]] = 10^k[[1]]
 	k[[2]] = 10^k[[2]]
 	if (normalise) {
-		ni = 10
+		ni = 5
 		
 		#browser()
 		#k[[3]] = apply(k[[3]], 2, function(i) i/sum(i))
 		k[[3]] = t(apply(k[[3]], 1, function(i) (i/sum(i))))
-	} else ni = 10
+	} else ni = 4
 	
 	#points(jules_fire[], jules_dout[], pch = 19 , col = make.transparent(col, 0.9), cex = 1)	
 	cols = rep('#0000FF', 100)
