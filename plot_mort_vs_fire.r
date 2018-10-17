@@ -8,7 +8,10 @@ dat = loadInputData()
 params = read.csv(paramFile, stringsAsFactors=FALSE)
 
 temp_file = 'temp/plot_mort_dat.Rd'
-grab_cache = TRUE
+grab_cache = FALSE
+
+fireMin = 0.0005
+treeMin = 0.0005
 
 linear.bounded <- function(x, a, b, minY = 0, maxY = 1) {
 	y = a * x + b 
@@ -43,8 +46,7 @@ if (file.exists(temp_file) & grab_cache) {
 	save(out, Jules_TC_fire_off, Jules_fire, Jules_TC_fire_on, Jules_dout, dout, file = temp_file)
 }
 
-fireMin = 0.0005
-treeMin = 0.0005
+
 
 
 ######################
@@ -128,11 +130,11 @@ do_the_plot <- function(jules_fire, jules_dout, xaxis = FALSE, yaxis = FALSE, ad
 
 plot_the_plot <- function(normalise) {
 	fname = paste('figs/fire_impact-normalise', normalise, '.png', sep = '')
-	png(fname, width = 6.5, height = 6.5, res = 300, unit = 'in')
-		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 2.5, 0, 1), mfrow = c(2,2))
+	png(fname, width = 6.5, height = 6.5*3/2, res = 300, unit = 'in')
+		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 3, 0, 1), mfrow = c(3,2))
 		do_the_plots <- function(i, ...) do_the_plot(Jules_fire[[i]], Jules_dout[[i]], ..., normalise = normalise)
-		mapply(do_the_plots, 1:nlayers(Jules_dout), c(F, F, T, T), c(T, F, T, F), c(T, F, F, F),
-			  c('JULES-RH', '1/2 Mortality', '1/10 Mortality', '1/100 Mortality'))
+		mapply(do_the_plots, 1:nlayers(Jules_dout), c(F, F, F, T, T), c(T, F, T, F, T), c(T, F, F, F, F),
+			  c('JULES-RH', '1/2 Mortality', '1/10 Mortality', '1/100 Mortality', '2:1 Grass:Tree'))
 		
 		mtext(side = 1, 'Burnt Area (%)'          , line = 1.5, outer = TRUE) #Land Use (%)
 		mtext(side = 2, 'Impact on Tree Cover (%)', line = 1.5, outer = TRUE)

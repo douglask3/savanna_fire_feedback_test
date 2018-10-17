@@ -13,6 +13,7 @@ library(RcppEigen)
 library(parallel)
 library(snow)
 library(reldist)
+library(MASS)
 data(worldHiresMapEnv)
 
 sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
@@ -36,11 +37,12 @@ extent = c(-180, 180, -30, 30)
 plot_title = c('MAP', 'MAT', 'Disturbance', 'Exclusion')
 
 Jules_fire_off_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S2/'
-Jules_fire_off_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S3/'
-Jules_fire_on_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF2/'
+Jules_fire_off_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort0/'
+Jules_fire_on_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3/'
 Jules_fire_on_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-2/'
 
 Jules_fire_on_LU_on_fnames = c(Jules_fire_on_LU_on_fname, 
 							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mortHlf/",
 							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort10th/",
-							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort100th/")
+							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort100th/",
+							   "../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-fracHalf/")
