@@ -39,13 +39,13 @@ plotExps <- function(fname, ExpID) {
 		layout(lmat, heights = c(1, 0.3, rep(1, p_rows), 0.3))
 		par(mar = rep(0, 4))
 		
-		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, '')
 		plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
-		addStandardLegend(out[[1]], limits, cols, add = FALSE)
-
-		mtext('Impact of ...', side = 1, line = 0, exp = NA)
-		mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID], MoreArgs = list(100, limits = dlimits, cols = dcols))
-		addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
+		plot.new()#addStandardLegend(out[[1]], limits, cols, add = FALSE)
+	
+		mtext('', side = 1, line = 0, exp = NA)
+		mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = '', MoreArgs = list(100, limits = dlimits, cols = dcols))
+		plot.new()#addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
 	dev.off.gitWatermark()
 
 	png(fname[2], height = 5 * (p_rows + 1.3)/4.6, width = 10, unit = 'in', res = 300)
@@ -55,15 +55,16 @@ plotExps <- function(fname, ExpID) {
 		
 		layout(lmat, heights = c(1, rep(1, p_rows), 0.3))
 		par(mar = rep(0, 4))
-		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+		plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, '')
 		
 		names = c('reconstructed', paste('No', expNames[ExpID]))	
-		mapply(plotStandardMap.sd, out[c(1,ExpID)], txt = names, MoreArgs = list(100, limits = limits, cols = cols))
-		addStandardLegend(out[[2]], limits, cols, add = FALSE)
+		mapply(plotStandardMap.sd, out[c(1,ExpID)], txt = '', MoreArgs = list(100, limits = limits, cols = cols))
+		plot.new()#addStandardLegend(out[[2]], limits, cols, add = FALSE)
 	dev.off.gitWatermark()
 }
 
-plotExps('mortalityAndExclusion', 5:12)
-plotExps('MAPvsNonClim', c(2,4))
-plotExps('allVars', 2:12)
+#plotExps('mortalityAndExclusion', 5:12)
+#plotExps('MAPvsNonClim', c(2,4))
+#plotExps('allVars', 2:12)
+plotExps('Controls', c(2, 3, 12, 13))
 	
