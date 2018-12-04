@@ -1,9 +1,10 @@
 loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
+	
 	files = list.files('data/')
 	files = files[grepl('.nc', files)]
 	
 	dat = lapply(paste('data', files, sep = '/'), raster)
-	names(dat) = unlist(strsplit(files, '.nc'))
+	names(dat) = unlist(strsplit(files, '.nc', fixed = TRUE))
 	
 	dat[['MAP']] = logmin(dat[['MAP']])
 	
