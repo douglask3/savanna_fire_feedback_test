@@ -1,9 +1,18 @@
 source("cfg.r")
 
+"
+MADD  = Mean Annual Dry Days
+MADDM = Mean Annual Dry Days of the Driest Month
+MADM  = Mean Annual Prciep of Dryiest Month
+MConc = Mean Annual Seasonal Concentration"
+
 data_dir  = "../LimFIRE/outputs/"
-variables = c("TreeCover" = "treecover2000-2014.nc", "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc", "MAP" = "Prc2000-2014.nc",
-			  "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc", "Drought" = "Prc2000-2014.nc", "PopDen" = "population_density2000-2014.nc",
-			  "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc", "pas" = "pasture2000-2014.nc")
+variables = c("TreeCover" = "treecover2000-2014.nc", "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc",
+			  "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc",
+			  "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc", "pas" = "pasture2000-2014.nc", 
+			  "PopDen" = "population_density2000-2014.nc", 
+			  "MAP_CRU" = "Prc2000-2014.nc", "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
+			  "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc")
 			  
 annualAverage <- function(...) mean(...)
 
@@ -39,7 +48,7 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 	return(list(SW1, SW2))
 }
 
-dryDays <- function(r, ...) {
+MADD <- function(r, ...) {
 	#out = PolarConcentrationAndPhase(r)[[2]]
 	out = annualAverageMax(r*(-1))
 	out = 1-(out * (-1)/mean(r))
@@ -48,15 +57,39 @@ dryDays <- function(r, ...) {
 	return(out)
 }
 
-FUNS = c("TreeCover" = annualAverage, "MAT" = annualAverage, "MTWM" = annualAverageMax, "MAP" = annualAverage12,
-			  "sunshine" = sunshineHours, "BurntArea" = annualAverage12, "Drought" = dryDays, "PopDen" = annualAverage,
-			  "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage)
+MDDM = function(r, ...) {
+	out =  1 + annualAverageMax(r * (-1))
+	return(out)
+}
+
+MADM = function(r, ...) {
+	out = annualAverageMax(r * (-1))
+	out = out * (-1)/annualAverage(r)
+	return(out)
+}
+
+MConc = function(r, ...) {
+	print("MConc")
+	out = PolarConcentrationAndPhase(r)[[2]]
+	browser()
+	return(out)
+}
+
+FUNS = c("TreeCover" = annualAverage, "MAT" = annualAverage, "MTWM" = annualAverageMax,
+		 "sunshine" = sunshineHours, "BurntArea" = annualAverage12, 
+		 "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage,"PopDen" = annualAverage, 
+		 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
+		 "MADM_CRU" = MADM, "MConc_CRU" = MConc)
 			  
-scaling = c("TreeCover" = 1/100, "MAT" = 1, "MTWM" = 1, "MAP" = 1,
-			  "sunshine" = 1, "BurntArea" = 1, "Drought" = 1, "PopDen" = 1,
-			  "urban" = 1/100, "crop" = 1/100, "pas" = 1/100)
+			  
+scaling = c("TreeCover" = 1/100, "MAT" = 1, "MTWM" = 1,
+			  "sunshine" = 1, "BurntArea" = 1,
+			  "urban" = 1/100, "crop" = 1/100, "pas" = 1/100, "PopDen" = 1,
+			  "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
+		      "MADM_CRU" = 1, "MConc_CRU" = 1)
 			  
 makeVar <- function(filename, FUN) {
+	print(filename)
 	r = brick(paste(data_dir, filename, sep = '/'))
 	r = FUN(r)
 	return(r)
@@ -69,6 +102,7 @@ mask = is.na(sum(layer.apply(ins, function(i) layer.apply(i, function(j) j))))
 writeVar <- function(nme, r, sc) {
 	writeSub <- function(nmei, ri) {
 		ri[mask] = NaN
+		print(fname)
 		fname = paste('data/', nmei, '.nc', sep = '')
 		ri =  crop(ri, extent(extent))
 		ri = ri * sc
