@@ -23,12 +23,21 @@ processProduct <- function(product) {
 		
 		if (!all(res(r) == c(0.5, 0.5))) r = raster::aggregate(r, 2)
 		
-		filename = paste0(data_dir, '/', product, '-',vname,'.nc') 
-		vname = filename.noPath(file, noExtension=TRUE)		
+		
+		vname = filename.noPath(file, noExtension=TRUE)
+		if          (vname == "01_annual_sum_final") vaname = "MAP"
+			else if (vname == "02_annual_dryf_final")  vname = "MADD"
+			else if (vname == "03_driestmonth_dryf_final") vname = "MDDM"
+			else if (vname == "04_pdm_final") vname = "MADM"
+			else if (vname == "06_seasoanl_concentration_final") vname = "MConc"
+			else browser()
+		filename = paste0(data_dir, '/', product, '_',vname,'.nc') 		
 		
 		r = writeRaster.gitInfo(r, filename,
 								comment = list(source='Based on data the amazing Li G processed for me. Regridded for 0.25 to 0.5', 
-										  file = 'make_precip.inputs.r'), overwrite = TRUE)
+										       src_file = 'make_precip.inputs.r',
+											   input_file = file), 
+								overwrite = TRUE)
 										  
 		plot(r)
 		mtext(paste(product, vname, sep = '-'), side = 3, line = -2)
