@@ -25,14 +25,17 @@ processProduct <- function(product) {
 		
 		
 		vname = filename.noPath(file, noExtension=TRUE)
-		if          (vname == "01_annual_sum_final") vaname = "MAP"
+		
+		if          (vname == "01_annual_sum_final") vname = "MAP"
 			else if (vname == "02_annual_dryf_final")  vname = "MADD"
 			else if (vname == "03_driestmonth_dryf_final") vname = "MDDM"
-			else if (vname == "04_pdm_final") vname = "MADM"
-			else if (vname == "06_seasoanl_concentration_final") vname = "MConc"
+			else if (vname == "04_pdm_final") {
+				r = 1 - r
+				vname = "MADM"
+		  } else if (vname == "06_seasoanl_concentration_final") vname = "MConc"
 			else browser()
-		filename = paste0(data_dir, '/', product, '_',vname,'.nc') 		
-		
+		filename = paste0(data_dir, '/', vname, '_',product,'.nc') 		
+		names(r) = NULL
 		r = writeRaster.gitInfo(r, filename,
 								comment = list(source='Based on data the amazing Li G processed for me. Regridded for 0.25 to 0.5', 
 										       src_file = 'make_precip.inputs.r',
