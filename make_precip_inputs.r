@@ -49,4 +49,4 @@ processProduct <- function(product) {
 	return(dat)	
 }
 
-lapply(products[2], processProduct)
+lapply(products, processProduct)
