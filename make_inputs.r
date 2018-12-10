@@ -64,14 +64,13 @@ MDDM = function(r, ...) {
 
 MADM = function(r, ...) {
 	out = annualAverageMax(r * (-1))
-	out = out * (-1)/annualAverage(r)
+	out = (out/annualAverage(r)) + 1
 	return(out)
 }
 
 MConc = function(r, ...) {
 	print("MConc")
 	out = PolarConcentrationAndPhase(r)[[2]]
-	browser()
 	return(out)
 }
 
@@ -88,6 +87,12 @@ scaling = c("TreeCover" = 1/100, "MAT" = 1, "MTWM" = 1,
 			  "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
 		      "MADM_CRU" = 1, "MConc_CRU" = 1)
 			  
+MinPoint = c("TreeCover" = 0, "MAT" = 0, "MTWM" = 0,
+			  "sunshine" = 0, "BurntArea" = 0,
+			  "urban" = 0, "crop" = 0, "pas" = 0, "PopDen" = 0,
+			  "MAP_CRU" = 0, "MADD_CRU" = 1, "MDDM_CRU" = 1,
+		      "MADM_CRU" = 1, "MConc_CRU" = 1)
+			  
 makeVar <- function(filename, FUN) {
 	print(filename)
 	r = brick(paste(data_dir, filename, sep = '/'))
@@ -97,16 +102,19 @@ makeVar <- function(filename, FUN) {
 
 ins = mapply(makeVar, variables, FUNS)
 
-mask = is.na(sum(layer.apply(ins, function(i) layer.apply(i, function(j) j))))
-
-writeVar <- function(nme, r, sc) {
+mask = sum(is.na(layer.apply(ins, function(i) layer.apply(i, function(j) j))), na.rm = TRUE)
+mask = mask > 3
+writeVar <- function(nme, r, sc, mp = 0.0) {
+	
 	writeSub <- function(nmei, ri) {
 		ri[mask] = NaN
-		print(fname)
+		ri[!mask & is.na(ri)] = mp
+		names(ri) = NULL
 		fname = paste('data/', nmei, '.nc', sep = '')
+		print(fname)
 		ri =  crop(ri, extent(extent))
 		ri = ri * sc
-		ri = writeRaster(ri, fname, overwrite = TRUE)
+		ri = writeRaster.gitInfo(ri, fname, zname = 'layer', overwrite = TRUE)
 		return(ri)
 	}
 	if (is.raster(r)) r = writeSub(nme, r)
@@ -117,7 +125,7 @@ writeVar <- function(nme, r, sc) {
 	return(r)
 }
 
-mapply(writeVar, names(variables), ins, scaling)
+mapply(writeVar, names(variables), ins, scaling, MinPoint)
 
 
 
