@@ -8,10 +8,15 @@ dat = loadInputData()
 params = read.csv(paramFile, stringsAsFactors=FALSE)
 
 temp_file = 'temp/plot_mort_dat.Rd'
-grab_cache = FALSE
+grab_cache = TRUE
 
 fireMin = 0.0005
 treeMin = 0.0005
+
+
+JULES_control     =  "data/JULES-mort/mort0/"
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortv", "mortc"))
+Experiment_names  = c("100% mortality", "PFT-specific mortaility", "PFT-specific + crop masking")
 
 linear.bounded <- function(x, a, b, minY = 0, maxY = 1) {
 	y = a * x + b 
@@ -31,11 +36,11 @@ if (file.exists(temp_file) & grab_cache) {
 	out = makeOrLoadEnsembles()	
 	out = selectOutput(out)
 
-	## Jules		   
-	Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_on_fname)
-	Jules_fire = layer.apply(Jules_fire_on_LU_on_fnames, openJulesTree,  1, "burnt_area_gb") * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
+	## Jules
+	Jules_TC_fire_off = openJulesTree(JULES_control)
+	Jules_fire = layer.apply(JULES_experiments, openJulesTree,  1, "burnt_area_gb") * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
 	Jules_fire = raster::resample(Jules_fire, Jules_TC_fire_off)
-	Jules_TC_fire_on = layer.apply(Jules_fire_on_LU_on_fnames, openJulesTree)
+	Jules_TC_fire_on = layer.apply(JULES_experiments, openJulesTree)
 		
 
 	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
@@ -45,9 +50,6 @@ if (file.exists(temp_file) & grab_cache) {
 	
 	save(out, Jules_TC_fire_off, Jules_fire, Jules_TC_fire_on, Jules_dout, dout, file = temp_file)
 }
-
-
-
 
 ######################
 ## plot				##
@@ -132,9 +134,14 @@ plot_the_plot <- function(normalise) {
 	fname = paste('figs/fire_impact-normalise', normalise, '.png', sep = '')
 	png(fname, width = 6.5, height = 6.5*3/2, res = 300, unit = 'in')
 		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 3, 0, 1), mfrow = c(3,2))
+        
+        y_axis = rep(c(T,F), length.out = nlayers(Jules_dout))
+        x_axis = c(rep(F, length.out = nlayers(Jules_dout)-2), T, T)
+        leg_ts = c(T, rep(F, length.out = nlayers(Jules_dout) - 1))
+        
 		do_the_plots <- function(i, ...) do_the_plot(Jules_fire[[i]], Jules_dout[[i]], ..., normalise = normalise)
-		mapply(do_the_plots, 1:nlayers(Jules_dout), c(F, F, F, T, T), c(T, F, T, F, T), c(T, F, F, F, F),
-			  c('JULES-RH', '1/2 Mortality', '1/10 Mortality', '1/100 Mortality', '2:1 Grass:Tree'))
+		mapply(do_the_plots, 1:nlayers(Jules_dout), x_axis, y_axis, leg_ts,
+			  Experiment_names)
 		
 		mtext(side = 1, 'Burnt Area (%)'          , line = 1.5, outer = TRUE) #Land Use (%)
 		mtext(side = 2, 'Impact on Tree Cover (%)', line = 1.5, outer = TRUE)
