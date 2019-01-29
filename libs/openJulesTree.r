@@ -1,4 +1,4 @@
-openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac') {
+openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac', splitPFTs = FALSE) {
 
 	files = list.files(dir, full.names=TRUE)
 	yrs = sapply(files, function(i) strsplit(i, 'Monthly.')[[1]][2])
@@ -7,9 +7,13 @@ openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac'
 	index = yrs >= 2000 & yrs <= 2014
 	
 	files = files[index]
-    
-	TC = layer.apply(files, process.jules.file, levels, varname)
-	TC = mean(TC)
-
+    openFun <- function(level) {
+        TC = layer.apply(files, process.jules.file, level, varname)
+        TC = mean(TC)
+        return(TC)
+    }
+    if (splitPFTs)  TC = layer.apply(levels, openFun)
+        else TC = openFun(levels)
 	TC = convert_pacific_centric_2_regular(TC)
+    return(TC)
 }
