@@ -1,5 +1,10 @@
+
 library(benchmarkMetrics)
-library(gitBasedProjects)
+source("../gitProjectExtras/gitBasedProjects/R/sourceAllLibs.r")
+sourceAllLibs('../gitProjectExtras/gitBasedProjects/R/')
+source('../gitProjectExtras/package_git2r.r')
+config(repository(), user.name="Douglas Kelley", user.email="douglas.i.kelley@gmail.com")
+
 library(raster)
 library(ncdf4)
 library(rasterExtras)
@@ -23,7 +28,7 @@ setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
-ensemble_no = round(seq(1,4200, length.out = 51) )
+ensemble_no = round(seq(1,4200, length.out = 6) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
