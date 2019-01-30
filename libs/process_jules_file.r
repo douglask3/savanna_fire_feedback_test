@@ -49,6 +49,6 @@ process.jules.file <- function(file, level, varName) {
 				r = ri[[1]] + ri[[2]] + ri[[3]] + ri[[4]] + ri[[5]]				
 			} else r = layer.apply(1:12, monthizeData, multiLayer)
 		} else r = sum(rasterFromXYZ(cbind(lon, lat, dat))[[level]])
-	
+        	
 	return(r)
 }
