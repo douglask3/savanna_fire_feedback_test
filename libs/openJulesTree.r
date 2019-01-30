@@ -14,6 +14,7 @@ openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac'
     }
     if (splitPFTs)  TC = layer.apply(levels, openFun)
         else TC = openFun(levels)
-	TC = convert_pacific_centric_2_regular(TC)
+    TC = convert_pacific_centric_2_regular(TC)
+    TC = raster::crop(TC, extent(c(-180, 180, -30, 30)))    
     return(TC)
 }
