@@ -15,8 +15,8 @@ treeMin = 0.0005
 
 
 JULES_control     =  "data/JULES-mort/mort0/"
-JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortv", "mortc"))
-Experiment_names  = c("100% mortality", "PFT-specific mortaility", "PFT-specific + crop masking")
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortv", "mortc", "mortr"))
+Experiment_names  = c("100% mortality", "PFT-specific mortaility", "PFT-specific + crop masking", "increased recovery rate")
 
 linear.bounded <- function(x, a, b, minY = 0, maxY = 1) {
 	y = a * x + b 
@@ -47,7 +47,7 @@ if (file.exists(temp_file) & grab_cache) {
 	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
 	Jules_dout =  squeeze(Jules_dout, 500)
 	#Jules_dout[ Jules_dout < treeMin] = treeMin + treeMin/10
-	#dout = lapply(out, function(i) 1-out[[1]]/i)
+	dout = lapply(out, function(i) 1-out[[1]]/i)
 	
 	save(out, Jules_TC_fire_off, Jules_fire, Jules_TC_fire_on, Jules_dout, dout, Jules_PFTs, file = temp_file)
 }
@@ -58,16 +58,16 @@ if (file.exists(temp_file) & grab_cache) {
 do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE, title = '', normalise = FALSE, log = '')  {
     if (log != 'xy') 
         treeMin = -1
-    else
-        jules_dout[ jules_dout < treeMin] = treeMin + treeMin/10
+    #else
+    #    jules_dout[ jules_dout < treeMin] = treeMin + treeMin/10
     
 	mask = !is.na(jules_fire + jules_dout) & jules_fire > fireMin & jules_dout > treeMin
     
     
     addPFT <- function(i) {
-        plot(c(fireMin, 1), c(treeMin, 1), axes = FALSE, xlab = '', ylab = '', xaxs = 'i', yaxs = 'i', log = log, type ='n')
+        plot(c(fireMin, 1), c(treeMin, 1), axes = FALSE, xlab = '', ylab = '', log = log, type ='n')#, xaxs = 'i', yaxs = 'i'
         if (i == 1) {
-            mtext(title, line = 2.5, side = 2)
+            mtext(title, line = 3.5, side = 2)
             axis(2)
         }
         if (yaxis) axis(1)
@@ -79,17 +79,6 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
         labels = labs * 100
         nolabels = rep('', length(labs))
         
-       # add_axis <- function(test, side, lab) {
-       # 
-       #     if (test) labels = labels
-       #         else labels = nolabels
-       # 
-       #     axis(side, at = labs, labels = labels) 
-       # }
-        
-       # add_axis(xaxis, 1, 'Burnt Area (%)')
-       # add_axis(yaxis, 2, 'Impact on Tree Cover (%)')
-        
         addPolygon <- function(y, x = dat[["BurntArea"]]) {  # dat[['crop']] + dat[['pas']]
             quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.0 , 1.0), between = TRUE, xlog = TRUE, col = make.transparent('black', 0.99))
             quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.1 , 0.9), between = TRUE, xlog = TRUE, col = make.transparent('#330000', 0.99))
@@ -97,17 +86,19 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
         }
         layer.apply(dout[[5]] / 0.8, addPolygon) #12
         x = 10^(seq(-5, 1, 0.01))
-        #lines(x, 1-logistic(x, params[1, 'mort_x0'], -params[1, 'mort_k'])/logistic(0, params[1, 'mort_x0'], -params[1, 'mort_k']), col = 'red')
         lines(x,x, lty = 2,lwd = 2)
 	
 	
-        jules_dout = jules_dout[[i]]
-        jules_fire = raster::crop(jules_fire, extent(-180, 180, -30, 30))
-        jules_dout = raster::crop(jules_dout, extent(-180, 180, -30, 30))
-        mask = raster::crop(mask, extent(-180, 180, -30, 30))
+        pft_frac = Jules_PFTs[[i]]   
+    
+        x = jules_fire[mask]
+        y = jules_dout[mask]
+        w = pft_frac[mask]
+        w[is.na(w)] = 0.0
+       
         
         if (log == 'xy') {
-            k <- kde2d(log10(jules_fire[mask]), log10(jules_dout[mask]), n = c(100, 200))
+            k <- kde2d(log10(x), log10(y), n = c(100, 200))
             k[[1]] = 10^k[[1]]
             k[[2]] = 10^k[[2]]
         } else {
@@ -119,18 +110,27 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
             #browser()
             #k[[3]] = apply(k[[3]], 2, function(i) i/sum(i))
             k[[3]] = t(apply(k[[3]], 1, function(i) (i/sum(i))))
-        } else ni = 4
-        
-        #points(jules_fire[], jules_dout[], pch = 19 , col = make.transparent(col, 0.9), cex = 1)	
-        cols = rep("#0000FF", 100)
-        cols = mapply(make.transparent, cols, seq(1.0, 0.5, length.out = length(cols)))
-        
-       
-        for (i in 1:ni) image(k, col=cols, add = TRUE)
-	}
-    jules_dout = addLayer(jules_dout, jules_dout * Jules_PFTs)
+            cols = rep("#0000FF", 100)
+            cols = mapply(make.transparent, cols, seq(1.0, 0.5, length.out = length(cols)))
+            for (i in 1:ni) image(k, col=cols, add = TRUE)
+        } else {
+            x0 = x
+            y0 = y
+            index = sample(1:length(x), size = length(x)*3, prob = w, replace = TRUE)
+            x = x[index]
+            y = y[index]
+
+            cols = unique(unlist(lapply(1:6,function(i) make_col_vector(rev(blues9)[i:(i+1)], ncols = 8-i))))
+            cols = unlist(lapply(1:8,function(i) rep(rev(blues9)[i], 9-i)))
+            cols = densCols(log10(x),log10(y), colramp = colorRampPalette(rev(cols)), bandwidth = 0.02)
+            points(y~x, pch = 20, cex = 2, col = make.transparent(cols, 0.67))
+        }	
+
+    }
+    Jules_PFTs = addLayer(sum(Jules_PFTs), Jules_PFTs) 
+    Jules_PFTs = Jules_PFTs/Jules_PFTs[[1]]
      
-    layer.apply(1:nlayers(jules_dout), addPFT)
+    layer.apply(1:nlayers(Jules_PFTs), addPFT)
     
 	if (addLegend) {
 		legendFun <- function(col1, col2 = '#00000000', lwd, bty = 'n')
@@ -147,26 +147,14 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
 			   legendFun(make.transparent('red', 0.98), make.transparent('blue', 0.98), lwd = 6)
 			   legendFun(make.transparent('red', 0.98), make.transparent('blue', 0.98), lwd = 3)
 		 }
-		#for (i in 1:10) legendFun(col1 = '#00000000', make.transparent('blue', 0.8), i)
 	}   
-	#x = log10(jules_fire[mask])#jules_fire[mask]#
-	#y = jules_dout[mask]
-	
-	#fit = nls(y ~ a * logistic(x, x0, k), start = c(x0 = -1, k = 6, a = 1), lower = c(-3, 0, a = 0.5), algorithm = "port")
-	#fit = lm(y~x)
-		
-	#xp = seq(-5, 1, length.out = 1001)#seq(0, 100, 1)
-	#yp = predict(fit, data.frame(x = xp))
-		
-	#xp = 10^xp
-	#lines(xp, yp, col = col, lwd = 2)
 }
 
 plot_the_plot <- function(normalise, log = '') {
 	fname = paste('figs/fire_impact-normalise', normalise, log,'.png', sep = '')
     nrows =  nlayers(Jules_PFTs) + 1; ncols = length(Experiment_names)
 	png(fname, width = 3.25 * nrows, height = 3.25 * ncols, res = 300, unit = 'in')
-		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 3, 0, 1), mfrow = c(ncols, nrows))
+		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 4, 0, 1), mfrow = c(ncols, nrows))
         
         y_axis = rep(c(T,F), length.out = nlayers(Jules_dout))
         y_axis = c(rep(F, length.out = nlayers(Jules_dout)-1), T)
@@ -178,9 +166,9 @@ plot_the_plot <- function(normalise, log = '') {
 		
 		mtext(side = 1, 'Burnt Area (%)'          , line = 1.5, outer = TRUE) #Land Use (%)
 		mtext(side = 2, 'Impact on Tree Cover (%)', line = 1.5, outer = TRUE)
-	dev.off.gitWatermark(x = 1.01)
+	dev.off()#.gitWatermark(x = 1.01)
 }
 
-plot_the_plot(TRUE)
-#plot_the_plot(FALSE, log = 'xy')
+#plot_the_plot(TRUE)
 plot_the_plot(FALSE)
+plot_the_plot(FALSE, log = 'xy')
