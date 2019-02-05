@@ -35,19 +35,28 @@ processProduct <- function(product) {
             } else if (vname == "06_seasonal_concentration_final" || vname == "06_seasoanl_concentration_final") vname = "MConc"
             else browser()
         
-        filename = paste0(data_dir, '/', vname, '_',product,'.nc') 		
+        filename = paste0(data_dir, '/pr_data/', vname, '_',product,'.nc') 		
         names(r) = NULL
-        r = writeRaster.gitInfo(r, filename,
-                                comment = list(source='Based on data the amazing Li G processed for me. Regridded for 0.25 to 0.5', 
-                                src_file = 'make_precip.inputs.r',
-                                input_file = file), 
-                                overwrite = TRUE)
+        r = writeRaster(r, filename, overwrite = TRUE)
 										  
         plot(r)
         mtext(paste(product, vname, sep = '-'), side = 3, line = -2)
+        return(r)
     }
     dat = lapply(files, process_file)
     return(dat)	
 }
 
-lapply(products, processProduct)
+dats = lapply(products, processProduct)
+r = dats[[1]][[1]]
+for (i in dats) for (j in i) r = raster::crop(r, j)
+
+cropAndReout <- function(x) {
+    fname = filename(x)
+    r = raster::resample(x, r)
+    r = writeRaster(r, fname, overwrite = TRUE)
+    return(r)
+}
+
+dats = lapply(dats, lapply, cropAndReout)
+
