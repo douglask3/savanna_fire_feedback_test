@@ -18,14 +18,6 @@ JULES_control     =  "data/JULES-mort/mort0/"
 JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortv", "mortc", "mortr"))
 Experiment_names  = c("100% mortality", "PFT-specific mortaility", "PFT-specific + crop masking", "increased recovery rate")
 
-linear.bounded <- function(x, a, b, minY = 0, maxY = 1) {
-	y = a * x + b 
-	y[y>maxY] = maxY
-	y[y<minY] = minY
-	return(y)
-}
-
-squeeze <- function(x, ns = 100) x = ((ns - 1) * x + 0.5)/ns
 ######################
 ## open				##
 ######################	
@@ -67,7 +59,7 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
     addPFT <- function(i) {
         plot(c(fireMin, 1), c(treeMin, 1), axes = FALSE, xlab = '', ylab = '', log = log, type ='n')#, xaxs = 'i', yaxs = 'i'
         if (i == 1) {
-            mtext(title, line = 3.5, side = 2)
+            mtext(title, line = 2, side = 2)
             axis(2)
         }
         if (yaxis) axis(1)
@@ -154,7 +146,7 @@ plot_the_plot <- function(normalise, log = '') {
 	fname = paste('figs/fire_impact-normalise', normalise, log,'.png', sep = '')
     nrows =  nlayers(Jules_PFTs) + 1; ncols = length(Experiment_names)
 	png(fname, width = 3.25 * nrows, height = 3.25 * ncols, res = 300, unit = 'in')
-		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 4, 0, 1), mfrow = c(ncols, nrows))
+		par(mar = c(1, 1, 1.5, 0), oma = c(2.5, 5, 0, 1), mfrow = c(ncols, nrows))
         
         y_axis = rep(c(T,F), length.out = nlayers(Jules_dout))
         y_axis = c(rep(F, length.out = nlayers(Jules_dout)-1), T)
@@ -165,7 +157,7 @@ plot_the_plot <- function(normalise, log = '') {
 			  Experiment_names)
 		
 		mtext(side = 1, 'Burnt Area (%)'          , line = 1.5, outer = TRUE) #Land Use (%)
-		mtext(side = 2, 'Impact on Tree Cover (%)', line = 1.5, outer = TRUE)
+		mtext(side = 2, 'Impact on Tree Cover (%)', line = 4, outer = TRUE)
 	dev.off()#.gitWatermark(x = 1.01)
 }
 
