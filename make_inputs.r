@@ -1,4 +1,4 @@
-source("cfg.r")
+source("make_precip_inputs.r")
 
 "
 MADD  = Mean Annual Dry Days
@@ -102,19 +102,31 @@ makeVar <- function(filename, FUN) {
 
 ins = mapply(makeVar, variables, FUNS)
 
-mask = sum(is.na(layer.apply(ins, function(i) layer.apply(i, function(j) j))), na.rm = TRUE)
-mask = mask > 3
+ins_all = c(unlist(ins), unlist(pr_ins))
+
+mask = is.na(ins_all[[1]][[1]])
+for (i in ins_all[-1]) {
+    i0 = i
+    mask = raster::crop(mask, i)
+    i = raster::crop(i, mask)
+    mask = mask + is.na(i)
+}
+mask = mask > 3    
+
 writeVar <- function(nme, r, sc, mp = 0.0) {
 	
 	writeSub <- function(nmei, ri) {
+                ri = raster::crop(ri, mask)
 		ri[mask] = NaN
 		ri[!mask & is.na(ri)] = mp
 		names(ri) = NULL
-		fname = paste('data/', nmei, '.nc', sep = '')
+		fname = paste('data/driving_Data/', nmei, '.nc', sep = '')
 		print(fname)
 		ri =  crop(ri, extent(extent))
 		ri = ri * sc
-		ri = writeRaster.gitInfo(ri, fname, zname = 'layer', overwrite = TRUE)
+		ri = writeRaster.gitInfo(ri, fname, zname = 'layer',
+                                         comment = list(src_file = 'make_inputs.r'),  
+                                         overwrite = TRUE)
 		return(ri)
 	}
 	if (is.raster(r)) r = writeSub(nme, r)
@@ -127,6 +139,15 @@ writeVar <- function(nme, r, sc, mp = 0.0) {
 
 mapply(writeVar, names(variables), ins, scaling, MinPoint)
 
+maskAndReout_pr <- function(r) {
+    fname = filename(r)
+    r = raster::crop(r, mask)
+    r[mask] = NaN
+    r = writeRaster.gitInfo(r, fname, zname = 'layer',
+                            comment = list(source='Based on data the amazing Li G processed for me. Regridded for 0.25 to 0.5', 
+                                           src_file = 'make_inputs.r'), 
+                            overwrite = TRUE)
+    return(r)
+}
 
-
-
+dats = lapply(unlist(pr_ins), maskAndReout_pr)

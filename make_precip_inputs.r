@@ -35,7 +35,7 @@ processProduct <- function(product) {
             } else if (vname == "06_seasonal_concentration_final" || vname == "06_seasoanl_concentration_final") vname = "MConc"
             else browser()
         
-        filename = paste0(data_dir, '/pr_data/', vname, '_',product,'.nc') 		
+        filename = paste0(data_dir, '/driving_Data/', vname, '_',product,'.nc') 		
         names(r) = NULL
         r = writeRaster(r, filename, overwrite = TRUE)
 										  
@@ -47,16 +47,5 @@ processProduct <- function(product) {
     return(dat)	
 }
 
-dats = lapply(products, processProduct)
-r = dats[[1]][[1]]
-for (i in dats) for (j in i) r = raster::crop(r, j)
-
-cropAndReout <- function(x) {
-    fname = filename(x)
-    r = raster::resample(x, r)
-    r = writeRaster(r, fname, overwrite = TRUE)
-    return(r)
-}
-
-dats = lapply(dats, lapply, cropAndReout)
+pr_ins = lapply(products, processProduct)
 
