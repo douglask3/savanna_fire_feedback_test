@@ -4,7 +4,7 @@
 source("cfg.r")
 graphics.off()
 
-precip_dir = '~/../Google Drive/disturbance/processed rainfall data/overlap period 2000-2013/'
+precip_dir = 'data/pr_data/'
 
 products = list.files(precip_dir)
 products = products[!grepl('.ini', products)]
@@ -32,7 +32,7 @@ processProduct <- function(product) {
 			else if (vname == "04_pdm_final") {
 				r = 1 - r
 				vname = "MADM"
-		  } else if (vname == "06_seasoanl_concentration_final") vname = "MConc"
+		  } else if (vname == "06_seasonal_concentration_final" || vname == "06_seasoanl_concentration_final") vname = "MConc"
 			else browser()
 		filename = paste0(data_dir, '/', vname, '_',product,'.nc') 		
 		names(r) = NULL
