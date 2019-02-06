@@ -3,7 +3,7 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
 	files = list.files('data/driving_Data/')
 	files = files[grepl('.nc', files)]
 	
-	dat = lapply(paste('data', files, sep = '/'), raster)
+	dat = lapply(paste('data/driving_Data/', files, sep = '/'), raster)
 	names(dat) = unlist(strsplit(files, '.nc', fixed = TRUE))
 	
     MAP_vars = grepl("MAP_", names(dat))

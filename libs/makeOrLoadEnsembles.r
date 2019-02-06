@@ -16,21 +16,25 @@ dats = list(control     = loadInputData(),
 				
 expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'fire', 'Rainfall Distribution', 'temperature stress', 'population effect', 'urban area', 'cropland', 'pasture', 'humans', 'land use', 'sensitivity')
 
-makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE) {
+makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
+                                pr_dataset = 'MSWEP', drought_var = 'MADD') {
 	
 
 	run_member <- function(line) {
-		dname = paste(ens_dir, 'ensemble_', line, '/', sep = '')
-		makeDir(dname)
-		
+		dname = paste0(ens_dir, 'ensemble_', pr_dataset, '_', drought_var, '-', line, '/')
+		makeDir(dname)	        	
 		fnames =  paste(dname, names(dats), '.nc', sep = '')
+                paramFile = paste0(paramFile, '_', pr_dataset, '_', drought_var, '.csv')
 		
 		run <- function(dat, fname) {
-			runCache <- function() {
-				out = runLimTREE(line, dat, sensitivity = FALSE)
+                        pr_dat = dat[grepl(pr_dataset,names(dat))] 
+                        dat['MAP']     = pr_dat[grepl('MAP_'     , names(pr_dat))]
+                        dat['Drought'] = pr_dat[grepl(drought_var, names(pr_dat))]
+
+			runCache <- function() {                                                                                out = runLimTREE(line, paramFile, dat, sensitivity = FALSE)
 				if (grepl('sensitivity', fname)) {
 					
-					grad =  runLimTREE(line, dat, sensitivity = TRUE)
+					grad =  runLimTREE(line, paramFile, dat, sensitivity = TRUE)
 					index = 1:(nlayers(grad) - 1)
 					grad = layer.apply(index, function(i) grad[[-1]][[i]] * prod(out[[-1]][[-i]]))
 					out = addLayer(out[[1]], grad)
