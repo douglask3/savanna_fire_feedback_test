@@ -1,15 +1,26 @@
 loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
 	
-	files = list.files('data/')
+	files = list.files('data/driving_Data/')
 	files = files[grepl('.nc', files)]
 	
 	dat = lapply(paste('data', files, sep = '/'), raster)
 	names(dat) = unlist(strsplit(files, '.nc', fixed = TRUE))
 	
-	dat[['MAP']] = logmin(dat[['MAP']])
+    MAP_vars = grepl("MAP_", names(dat))
+	dat[MAP_vars] = lapply(dat[MAP_vars], logmin)
 	
 	replaceVar <- function(vname, replace) {
-		dat[[vname]][!is.na(dat[[vname]])] = replace
+        if (vname == "Drought") {
+            for (i in c("MADD_", "MADM_", "MDDM_", "MConc_"))
+                dat = replaceVar(i, replace)
+            
+        } else {
+            vars = grepl(vname, names(dat))
+            repl <- function(i) 
+                i[!is.na(i)] = replace
+                
+            dat[vars] = lapply(dat[vars], repl)
+        }
 		return(dat)
 	}	
 	
@@ -22,6 +33,5 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
 	if (!is.null(replace))
 		for (i in 1:length(replace)) dat = replaceVar(names(replace)[i], replace[i])
 		
-	
 	return(dat)
 }
