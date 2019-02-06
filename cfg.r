@@ -28,7 +28,7 @@ setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
-ensemble_no = round(seq(1,240000, length.out = 11) )
+ensemble_no = round(seq(1,240000, length.out = 101) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
@@ -43,7 +43,7 @@ drought_vars = c('MADD', 'MADM', 'MConc', 'MDDM')
 paramFile = 'outputs/params'
 
 
-plot_title = c('MAP', 'MAT', 'Disturbance', 'Exclusion')
+plot_title = c('MAP', 'MAT', 'Stress', 'Exclusion')
 
 Jules_fire_off_LU_off_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-S2/'
 Jules_fire_off_LU_on_fname = '../fireMIPbenchmarking/data/ModelOutputs/JULES-INFERNO-SF3-mort0/'
