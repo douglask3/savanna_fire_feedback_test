@@ -28,7 +28,7 @@ setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
-ensemble_no = round(seq(1,240000, length.out = 6) )
+ensemble_no = round(seq(1,240000, length.out = 11) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
