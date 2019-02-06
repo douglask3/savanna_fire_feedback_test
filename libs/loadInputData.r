@@ -8,17 +8,18 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
 	
     MAP_vars = grepl("MAP_", names(dat))
     dat[MAP_vars] = lapply(dat[MAP_vars], logmin)
-	
+    	
     replaceVar <- function(vname, replace) {
         if (vname == "Drought") {
             for (i in c("MADD_", "MADM_", "MDDM_", "MConc_"))
                 dat = replaceVar(i, replace)
             
-        } else {
+        } else {            
             vars = grepl(vname, names(dat))
-            repl <- function(i) 
+            repl <- function(i) {
                 i[!is.na(i)] = replace
-                
+                return(i)
+            }
             dat[vars] = lapply(dat[vars], repl)
         }
 	return(dat)
