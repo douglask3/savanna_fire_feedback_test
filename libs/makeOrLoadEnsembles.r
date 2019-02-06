@@ -21,8 +21,11 @@ makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
 	
 
 	run_member <- function(line) {
-		dname = paste0(ens_dir, 'ensemble_', pr_dataset, '_', drought_var, '-', line, '/')
-		makeDir(dname)	        	
+		dname = paste0(ens_dir, pr_dataset, '_', drought_var, '/')
+		makeDir(dname)	    
+                dname = paste0(dname, 'sample_', line, '/')
+		makeDir(dname)
+    	
 		fnames =  paste(dname, names(dats), '.nc', sep = '')
                 paramFile = paste0(paramFile, '_', pr_dataset, '_', drought_var, '.csv')
 		
