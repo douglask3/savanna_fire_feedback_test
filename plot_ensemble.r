@@ -11,18 +11,11 @@ dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
 dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
 
 ########################################
-## load and analyes  			      ##
-########################################
-out = makeOrLoadEnsembles()	
-out = selectOutput(out)
-dout = lapply(out[-1], function(i) out[[1]] - i)
-
-########################################
 ## plot              			      ##
 ########################################
 
-plotExps <- function(fname, ExpID) {
-	fname = paste('figs/TreeCover_ensemble_summary-', fname, c('-diff', '-abs'), '.png')
+plotExps <- function(fname, ExpID, out, dout) {
+	fname = paste0('figs/TreeCover_ensemble_summary-', fname, c('-diff', '-abs'), '.png')
 	
 	ExpIDp = 1:length(ExpID)
 	if (!is.even(length(ExpID))) ExpIDp = c(ExpIDp, NaN)
@@ -63,8 +56,24 @@ plotExps <- function(fname, ExpID) {
 	dev.off.gitWatermark()
 }
 
-#plotExps('mortalityAndExclusion', 5:12)
-#plotExps('MAPvsNonClim', c(2,4))
-#plotExps('allVars', 2:12)
-plotExps('Controls', c(2, 3, 12, 13))
-	
+PlotAllExperiments <- function(...) {
+    ########################################
+    ## load and analyes  		  ##
+    ######################################## 
+    out = makeOrLoadEnsembles(...)	
+    out = selectOutput(out)
+    dout = lapply(out[-1], function(i) out[[1]] - i)
+
+       
+    plotExps_fun <- function(name, ExpID) {
+        fname = paste(name, ..., sep = '-') 
+        plotExps(fname, ExpID, out = out, dout = dout)
+    }
+
+    #plotExps_fun('mortalityAndExclusion', 5:12)
+    #plotExps_fun('MAPvsNonClim', c(2,4))
+    #plotExps_fun('allVars', 2:12)
+    plotExps_fun('Controls', c(2, 3, 12, 13))
+}
+
+runAll_pr_droughts(PlotAllExperiments)	
