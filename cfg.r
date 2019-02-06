@@ -35,9 +35,13 @@ sourceAllLibs('libs/')
 sourceAllLibs('libs/LimTREE_r/')
 sourceAllLibs('libs/plotting/')
 
+extent = c(-180, 180, -30, 30)
+
+pr_datasets  = c('MSWEP', 'CRU', 'GPCC', 'CMORPH')
+drought_vars = c('MADD', 'MADM', 'MConc', 'MDDM')
+
 paramFile = 'outputs/params'
 
-extent = c(-180, 180, -30, 30)
 
 plot_title = c('MAP', 'MAT', 'Disturbance', 'Exclusion')
 
