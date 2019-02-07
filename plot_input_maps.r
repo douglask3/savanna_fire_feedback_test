@@ -7,10 +7,10 @@ dats = dats[[1]]
 ## figure S1 ##
 ###############
 
-plot_vars = c(    c("A  Tree cover" = "TreeCover", "B  MAP" = "MAP_MSWEP", "MAT" = "MAT"),
-                  c("C  Rainfall distribution" = "MADD_MSWEP", "E  Burnt are" = "BurntArea", "D  MxMTWM" = "MTWM"),
-                  c("F  Population Density" = "PopDen", "G  Urban Area" = "urban", "H  Cropland Area" = "crop"),
-                  c("NaN" = "None", "NaN" = "None", "I  Pasture Area" = "pas"))
+plot_vars = c(    c("A  Tree cover" = "TreeCover", "B  MAP" = "MAP_MSWEP", "C MAT" = "MAT"),
+                  c("D  Rainfall distribution" = "MADD_MSWEP", "E  Burnt are" = "BurntArea", "F  MxMTWM" = "MTWM"),
+                  c("G  Population Density" = "PopDen", "H  Urban Area" = "urban", "I  Cropland Area" = "crop"),
+                  c("NaN" = "None", "NaN" = "None", "J  Pasture Area" = "pas"))
 
 units   = list('%', 'mm/yr', '~DEG~C', '', '%', '~DEG~C',
                "people/k~m2~", '%', '%', '', '', '%')
