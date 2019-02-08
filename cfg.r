@@ -31,7 +31,7 @@ ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
 
 
-ensemble_no = round(seq(1,4200, length.out = 51) )
+ensemble_no = round(seq(1,4200, length.out = 101) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
