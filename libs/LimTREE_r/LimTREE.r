@@ -1,7 +1,7 @@
-runLimTREE <- function(line, dat = NULL, ...) {
+runLimTREE <- function(line, paramFile, dat = NULL, ...) {
 	if (is.null(dat)) 
 		dat = loadInputData()
-		
+        
 	params = read.csv(paramFile, stringsAsFactors=FALSE)[line,]
 	params = unlist(params)
 	
