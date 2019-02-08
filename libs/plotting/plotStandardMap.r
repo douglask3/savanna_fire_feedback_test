@@ -14,5 +14,5 @@ plotStandardMap <- function(x, limits, cols, txt = '', add_legend = FALSE, mtext
 
 plotStandardMap.sd <- function(x, sc = 1, ...)
 	plotStandardMap(mean(x) * sc, e = sd.raster(x),
-                        ePatternRes = 35, ePatternThick = 0.4, 
+                        ePatternRes = 35, ePatternThick = 0.3, 
                         limits_error = c(0.1, 0.25),...)
