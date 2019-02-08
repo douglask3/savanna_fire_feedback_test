@@ -4,7 +4,7 @@
 source("cfg.r")
 graphics.off()
 
-limits = c(1, 10, 20, 30, 40, 50, 60, 70)
+limits = c(1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
 cols = c("white", "#AAAA00", "#003300")
 
 dlimits = c(1, 2, 5, 10, 20, 40)
@@ -31,7 +31,7 @@ plotExps <- function(fname, ExpID, out, dout) {
 	layout(lmat, heights = c(1, 0.3, rep(1, p_rows), 0.3))
 	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
 	
-	plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
 	plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
 
         par(mar = rep(0,4))
@@ -71,8 +71,8 @@ PlotAllExperiments <- function(...) {
     ######################################## 
     out = makeOrLoadEnsembles(...)	
     out = selectOutput(out)
+    out = lapply(out, function(i) i/0.8)
     dout = lapply(out[-1], function(i) i - out[[1]])
-
        
     plotExps_fun <- function(name, ExpID) {
         fname = paste(name, ..., sep = '-') 
@@ -80,9 +80,21 @@ PlotAllExperiments <- function(...) {
     }
 
     plotExps_fun('mortalityAndExclusion', 5:12)
-    #plotExps_fun('MAPvsNonClim', c(2,4))
-    #plotExps_fun('allVars', 2:12)
-    #plotExps_fun('Controls', c(2, 3, 12, 13))
+    plotExps_fun('MAPvsNonClim', c(2,4))
+    plotExps_fun('allVars', 2:12)
+    plotExps_fun('Controls', c(2, 3, 12, 13))
 }
 
-runAll_pr_droughts(PlotAllExperiments)	
+#PlotAllExperiments(pr_dataset = 'GPCC', drought_var = 'MADM')
+#PlotAllExperiments(pr_dataset = 'GPCC', drought_var = 'MConc')
+#PlotAllExperiments(pr_dataset = 'GPCC', drought_var = 'MDDM')
+
+#PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MADM')
+#PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MConc')
+#PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
+
+PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
+#runAll_pr_droughts(PlotAllExperiments)	
+
+
+
