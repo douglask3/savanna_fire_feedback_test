@@ -28,14 +28,14 @@ plotExps <- function(fname, ExpID, out, dout) {
         lmat = rbind(1:2, 3,t(matrix(ExpIDp, nrow = 2)) + 3, max(ExpIDp, na.rm = TRUE) + 4)
 	lmat[is.na(lmat)] = 0.0
 	
-	layout(lmat, heights = c(1, 0.3, rep(1, p_rows), 0.3))
+	layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.3))
 	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
 	
 	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
 	plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
 
-        par(mar = rep(0,4))
-	    addStandardLegend(out[[1]], limits, cols, add = FALSE)
+        par(mar = c(0.5, 0, 0, 0))
+	    addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100', )
         par(mar = c(0, 0, 1.5, 0))
 
 	#mtext('Impact of ...', side = 1, line = 0, exp = NA)
@@ -54,14 +54,14 @@ plotExps <- function(fname, ExpID, out, dout) {
 		
 	layout(lmat, heights = c(1, rep(1, p_rows), 0.3))
 	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
-	plotStandardMap(dats[[1]][['TreeCover']] * 100, limits = limits, cols = cols, 'VCF')
+	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
 	
 	names = c('reconstructed', paste('No', expNames[ExpID]))
         	
 	mapply(plotStandardMap.sd, out[c(1,ExpID)], txt = names, MoreArgs = list(100, limits = limits, cols = cols))
 
         par(mar = rep(0,4))
-	addStandardLegend(out[[2]], limits, cols, add = FALSE)
+	addStandardLegend(out[[2]], limits, cols, add = FALSE, maxLab = '100')
     dev.off.gitWatermark()
 }
 
