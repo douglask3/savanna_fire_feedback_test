@@ -30,7 +30,6 @@ plotExps <- function(fname, ExpID, out, dout) {
 	
 	layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.3))
 	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
-	
 	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
 	plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
 
@@ -43,7 +42,7 @@ plotExps <- function(fname, ExpID, out, dout) {
                MoreArgs = list(100, limits = dlimits, cols = dcols))
 
         par(mar = rep(0,4))
-	    addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE)
+	    addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE, extend_max = TRUE)
         par(mar = c(0, 0, 1.5, 0))
     dev.off.gitWatermark()
 
