@@ -44,14 +44,14 @@ plot_inputs_figure <- function() {
 ## figure S1 ##
 ###############
 plot_vars = c("A  Tree cover" = "TreeCover", "B  MAP" = "MAP_MSWEP", "C MAT" = "MAT",
-              "D  Rainfall distribution" = "MADD_MSWEP", "E  Burnt are" = "BurntArea", "F  MxMTWM" = "MTWM",
+              "D  Burnt area" = "BurntArea", "E  Rainfall distribution" = "MADD_MSWEP", "F  MxMTWM" = "MTWM",
               "G  Population Density" = "PopDen", "H  Urban Area" = "urban", "I  Cropland Area" = "crop",
               "NaN" = "None", "NaN" = "None", "J  Pasture Area" = "pas")
 
-units   = list('%', 'mm/yr', '~DEG~C', '', '%', '~DEG~C',
+units   = list('%', 'mm/yr', '~DEG~C', '%', '', '~DEG~C',
                "people/k~m2~", '%', '%', '', '', '%')
 
-scaling = list(100/0.8, exp, 1, 1, 100, 1, 1, 100, 100, NaN, NaN, 100)
+scaling = list(100/0.8, exp, 1, 100, 1, 1, 1, 100, 100, NaN, NaN, 100)
 
 
 pr_limits      = c(100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
@@ -59,8 +59,8 @@ drought_limits = seq(0, 1, 0.1)
 limits = list(c(10, 20, 30, 40, 50, 60, 70, 80, 90),
               pr_limits,
               c(8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30),
-              drought_limits,
               c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
+              drought_limits,
               c(12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36),
               c(0.1, 1, 10, 100, 1000),
               c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1),
@@ -77,8 +77,8 @@ drt_colour = c('#ffffe5', '#fee391', '#fe9929', '#cc4c02', '#662506', '#160601')
 cols = list(c("white" , "#AAAA00", "#003300"),
             prc_colour,
             tas_colour,
-            drt_colour,
             c('#ffffcc', '#fed976', '#fd8d3c', '#e31a1c', '#800026', '#200008'),
+            drt_colour,
             tas_colour,
             c('#f7fcfd', '#bfb3e6', '#8c96c6', '#88419d', '#4d004b', '#130012'),
             c('white', 'black'),
