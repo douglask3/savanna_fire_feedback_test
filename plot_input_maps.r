@@ -4,7 +4,7 @@ graphics.off()
 dats = dats[[1]]
 
             
-plot_inputs_figure <- function() {
+plot_inputs_figure <- function(...) {
     selectNotNone <- function(r, x) {
         select <- function(i) 
             if (i == "None") return(i) else return(r[[i]])
@@ -21,7 +21,7 @@ plot_inputs_figure <- function() {
    
     plotMap <- function(x, box, ...) {
         if (is.raster(x)) {
-            plotStandardMap(x, ..., add_legend = TRUE, mtext_line = -1.5)
+            plotStandardMap(x, ..., mtext_line = -1.5)
 
             if(is.null(box)) return()
             
@@ -32,11 +32,9 @@ plot_inputs_figure <- function() {
 
         } else plot.new()
     }
-
-    png(figName, height = 8, width = 16, units = 'in', res = 300)
-        par(mfrow = plotDims, mar = c(0, 0, 1, 0), oma = c(0, 0, 1, 0))    
-        mapply(plotMap, dat, box, limits = limits, cols = cols, names(plot_vars), units = units)
-    dev.off.gitWatermark()
+    mapply(plotMap, dat, box, limits = limits, cols = cols, 
+           names(plot_vars), units = units, MoreArgs = list(...))
+    
 }
 
 
@@ -93,12 +91,13 @@ box = list(NULL, c('#0000AA' = 1),
           c('red' = 1,    'black'   = 2),
           c('black'   = 1), c('black'   = 1), NULL, NULL, c('black' = 1))                
 
-plotDims = c(4,3)  
-figName = 'figs/inputs_map.png'  
 
-plot_inputs_figure()
+png('figs/inputs_map.png', height = 8, width = 16, units = 'in', res = 300)
+    par(mfrow = c(4, 3), mar = c(0, 0, 1, 0), oma = c(0, 0, 1, 0))
+    plot_inputs_figure(add_legend = TRUE)
+dev.off.gitWatermark()
 ###############
-## figure S1 ##
+## figure S2 ##
 ###############
 
 plot_vars =  paste0(rep(c("MAP", drought_vars), each = 4), '_', pr_datasets)
@@ -116,7 +115,14 @@ cols = c(rep(list(prc_colour), 4), rep(list(drt_colour), 16))
 
 box = rep(list(NULL), 16)
 
-plotDims = c(5, 4)   
-figName = 'figs/inputs_pr_dr_map.png'
+png('figs/inputs_pr_dr_map.png', height = 7, width = 16, units = 'in', res = 300)
+    layout(rbind(1:4, 21, 5:8, 9:12, 13:16, 17:20, 22), heights = c(1, 0.3, 1, 1, 1, 1, 0.3))
+    par( mar = c(0, 0, 0, 0), oma = c(0, 0, 1, 0))
+    plot_inputs_figure() 
+    
+    plot.new()
+    addStandardLegend(dats[[plot_vars[1]]], pr_limits, prc_colour) 
 
-plot_inputs_figure()   
+    plot.new() 
+    addStandardLegend(dats[[plot_vars[5]]], drought_limits, drt_colour)
+dev.off.gitWatermark()
