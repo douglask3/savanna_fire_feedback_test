@@ -67,19 +67,11 @@ plot_experiment_lines <- function(pr_dataset, drought_var) {
         
         mask = all(!is.na(xp) & !is.na(y))
         xv = as.vector(xp[mask]); yv = as.vector(y[mask])
-        
-        #cols = unique(unlist(lapply(1:6,function(i) make_col_vector(rev(blues9)[i:(i+1)], ncols = 8-i))))
-        #cols = unlist(lapply(1:8,function(i) rep(rev(blues9)[i], ceiling((9-i)/2))))
-       # cols = blues9[c(1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 55, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8,8, 9, 9, 9, 9, 9)]
-        
+
         cols = blues9[unlist(mapply(rep, 1:9, 9 + (1:9)^3))]
         cols = densCols(xv,yv, colramp = colorRampPalette(cols))
         points(yv~xv, pch = 20, cex = 2, col = cols)
  
-        
-        #quantileDesnityPoly(xp, y * 100/0.8, xlim, quantiles = c(0.9, 0.95, 0.99, 0.999))
-        
-        
         xscale = rep(xscale, length.out = length(ensemble_no))
         xshift = rep(xshift, length.out = length(ensemble_no))
         
