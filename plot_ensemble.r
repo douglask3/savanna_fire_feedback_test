@@ -92,8 +92,8 @@ PlotAllExperiments <- function(...) {
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MConc')
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
-PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
-#runAll_pr_droughts(PlotAllExperiments)	
+#PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
+runAll_pr_droughts(PlotAllExperiments)	
 
 
 
