@@ -5,9 +5,10 @@ source("cfg.r")
 graphics.off()
 
 dat = loadInputData()
+paramFile = paste0(paramFile, '_', pr_datasets[1], '_', drought_vars[1], '.csv')
 params = read.csv(paramFile, stringsAsFactors=FALSE)
 
-temp_file = 'temp/plot_mort_dat.Rd'
+temp_file = 'temp/plot_mort_dat2.Rd'
 grab_cache = TRUE
 
 fireMin = 0.0005
@@ -15,8 +16,10 @@ treeMin = 0.0005
 
 
 JULES_control     =  "data/JULES-mort/mort0/"
-JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortv", "mortc", "mortr"))
-Experiment_names  = c("100% mortality", "PFT-specific mortaility", "PFT-specific + crop masking", "increased recovery rate")
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortc", "mortr", 
+                            "respv/experiment", "resp0/experiment"), '/')
+Experiment_names  = c("100% mortality", "PFT-specific + crop masking", 
+                      "frac_min=0.1", "scaled resp + PFT-specfic mort", "scaled resp 100% mort")
 
 ######################
 ## open				##
