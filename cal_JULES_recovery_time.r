@@ -5,7 +5,6 @@ source("cfg.r")
 graphics.off()
 
 dat = loadInputData()
-params = read.csv(paramFile, stringsAsFactors=FALSE)
 
 temp_file = 'temp/cal_jules_lambda_data.Rd'
 grab_cache = TRUE
