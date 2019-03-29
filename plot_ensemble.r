@@ -44,7 +44,7 @@ plotExps <- function(fname, ExpID, out, dout) {
         par(mar = rep(0,4))
 	    addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE, extend_max = TRUE)
         par(mar = c(0, 0, 1.5, 0))
-    dev.off.gitWatermark()
+    dev.off()#.gitWatermark()
 
     png(fname[2], height = 5 * (p_rows + 1.3)/4.6, width = 8, unit = 'in', res = 300)
 	
@@ -61,7 +61,7 @@ plotExps <- function(fname, ExpID, out, dout) {
 
         par(mar = rep(0,4))
 	addStandardLegend(out[[2]], limits, cols, add = FALSE, maxLab = '100')
-    dev.off.gitWatermark()
+    dev.off()#.gitWatermark()
 }
 
 PlotAllExperiments <- function(...) {
