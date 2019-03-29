@@ -49,15 +49,14 @@ plot_experiment_lines <- function(pr_dataset, drought_var) {
     xscale = list(1,1, 100, 100)
     xshift = list(0, param('min_mat'), 0, 0)
 
-    units = c('mm/yr', 'C', 'Disturbance area (%)', 'Land use (%)')
+    units = c('mm/yr', '~DEG~C', 'Disturbance area (%)', 'Land use (%)')
 
 
 
     plotControl <- function(x, unlogX, xlim, xscale, xshift, x0, k, ksc, sc, title, units, yaxt) {
         #dev.new()
         plot(xlim, c(0, 100), type ='n', yaxt = yaxt, xlab = '', ylab = '')
-        mtext(side = 1, line = 2, units, cex = 0.8)
-        mtext(side = 3, line = -1.5, title, adj = (-ksc/2.3 + 0.5))
+        
         
         y = y * 100/0.8
         y = layer.apply(1:nlayers(x), function(i) y)
@@ -93,6 +92,9 @@ plot_experiment_lines <- function(pr_dataset, drought_var) {
         lines(x, y[1,] * 100, col = 'black', lty = 2, lwd = 1.5)
         lines(x, y[2,] * 100, col = 'black', lty = 1, lwd = 1.5)
         lines(x, y[3,] * 100, col = 'black', lty = 2, lwd = 1.5)
+        
+        mtext.units(side = 1, line = 2, units, cex = 0.8)
+        mtext.units(side = 3, line = -1.5, title, adj = (-ksc/2.3 + 0.5))
     }
     
     fname = paste0("figs/limitation_line", '_', pr_dataset, '-', drought_var, '.png')
@@ -104,7 +106,7 @@ plot_experiment_lines <- function(pr_dataset, drought_var) {
                c('s', 'n', 's', 'n'))
 
         mtext(outer = TRUE, side = 2, line = 1, 'Tree Cover (%)', cex = 0.8)
-    dev.off.gitWatermark()
+    dev.off()#.gitWatermark()
 }
 
 runAll_pr_droughts(plot_experiment_lines)	
