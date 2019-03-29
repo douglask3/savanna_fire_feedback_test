@@ -8,7 +8,9 @@ limits = c(1, 10, 20, 30, 40, 50, 60, 70)
 cols = c("white", "#AAAA00", "#003300")
 
 
-limits = c(0.2, 0.4, 0.6, 0.8)
+limits_stn = c(0.1, 0.25, 0.75, 0.9)
+limits_pot = c(0.2, 0.4, 0.6, 0.8)
+limits_sen = c(0.2, 0.4, 0.6, 0.8)
 cols = c("FF", "BB","88", "44", "00")
 
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
@@ -27,10 +29,18 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
     xy = xyFromCell(lim[[1]], 1:length(lim[[1]]))
     mlim = lim
 
-    nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
-    nlim = lapply(mlim, '/', nlim)
+    tot = lim[[1]] * lim[[2]] * lim[[3]] * lim[[4]]
+    
+    pot <- function(i) {
+        limi = lim[-i]
+        return(limi[[1]] * limi[[2]] * limi[[3]] - tot)        
+    }
+    
+    nlim = lapply(1:4, pot)
+    #nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
+    #nlim = lapply(mlim, '/', nlim)
 
-    plotMap <- function(x, fname = '', normalise = FALSE) {
+    plotMap <- function(x, limits, fname = '', normalise = FALSE) {
 	x = lapply(x, function(i) max.raster(i, na.rm = TRUE) * (i-min.raster(i, na.rm = TRUE))/diff(range.raster(i, na.rm = TRUE)))
 	
 	#2.5:4.5
@@ -38,22 +48,23 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
 	
 	if (normalise) cols = rev(cols)
 	# if rev: c,m,y else: c,m,y
-	pout[[2]] = pout[[2]] ^0.33
+	pout[[2]] = pout[[2]] ^0.5
 	plot_4way(xy[,1], xy[,2], pout[[1]], pout[[3]], pout[[2]], pout[[4]],
 			  x_range = c(-120, 160), y_range = c(-30, 30),
-			  cols = c(cols), limits = c(0.2, 0.4, 0.6, 0.8), 
+			  cols = c(cols), limits = limits, 
 			  coast.lwd=par("lwd"),ePatternRes = 35, ePatternThick = 0.4,
 			  add_legend=FALSE, smooth_image=FALSE,smooth_factor=5, normalise = normalise)
 	
     }	
 
-    plotMaps <- function(x, fname, ...) {
+    plotMaps <- function(x, fname, limits, ...) {
 	plotStuff <- function(ID1, FUN1, FUN2, FUN3 = NULL) {
             x0 = x
 	    x[[ID1]] = FUN1(x[[ID1]])
 	    x[-ID1] = lapply(x[-ID1], FUN2)
             if (!is.null(FUN3)) x = mapply(function(x, x0) x - FUN3(x0), x, x0)
-	    plotMap(x, ...)
+            #browser()
+	    plotMap(x, limits = limits, ...)
 	}
 
         fname = paste('figs/limPlot', fname, '.png', sep = '')
@@ -64,10 +75,10 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
 	    par(mfrow = c(3, 2), mar = c(1, 0, 1, 0), oma = c(0,0,0.5, 0))
 	    plotStuff(1, mean, mean)
             
-            add_raster_4way_legend(cols = cols ,limits = c(0.2, 0.4, 0.6, 0.8),
+            add_raster_4way_legend(cols = cols ,limits = limits,
 				   labs = c('<- Moisture', 'Fuel ->', 'Igntions ->', 'Land Use'))
 
-	    mapply(plotStuff, 1:2, MoreArgs = list( function(i) max(i),  function(i) min(i)))
+	    mapply(plotStuff, 1:4, MoreArgs = list( function(i) max(i),  function(i) min(i)))
 	    #mapply(plotStuff, 1:4, paste('min', 1:4), MoreArgs = list( function(i) min(i),  function(i) max(i)))
 
 	    
@@ -76,9 +87,9 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
     }
     
     fname = paste0(pr_dataset, '-', drought_var, '-')
-    plotMaps(mlim, paste0(fname, 'standard'))
-    #plotMaps(nlim, paste0(fname, 'potential'))
-    plotMaps(sen, paste0(fname, 'sensitivity'))
+    plotMaps(mlim, paste0(fname, 'standard'), limits_stn)
+    plotMaps(nlim, paste0(fname, 'potential'), limits_pot)
+    plotMaps(sen, paste0(fname, 'sensitivity'), limits_sen)
 	
 }
 
