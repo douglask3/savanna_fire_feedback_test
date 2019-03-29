@@ -28,12 +28,14 @@ plot_inputs_figure <- function(...) {
             boxFun <- function(...) 
                 lines(c(-120, 160, 160, -120, -120), c(-30, -30, 45, 45, -30), 
                       xpd = NA, lwd = 2,  ...)
-            mapply(boxFun, col = names(box), lty = box) 
+            #mapply(boxFun, col = names(box), lty = box) 
 
         } else plot.new()
     }
     mapply(plotMap, dat, box, limits = limits, cols = cols, 
-           names(plot_vars), units = units, MoreArgs = list(...))
+           names(plot_vars), units = units, 
+           maxLab = maxLabs, extend_max = extend_max, extend_min = extend_min,
+             MoreArgs = list(...))
     
 }
 
@@ -66,6 +68,9 @@ limits = list(c(10, 20, 30, 40, 50, 60, 70, 80, 90),
               NaN,
               NaN,
               seq(5, 60, 5))
+maxLabs = list(100, NULL, NULL, 100, 1, NULL, NULL, 100, 100, NULL, NULL, 100)
+extend_max = list(F, T, T, F, F, T, T, F, F, F, F, F)
+extend_min = list(F, F, T, F, F, T, F, F, F, F, F, F) 
 
 tas_colour = c('#5e4fa2', '#66c2a5', '#e6f598', '#fee08b', '#f46d43', '#9e0142')
 agr_colour = c('#fff7f3', '#fcc5c0', '#f768a1', '#ae017e', '#49006a', '#120017')
@@ -109,7 +114,10 @@ units   = c(rep('mm/yr', 4), rep('', 16))
 
 scaling = c(rep(c(exp), 4), rep(1, 16))
 
-limits = c(rep(list(pr_limits), 4), rep(list(drought_limits), 16))
+limits  = c(rep(list(pr_limits), 4), rep(list(drought_limits), 16))
+maxLabs = c(rep(list(NULL), 4), rep(list(1), 16))
+extend_max = c(rep(T, 4), rep(F, 16))
+extend_min = FALSE
 
 cols = c(rep(list(prc_colour), 4), rep(list(drt_colour), 16))
 
