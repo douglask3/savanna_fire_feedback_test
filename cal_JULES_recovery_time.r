@@ -5,14 +5,13 @@ source("cfg.r")
 graphics.off()
 
 dat = loadInputData()
-params = read.csv(paramFile, stringsAsFactors=FALSE)
 
 temp_file = 'temp/cal_jules_lambda_data.Rd'
 grab_cache = TRUE
 
 JULES_control     =  "data/JULES-mort/mort0/"
-JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortr"))
-Experiment_names  = c("frac_min = 1e-6", "frac_min = 0.1")
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1", "mortr", "resp0"))
+Experiment_names  = c("frac_min = 1e-6", "frac_min = 0.1", "decreased resp")
 
 ######################
 ## open				##
