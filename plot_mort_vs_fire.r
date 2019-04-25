@@ -8,7 +8,7 @@ dat = loadInputData()
 paramFile = paste0(paramFile, '_', pr_datasets[1], '_', drought_vars[1], '.csv')
 params = read.csv(paramFile, stringsAsFactors=FALSE)
 
-temp_file = 'temp/plot_mort_dat2.Rd'
+temp_file = 'temp/plot_mort_dat_x.Rd'
 grab_cache = TRUE
 
 fireMin = 0.0005
@@ -18,8 +18,12 @@ treeMin = 0.0005
 JULES_control     =  "data/JULES-mort/mort0/"
 JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortc", "mortr", 
                             "respv/experiment", "resp0/experiment"), '/')
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortc", "mortx"), '/')
+
 Experiment_names  = c("100% mortality", "PFT-specific + crop masking", 
                       "frac_min=0.1", "scaled resp + PFT-specfic mort", "scaled resp 100% mort")
+
+Experiment_names  = c("100% mortality", "PFT-specific + crop masking", "mort 0.1")
 
 ######################
 ## open				##
@@ -111,7 +115,7 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
         } else {
             x0 = x
             y0 = y
-            index = sample(1:length(x), size = length(x)*3, prob = w, replace = TRUE)
+            index = sample(1:length(x), size = length(x), prob = w, replace = TRUE)
             x = x[index]
             y = y[index]
 
