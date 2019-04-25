@@ -1,10 +1,12 @@
-openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac', splitPFTs = FALSE, annual_average = TRUE) {
+openJulesTree <- function(dir, levels = c(1:5, 12:13), varname = 'landCoverFrac', splitPFTs = FALSE, annual_average = TRUE,
+                          yrs = c(2000:2014)) {
 
 	files = list.files(dir, full.names=TRUE)
-	yrs = sapply(files, function(i) strsplit(i, 'Monthly.')[[1]][2])
-	if (all(is.na(yrs))) yrs = sapply(files, function(i) strsplit(i, 'Annual.')[[1]][2])
-	yrs = as.numeric(unlist(strsplit(yrs, '.nc')))
-	index = yrs >= 2000 & yrs <= 2014
+	yrsf = sapply(files, function(i) strsplit(i, 'Monthly.')[[1]][2])
+	if (all(is.na(yrsf))) yrsf = sapply(files, function(i) strsplit(i, 'Annual.')[[1]][2])
+	yrsf = as.numeric(unlist(strsplit(yrsf, '.nc')))
+    
+	index =  apply(sapply(yrs, '==', yrsf), 1, any)
 	
 	files = files[index]
     openFun <- function(level) {

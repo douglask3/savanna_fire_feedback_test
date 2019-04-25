@@ -6,8 +6,9 @@ plotStandardMap <- function(x, limits, cols, txt = '', add_legend = FALSE, mtext
                             transpose = FALSE, srt = 0,
                             plot_loc = c(0.35,0.83,0.1,0.4),
                             quick = TRUE, add_legend = FALSE, ...)
+    polygon(c(-180, 180, 180, -180), c(-90, -90, -31, -31), col = "white", border = "white")
+    polygon(c(-180, 180, 180, -180), c(90, 90, 31, 31), col = "white", border = "white")
     mtext(txt, side = 3, line = mtext_line)
-    
     if (add_legend) addStandardLegend(x, limits, cols, 
                                        plot_loc = c(0.1, 0.9, -0.15, -0.05), ...)
 }

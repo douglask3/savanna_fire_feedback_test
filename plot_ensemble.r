@@ -15,7 +15,7 @@ dcols = c("#ffffe5", "#d9f0a3", "#78c679", "#238443", "#004529", "#002211")
 ## plot              			      ##
 ########################################
 
-plotExps <- function(fname, ExpID, out, dout) {
+plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly = FALSE) {
     fname = paste0('figs/TreeCover_ensemble_summary-', fname, c('-diff', '-abs'), '.png')
 
     ExpIDp = 1:length(ExpID)
@@ -24,18 +24,25 @@ plotExps <- function(fname, ExpID, out, dout) {
     
     p_rows = (length(ExpIDp)/2)
 	
-    png(fname[1], height = 5 * (p_rows + 1.6)/4.6, width = 8, unit = 'in', res = 300)	
+    if (!plotFullModOnly && !obsOnly) {
+        png(fname[1], height = 5 * (p_rows + 1.6)/4.6, width = 8, unit = 'in', res = 300)	
         lmat = rbind(1:2, 3,t(matrix(ExpIDp, nrow = 2)) + 3, max(ExpIDp, na.rm = TRUE) + 4)
-	lmat[is.na(lmat)] = 0.0
+        lmat[is.na(lmat)] = 0.0
 	
-	layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.3))
-	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
-	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
-	plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, 'reconstructed')
-
-        par(mar = c(0.5, 0, 0, 0))
-	    addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100', )
-        par(mar = c(0, 0, 1.5, 0))
+        layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.3))
+        par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
+    }
+    if (obsOnly) obsTitle  = '' else obsTitle = 'VCF'
+    if (plotFullModOnly) modTitle = '' else modTitle = 'reconstructed'
+	
+	if (!plotFullModOnly)
+        plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, obsTitle)
+	if (obsOnly) return()
+    plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, modTitle)
+    if (plotFullModOnly) return()
+    par(mar = c(0.5, 0, 0, 0))
+	addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100', )
+    par(mar = c(0, 0, 1.5, 0))
 
 	#mtext('Impact of ...', side = 1, line = 0, exp = NA)
 	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID], 
@@ -59,26 +66,32 @@ plotExps <- function(fname, ExpID, out, dout) {
         	
 	mapply(plotStandardMap.sd, out[c(1,ExpID)], txt = names, MoreArgs = list(100, limits = limits, cols = cols))
 
-        par(mar = rep(0,4))
+    par(mar = rep(0,4))
 	addStandardLegend(out[[2]], limits, cols, add = FALSE, maxLab = '100')
     dev.off()#.gitWatermark()
 }
 
-PlotAllExperiments <- function(...) {
+PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = FALSE, obsOnly = FALSE) {
     ########################################
     ## load and analyes  		  ##
     ######################################## 
-    out = makeOrLoadEnsembles(...)	
+    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)	
     out = selectOutput(out)
     out = lapply(out, function(i) i/0.8)
     dout = lapply(out[-1], function(i) i - out[[1]])
        
     plotExps_fun <- function(name, ExpID) {
         fname = paste(name, ..., sep = '-') 
-        plotExps(fname, ExpID, out = out, dout = dout)
+        plotExps(fname, ExpID, out = out, dout = dout, plotFullModOnly = plotFullModOnly, obsOnly = obsOnly)
     }
 
     plotExps_fun('mortalityAndExclusion', 5:12)
+    if (obsOnly) return()
+    if (plotFullModOnly) {
+        txt = paste(drought_var, pr_dataset)
+        browser()
+        return()
+    }
     plotExps_fun('MAPvsNonClim', c(2,4))
     plotExps_fun('allVars', 2:12)
     plotExps_fun('Controls', c(2, 3, 12, 13))
@@ -93,7 +106,22 @@ PlotAllExperiments <- function(...) {
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
 #PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
-runAll_pr_droughts(PlotAllExperiments)	
+
+pr_datasets  = rep('MSWEP', 4)
+drought_vars = rep('MADD', 4)
+
+#lmat = lmat0 = 1:2
+#for (i in 2:(length(pr_datasets) * length(drought_vars))) lmat = rbind(lmat, lmat0 + 2 * (i-1))
+
+lmat = c(1, 0, 0, 0)
+lmat = rbind(lmat, matrix(2:17, ncol = 4))
+lmat = rbind(lmat, max(lmat) + 1)
+layout(lmat)
+par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
+PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
+mtext('A VCF')
+browser()
+runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)	
 
 
 

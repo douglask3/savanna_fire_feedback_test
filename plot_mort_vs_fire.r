@@ -2,11 +2,9 @@
 ## cfg				##
 ######################
 source("cfg.r")
+ 
 graphics.off()
 
-dat = loadInputData()
-paramFile = paste0(paramFile, '_', pr_datasets[1], '_', drought_vars[1], '.csv')
-params = read.csv(paramFile, stringsAsFactors=FALSE)
 
 temp_file = 'temp/plot_mort_dat_x.Rd'
 grab_cache = TRUE
@@ -22,12 +20,16 @@ JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortc", "mortx"), '
 
 Experiment_names  = c("100% mortality", "PFT-specific + crop masking", 
                       "frac_min=0.1", "scaled resp + PFT-specfic mort", "scaled resp 100% mort")
-
-Experiment_names  = c("100% mortality", "PFT-specific + crop masking", "mort 0.1")
+                      
+JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortv", "mortc", "mort43", "mortx"), '/')
+Experiment_names  = c("100% mortality", "PFT-specific", "PFT-specfic + crop masking", "mort 40%",
+                      "low mort")
 
 ######################
 ## open				##
 ######################	
+dat = loadInputData()
+
 ## Inferened
 if (file.exists(temp_file) & grab_cache) {
 	load(temp_file)
@@ -36,11 +38,11 @@ if (file.exists(temp_file) & grab_cache) {
 	out = selectOutput(out)
 
 	## Jules
-	Jules_TC_fire_off = openJulesTree(JULES_control)
-	Jules_PFTs = openJulesTree(JULES_control, splitPFTs = TRUE)
-	Jules_fire = layer.apply(JULES_experiments, openJulesTree,  1, "burnt_area_gb") * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
+	Jules_TC_fire_off = openJulesTree(JULES_control, yrs = c(2002, 2008, 2014))
+	Jules_PFTs = openJulesTree(JULES_control, splitPFTs = TRUE, yrs = c(2002, 2008, 2014))
+	Jules_fire = layer.apply(JULES_experiments, openJulesTree,  1, "burnt_area_gb", yrs = c(2002, 2008, 2014)) * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
 	Jules_fire = raster::resample(Jules_fire, Jules_TC_fire_off)
-	Jules_TC_fire_on = layer.apply(JULES_experiments, openJulesTree)
+	Jules_TC_fire_on = layer.apply(JULES_experiments, openJulesTree, yrs = c(2002, 2008, 2014))
 		
     
 	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
@@ -51,12 +53,23 @@ if (file.exists(temp_file) & grab_cache) {
 	save(out, Jules_TC_fire_off, Jules_fire, Jules_TC_fire_on, Jules_dout, dout, Jules_PFTs, file = temp_file)
 }
 
+AreaDiff <- function(r) {
+    ar = raster::area(r, na.rm = TRUE)
+    sum.raster(r * ar, na.rm = TRUE) / sum.raster(ar, na.rm = TRUE)
+}
+
+AreaDiff.brick <- function(r) unlist(layer.apply(r, AreaDiff))
+
+pc_change = AreaDiff.brick(Jules_TC_fire_off - Jules_TC_fire_on)*100 / AreaDiff.brick(Jules_TC_fire_off)
+
 ######################
 ## plot				##
 ######################
 do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE, title = '', normalise = FALSE, log = '')  {
+    jules_fire = jules_fire *100
+    jules_dout = jules_dout *100
     if (log != 'xy') 
-        treeMin = -1
+        treeMin = 0
     #else
     #    jules_dout[ jules_dout < treeMin] = treeMin + treeMin/10
     
@@ -64,7 +77,7 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
     
     
     addPFT <- function(i) {
-        plot(c(fireMin, 1), c(treeMin, 1), axes = FALSE, xlab = '', ylab = '', log = log, type ='n')#, xaxs = 'i', yaxs = 'i'
+        plot(c(fireMin, 1)*100, c(treeMin, 1)*100, axes = FALSE, xlab = '', ylab = '', log = log, type ='n')#, xaxs = 'i', yaxs = 'i'
         if (i == 1) {
             mtext(title, line = 2, side = 2)
             axis(2)
@@ -78,12 +91,12 @@ do_the_plot <- function(jules_fire, jules_dout, yaxis = FALSE, addLegend = FALSE
         labels = labs * 100
         nolabels = rep('', length(labs))
         
-        addPolygon <- function(y, x = dat[["BurntArea"]]) {  # dat[['crop']] + dat[['pas']]
-            quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.0 , 1.0), between = TRUE, xlog = TRUE, col = make.transparent('black', 0.99))
-            quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.1 , 0.9), between = TRUE, xlog = TRUE, col = make.transparent('#330000', 0.99))
-            quantileDesnityPoly(x[], y[], xlim = c(0, 1), quantiles = c(0.25, 0.75), between = TRUE, xlog = TRUE, col = make.transparent('red', 0.98))
+        addPolygon <- function(y, x = dat[["BurntArea"]] * 100) {  # dat[['crop']] + dat[['pas']]
+            quantileDesnityPoly(x[], y[], xlim = c(0, 100), quantiles = c(0.0 , 1.0), between = TRUE, xlog = TRUE, col = make.transparent('black', 0.97))
+            quantileDesnityPoly(x[], y[], xlim = c(0, 100), quantiles = c(0.1 , 0.9), between = TRUE, xlog = TRUE, col = make.transparent('#330000', 0.97))
+            quantileDesnityPoly(x[], y[], xlim = c(0, 100), quantiles = c(0.25, 0.75), between = TRUE, xlog = TRUE, col = make.transparent('red', 0.95))
         }
-        layer.apply(dout[[5]] / 0.8, addPolygon) #12
+        layer.apply(dout[[5]] *100/ 0.8, addPolygon) #12
         x = 10^(seq(-5, 1, 0.01))
         lines(x,x, lty = 2,lwd = 2)
 	

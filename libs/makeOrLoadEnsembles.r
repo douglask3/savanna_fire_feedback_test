@@ -1,3 +1,4 @@
+
 dats = list(control     = loadInputData(),
 			noMAP       = loadInputData(maxout = c("MAP")),
 			noMAT       = loadInputData(replace = c("MAT" = 39)),
@@ -19,7 +20,7 @@ expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'A  Burnt area', 'B  Ra
 makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
                                 pr_dataset = 'MSWEP', drought_var = 'MADD') {
 	
-
+    
 	run_member <- function(line) {
 		dname = paste0(ens_dir, pr_dataset, '_', drought_var, '/')
 		makeDir(dname)	    
@@ -27,7 +28,7 @@ makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
 		makeDir(dname)
     	
 		fnames =  paste(dname, names(dats), '.nc', sep = '')
-                paramFile = paste0(paramFile, '_', pr_dataset, '_', drought_var, '.csv')
+        paramFile = paste0(paramFile, '_', pr_dataset, '_', drought_var, '.csv')
 		
 		run <- function(dat, fname) {
                         pr_dat = dat[grepl(pr_dataset,names(dat))] 
