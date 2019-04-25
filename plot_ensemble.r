@@ -41,7 +41,7 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
     plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, modTitle)
     if (plotFullModOnly) return()
     par(mar = c(0.5, 0, 0, 0))
-	addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100', )
+	addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100')
     par(mar = c(0, 0, 1.5, 0))
 
 	#mtext('Impact of ...', side = 1, line = 0, exp = NA)
@@ -88,8 +88,10 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
     plotExps_fun('mortalityAndExclusion', 5:12)
     if (obsOnly) return()
     if (plotFullModOnly) {
-        txt = paste(drought_var, pr_dataset)
-        browser()
+        let = LETTERS[ which(pr_dataset == pr_datasets) + 
+                      (which(drought_var == drought_vars) - 1) *4 + 1]
+        txt = paste(let,drought_var, pr_dataset)
+        mtext(txt, line = 0.5)
         return()
     }
     plotExps_fun('MAPvsNonClim', c(2,4))
@@ -107,21 +109,18 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
 
 #PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
 
-pr_datasets  = rep('MSWEP', 4)
-drought_vars = rep('MADD', 4)
-
-#lmat = lmat0 = 1:2
-#for (i in 2:(length(pr_datasets) * length(drought_vars))) lmat = rbind(lmat, lmat0 + 2 * (i-1))
-
 lmat = c(1, 0, 0, 0)
 lmat = rbind(lmat, matrix(2:17, ncol = 4))
 lmat = rbind(lmat, max(lmat) + 1)
-layout(lmat)
-par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
-PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
-mtext('A VCF')
-browser()
-runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)	
 
+png('figs/VCF_vs_mod.png', height = 7, width = 16, units = 'in', res = 300)
+    layout(lmat)
+    par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
+    PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
+    mtext('A VCF', line = 0.5)
+
+    runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)	
+    addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100')
+dev.off()
 
 
