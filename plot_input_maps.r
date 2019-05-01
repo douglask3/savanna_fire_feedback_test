@@ -110,7 +110,7 @@ dev.off()#.gitWatermark()
 
 plot_vars =  paste0(rep(c("MAP", drought_vars), each = 4), '_', pr_datasets)
 
-names(plot_vars) = paste(LETTERS[1:20], '', rep(c("MAP", drought_vars), each = 4), pr_datasets)
+names(plot_vars) = paste(LETTERS[1:20], '', pr_datasets, rep(c("MAP", drought_vars), each = 4))
 
 
 units   = c(rep('mm/yr', 4), rep('', 16))

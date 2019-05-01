@@ -34,7 +34,7 @@ plotControls <- function(sensitivity, temp_file, figName, lims) {
     } else load(temp_file)
     
     figName = paste0('figs/', figName, '_all_data_maps.png')
-    png(figName, height = 4.75*2* 1.15, width = 4.75*2, 
+    png(figName, height = 4.75*2* 1.05, width = 4.75*2, 
         units = 'in', res = 300)
         layout(t(matrix(c(1:72), nrow = 4)), heights = c(0.4, rep(1, 16), 0.4))
         par( mar = c(0, 0, 0, 0), oma = c(0, 3.7, 0, 0))
@@ -46,16 +46,15 @@ plotControls <- function(sensitivity, temp_file, figName, lims) {
         sapply(c("MAP", "MAT", "Stress", "Exclusions"), addTitle)
 
         plotMaps <- function(rs, let, dr, pr) {        
-            txt = paste0(let,'\n', dr,'\n', pr)
+            txt = paste0(let,'\n', pr,'\n', dr)
             plotMap <- function(r, cols, txt, scaleBy) {
                 plotStandardMap.sd(r[[1]] * scaleBy, limits = lims, cols = cols, e = r[[2]])
-                mtext.units(side = 2, line = -0.5, adj = 0.1, txt)
+                mtext.units(side = 2, line = -0.5, adj = 0.9, txt)
             }
             mapply(plotMap,rs, cols, c(txt, '','',''),  c(1, 10, 1, 1))
         }
         plotPr <- function(dat, pr, lets)
-            mapply(plotMaps, dat, lets, drought_vars, 
-                   MoreArgs = list(pr))
+            mapply(plotMaps, dat, lets, drought_vars, c(pr, '', '', ''))
 
         mapply(plotPr, out, pr_datasets, lapply(1:4, function(i) LETTERS[(1+(i-1)*4):(i*4)]))
 

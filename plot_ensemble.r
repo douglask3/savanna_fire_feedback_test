@@ -91,7 +91,7 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
     if (plotFullModOnly) {
         let = LETTERS[ which(pr_dataset == pr_datasets) + 
                       (which(drought_var == drought_vars) - 1) *4 + 1]
-        txt = paste(let,drought_var, pr_dataset)
+        txt = paste(let, pr_dataset, drought_var)
         mtext(txt, line = 1)
         return(out[[1]])
     }
