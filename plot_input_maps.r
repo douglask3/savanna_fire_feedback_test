@@ -4,7 +4,7 @@ graphics.off()
 dats = dats[[1]]
 
             
-plot_inputs_figure <- function(...) {
+plot_inputs_figure <- function(..., mtext_line = -0.9) {
     selectNotNone <- function(r, x) {
         select <- function(i) 
             if (i == "None") return(i) else return(r[[i]])
@@ -21,17 +21,19 @@ plot_inputs_figure <- function(...) {
    
     plotMap <- function(x, box, ...) {
         if (is.raster(x)) {
-            plotStandardMap(x, ..., mtext_line = -1.5)
+            plotStandardMap(x, ..., mtext_line = mtext_line,
+                            plot_loc = c(0.05, 0.95, -0.15, -0.05))
 
             if(is.null(box)) return()
             
             boxFun <- function(...) 
                 lines(c(-120, 160, 160, -120, -120), c(-30, -30, 45, 45, -30), 
                       xpd = NA, lwd = 2,  ...)
-            #mapply(boxFun, col = names(box), lty = box) 
+            mapply(boxFun, col = names(box), lty = box) 
 
         } else plot.new()
     }
+    print(units)
     mapply(plotMap, dat, box, limits = limits, cols = cols, 
            names(plot_vars), units = units, 
            maxLab = maxLabs, extend_max = extend_max, extend_min = extend_min,
@@ -54,20 +56,21 @@ units   = list('%', 'mm/yr', '~DEG~C', '%', '', '~DEG~C',
 scaling = list(100/0.8, exp, 1, 100, 1, 1, 1, 100, 100, NaN, NaN, 100)
 
 
-pr_limits      = c(100, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
-drought_limits = seq(0, 1, 0.1)
+pr_limits      = c(100, 500, 1000, 1500, 2000, 2500, 3000, 3500)
+drought_limits = seq(0.1, 0.9, 0.1)
 limits = list(c(10, 20, 30, 40, 50, 60, 70, 80, 90),
               pr_limits,
-              c(8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30),
-              c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
+              c( 10, 14,  18,  22, 26,  30),
+              c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50),
               drought_limits,
-              c(12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36),
+              #c(12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36),
+              c(12, 16, 20, 24, 28, 32, 36),
               c(0.1, 1, 10, 100, 1000),
-              c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1),
-              seq(5, 60, 5),
+              c(0.0001, 0.001, 0.01,  0.1,  1),
+              seq(10, 90, 10),
               NaN,
               NaN,
-              seq(5, 60, 5))
+              seq(10, 90, 10))
 maxLabs = list(100, NULL, NULL, 100, 1, NULL, NULL, 100, 100, NULL, NULL, 100)
 extend_max = list(F, T, T, F, F, T, T, F, F, F, F, F)
 extend_min = list(F, F, T, F, F, T, F, F, F, F, F, F) 
@@ -97,17 +100,17 @@ box = list(NULL, c('#0000AA' = 1),
           c('black'   = 1), c('black'   = 1), NULL, NULL, c('black' = 1))                
 
 
-png('figs/inputs_map.png', height = 8, width = 16, units = 'in', res = 300)
+png('figs/inputs_map.png', height = 2.375*2, width = 4.75*2, units = 'in', res = 300)
     par(mfrow = c(4, 3), mar = c(0, 0, 1, 0), oma = c(0, 0, 1, 0))
     plot_inputs_figure(add_legend = TRUE)
-dev.off.gitWatermark()
+dev.off()#.gitWatermark()
 ###############
 ## figure S2 ##
 ###############
 
 plot_vars =  paste0(rep(c("MAP", drought_vars), each = 4), '_', pr_datasets)
 
-names(plot_vars) = paste(LETTERS[1:16], '', rep(c("MAP", drought_vars), each = 4), pr_datasets)
+names(plot_vars) = paste(LETTERS[1:20], '', rep(c("MAP", drought_vars), each = 4), pr_datasets)
 
 
 units   = c(rep('mm/yr', 4), rep('', 16))
@@ -123,14 +126,17 @@ cols = c(rep(list(prc_colour), 4), rep(list(drt_colour), 16))
 
 box = rep(list(NULL), 16)
 
-png('figs/inputs_pr_dr_map.png', height = 7, width = 16, units = 'in', res = 300)
-    layout(rbind(1:4, 21, 5:8, 9:12, 13:16, 17:20, 22), heights = c(1, 0.3, 1, 1, 1, 1, 0.3))
+png('figs/inputs_pr_dr_map.png', height = 2.2*2, width = 4.75*2, units = 'in', res = 300)
+    layout(rbind(1:4, 21, 5:8, 9:12, 13:16, 17:20, 22), heights = c(1, 0.4, 1, 1, 1, 1, 0.4))
     par( mar = c(0, 0, 0, 0), oma = c(0, 0, 1, 0))
-    plot_inputs_figure() 
-    
+    plot_inputs_figure(mtext_line = -0.8) 
+    par(mar = rep(0, 4))
     plot.new()
-    addStandardLegend(dats[[plot_vars[1]]], pr_limits, prc_colour) 
+    addStandardLegend(dats[[plot_vars[1]]], pr_limits, prc_colour, units = 'mm/yr', 
+                      extend_max = TRUE, labelss = c(0, pr_limits), 
+                     plot_loc = c(0.32, 0.67, 0.77, 0.92)) 
 
     plot.new() 
-    addStandardLegend(dats[[plot_vars[5]]], drought_limits, drt_colour)
-dev.off.gitWatermark()
+    addStandardLegend(dats[[plot_vars[5]]], drought_limits, drt_colour, units = '',
+                maxLab = 1, plot_loc = c(0.32, 0.67, 0.77, 0.92))
+dev.off()#.gitWatermark()

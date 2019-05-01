@@ -4,7 +4,7 @@
 source("cfg.r")
 graphics.off()
 
-limits = c(1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
+limits = c(1, 10, 20, 30, 40, 50, 60, 70, 80)
 cols = c("white", "#AAAA00", "#003300")
 
 dlimits = c(1, 2, 5, 10, 20, 40)
@@ -45,7 +45,7 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
     par(mar = c(0, 0, 1.5, 0))
 
 	#mtext('Impact of ...', side = 1, line = 0, exp = NA)
-	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID], 
+	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID],
                MoreArgs = list(100, limits = dlimits, cols = dcols))
 
         par(mar = rep(0,4))
@@ -86,13 +86,14 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
     }
 
     plotExps_fun('mortalityAndExclusion', 5:12)
+    
     if (obsOnly) return()
     if (plotFullModOnly) {
         let = LETTERS[ which(pr_dataset == pr_datasets) + 
                       (which(drought_var == drought_vars) - 1) *4 + 1]
         txt = paste(let,drought_var, pr_dataset)
-        mtext(txt, line = 0.5)
-        return()
+        mtext(txt, line = 1)
+        return(out[[1]])
     }
     plotExps_fun('MAPvsNonClim', c(2,4))
     plotExps_fun('allVars', 2:12)
@@ -111,16 +112,17 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
 
 lmat = c(1, 0, 0, 0)
 lmat = rbind(lmat, matrix(2:17, ncol = 4))
-lmat = rbind(lmat, max(lmat) + 1)
+lmat = rbind(lmat, max(lmat) + 1, max(lmat) + 2)
 
-png('figs/VCF_vs_mod.png', height = 7, width = 16, units = 'in', res = 300)
-    layout(lmat)
+png('figs/VCF_vs_mod.png', height = 2.2*2, width = 4.75*2, units = 'in', res = 300)
+    layout(lmat, heights = c(1, 1, 1, 1, 1, 0.4, 0.4))
     par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
     PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
-    mtext('A VCF', line = 0.5)
+    mtext('A VCF', line = 1)
 
-    runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)	
-    addStandardLegend(out[[1]], limits, cols, add = FALSE, maxLab = '100')
+    out = runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)
+    par(mar = rep(0,4))	
+    addStandardLegend(out[[1]][[1]], limits, cols, add = FALSE, maxLab = '100')
 dev.off()
 
 
