@@ -29,7 +29,7 @@ grab_cache = TRUE
 ######################
 ## plot				##
 ######################
-do_the_plot <- function(yaxis = FALSE, addLegend = FALSE, title = '', control = 5, varname = "BurntArea", p_param = NULL,
+do_the_plot <- function(yaxis = FALSE, addLegend = FALSE, title = '', let, control = 5, varname = "BurntArea", p_param = NULL,
                         xlog = TRUE, scaling = 1, xmax = NaN)  {
     x = dat[[varname]] * scaling
     if (xlog) {
@@ -50,6 +50,7 @@ do_the_plot <- function(yaxis = FALSE, addLegend = FALSE, title = '', control = 
         lines(c(-9E9, 9E9) * scaling, c(-9E9, 9E9) * 100, lty = 2, lwd =2)
     }
     mtext.units(title, side = 1, line = 2.5)
+    mtext(let, side = 3, line = -2, adj = 0.1)
         
     addPolygon <- function(y) {  # dat[['crop']] + dat[['pas']]
         FUN <- function(quantiles, col, alpha = 0.99) 
@@ -73,8 +74,8 @@ titles   = c("Burnt area (%)", "Rainfall Distribution", "Temperature (~DEG~C)", 
              "Cropland area (%)", "Pasture area (%)")
 scaling = c(100, 1, 1, 1, 100, 100, 100)
 xmax    = c(100, 1, NaN, NaN, 100, 100, 100)
-png("figs/mort_exc_impact_per_unit.png", units = 'in', height = 6, width = 6, res = 300)
+png("figs/mort_exc_impact_per_unit.png", units = 'in', height = 4.75, width = 4.75, res = 300)
     par(mfrow = c(3, 3), oma = c(1.0, 4.5, 0.5, 0), mar = c(3.5, 0, 0, 0.5))
-    mapply(do_the_plot, yaxis, control = controls, varname = varnames, xlog = xlog, title = titles, scaling = scaling, xmax = xmax)
+    mapply(do_the_plot, yaxis, control = controls, varname = varnames, xlog = xlog, title = titles, let = LETTERS[1:7], scaling = scaling, xmax = xmax)
     mtext('Proportion of tree cover removed (%)', side = 2, line =2.5, outer = TRUE)
 dev.off()
