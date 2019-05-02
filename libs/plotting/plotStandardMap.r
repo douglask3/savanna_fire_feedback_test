@@ -22,9 +22,10 @@ plotStandardMap <- function(x, limits, cols, txt = '',
                                        plot_loc = plot_loc, ...)
 }
 
-plotStandardMap.sd <- function(x, sc = 1, ..., e = NULL) {
+plotStandardMap.sd <- function(x, sc = 1, ..., e = NULL, 
+                               limit_error = c(0.05, 0.1), ePatternThick = 0.5) {
     if (is.null(e)) e = sd.raster(x)
     plotStandardMap(mean(x) * sc, e = e,
-                    ePatternRes = 50, ePatternThick = 0.5, 
-                    limits_error = c(0.1, 0.25),...)
+                    ePatternRes = 50, ePatternThick = ePatternThick, 
+                    limits_error = limit_error,...)
 }
