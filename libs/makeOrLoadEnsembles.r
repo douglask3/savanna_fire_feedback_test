@@ -15,7 +15,7 @@ dats = list(control     = loadInputData(),
 			noMortality = loadInputData(remove = c("MTWM", "PopDen", "Drought", "BurntArea")),
 			sensitivity = loadInputData())
 				
-expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'A  Burnt area', 'B  Rainfall distribution', 'C  Temperature stress', 'D  Population density', 'E  Urban area', 'F  Cropland', 'G  Pasture', 'H  All human impacts', 'Land use', 'Sensitivity')
+expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'A  Burnt area', 'B  Rainfall distribution', 'C  Temperature stress', 'D  Population density', 'E  Urban area', 'F  Cropland', 'G  Pasture', 'H  All human impacts', 'Land use', 'No Mort', 'Sensitivity')
 
 makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
                                 pr_dataset = 'MSWEP', drought_var = 'MADD') {
