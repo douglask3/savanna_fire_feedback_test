@@ -15,16 +15,17 @@ dir_out = "/data/dynamic/dkelley/CRU-JRA-n96e_rainfallDist/"
 files = os.listdir(dir_in)
 
 def openAndRedistribute(file):
-    copyfile(dir_in + file, dir_out + file)
-    dat = iris.load(dir_out + file)
-    iris.coord_categorisation.add_day_of_year(dat[0], 'time')
     
-    dcycle = dat[0][0:4].copy()
-    for day in range(1, 365): dcycle.data += dat[0][(day*4):((day+1)*4)].data
+    dat = iris.load(dir_in + file)
+    dat_man = dat[0].copy()
+    iris.coord_categorisation.add_day_of_year(dat_man, 'time')
+    
+    dcycle = dat_man[0:4].copy()
+    for day in range(1, 365): dcycle.data += dat_man[(day*4):((day+1)*4)].data
 
     dcycle /= 365  
-    daily = dat[0].aggregated_by(['day_of_year'], iris.analysis.MEAN)
-    MAP = dat[0].collapsed('time', iris.analysis.MEAN)
+    daily = dat_man.aggregated_by(['day_of_year'], iris.analysis.MEAN)
+    MAP = dat_man.collapsed('time', iris.analysis.MEAN)
 
     ## put mean cycle on daily rainfalls of zero
     for day in range(0, 365):
@@ -37,12 +38,9 @@ def openAndRedistribute(file):
             dat[0][timeD].data[test1] = dcycle[time].data[test1]
             dat[0][timeD].data[test2] *= scale.data[test2]
     
-    file_out = dir_out + file    
-    browser()
-
-    
-    
-    
-    
+    file_out = dir_out + file 
+    print(file_out)   
+    iris.save(dat, file_out)
+        
 
 dat = [openAndRedistribute(file) for file in files]
