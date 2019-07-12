@@ -1,5 +1,7 @@
 import iris
 import iris.coord_categorisation
+import netCDF4
+
 import matplotlib.pyplot as plt
 import iris.plot as iplt
 import numpy as np
@@ -15,8 +17,9 @@ dir_out = "/data/dynamic/dkelley/CRU-JRA-n96e_rainfallDist/"
 files = os.listdir(dir_in)
 
 def openAndRedistribute(file):
-    
-    dat = iris.load(dir_in + file)
+    copyfile(dir_in + file, dir_out + file)
+    file_out = dir_out + file 
+    dat = iris.load(file_out)
     dat_man = dat[0].copy()
     iris.coord_categorisation.add_day_of_year(dat_man, 'time')
     
@@ -35,12 +38,12 @@ def openAndRedistribute(file):
         test2 = np.logical_not(test1)
         for time in range(0, 4):
             timeD = day*4 + time 
-            dat[0][timeD].data[test1] = dcycle[time].data[test1]
-            dat[0][timeD].data[test2] *= scale.data[test2]
+            dat[0].data[timeD][test1] = dcycle[time].data[test1]
+            dat[0].data[timeD][test2] *= scale.data[test2]
     
-    file_out = dir_out + file 
-    print(file_out)   
-    iris.save(dat, file_out)
+    dset = netCDF4.Dataset(file_out, 'r+')
+    dset.variables['pre'][:] = dat[0].data
+    dset.close()
         
 
 dat = [openAndRedistribute(file) for file in files]
