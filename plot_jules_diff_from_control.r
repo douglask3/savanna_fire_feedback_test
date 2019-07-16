@@ -2,7 +2,7 @@
 ## cfg			##
 ##################
 source("cfg.r")
-
+temp_file = 'temp/plot_jules_diff_from_control.r'
 limits = c(1, 10, 20, 30, 40, 50, 60, 70)
 cols = c("white", "#AAAA00", "#003300")
 
@@ -21,6 +21,11 @@ Experiment_names  = c("100% mortality", "PFT-specific + crop masking",
 JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortv", "mortc", "mortx"), '/')
 Experiment_names  = c("100% mortality", "PFT-specific", "PFT-specfic + crop masking", 
                       "low mort")
+
+JULES_experiments =  c("data/JULES-mort/mort1",
+                       paste0('../fireMIPbenchmarking/data/ModelOutputs/',
+                              c("JULES-ES-INFERNO-Emissions3/", "JULES-ES-INFERNO-Mort4.3/"), '/'))
+Experiment_names  = c("100% mortality", "CLM mortality","mort 40% for tree")
 ######################
 ## open				##
 ######################	
@@ -41,7 +46,8 @@ if (file.exists(temp_file) & TRUE) {
 	Jules_TC_fire_on = layer.apply(JULES_experiments, openJulesTree, yrs = c(2002, 2008, 2014))
 		
     
-	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
+	Jules_dout = (Jules_TC_fire_off - Jules_TC_fire_on)/Jules_TC_fire_off
+#max(addLayer(Jules_TC_fire_off, Jules_TC_fire_on))		
 	Jules_dout =  squeeze(Jules_dout, 500)
 	#Jules_dout[ Jules_dout < treeMin] = treeMin + treeMin/10
 	dout = lapply(out, function(i) 1-out[[1]]/i)
