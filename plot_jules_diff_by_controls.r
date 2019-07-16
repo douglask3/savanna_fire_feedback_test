@@ -60,32 +60,31 @@ pcols = paste('#', lcols[lim[[1]][]], lcols[lim[[3]][]],
 cexs = (lim[[4]][]-1)/5
 
 plotJulesVsVCFvsLim <- function(JTC, name, title) {
-	fname = paste('figs/VCF_vs_JULES', name, '-maps.png', sep = '')
-	png(fname, height = 4, width = 6, unit = 'in', res = 300)
-		par(mfrow = c(3,1), mar = rep(0, 4))
-		plotStandardMap(VCF_TC, cols = cols, limits = limits, 'VCF')
-		plotStandardMap(JTC, cols = cols, limits = limits, title)
-		plotStandardMap(JTC - VCF_TC, cols = dcols, limits = dlimits, 'Difference')
-	dev.off()#.gitWatermark()
+    fname = paste('figs/VCF_vs_JULES', name, '-maps.png', sep = '')
+    png(fname, height = 4, width = 6, unit = 'in', res = 300)
+	par(mfrow = c(3,1), mar = rep(0, 4))
+	plotStandardMap(VCF_TC, cols = cols, limits = limits, 'VCF')
+	plotStandardMap(JTC, cols = cols, limits = limits, title)
+	plotStandardMap(JTC - VCF_TC, cols = dcols, limits = dlimits, 'Difference')
+    dev.off()#.gitWatermark()
 	
-	fname = paste('figs/VCF_vs_', name, '_lims-scatter.png')
-	png(fname, height = 7, width = 7, res = 300, unit = 'in')
-		par(mar = c(3,3, 0.5, 0.5))
-		plot(c(0, 100), c(0,100), xlab = '', ylab = '')
-		lines(c(0, 100), c(0, 100), lty = 2, lwd = 2)
-		mtext(side = 1, line = 2, 'VCF Cover (%)')
-		mtext(side = 2, line = 2, 'Jules WOod Cover (%)')
-		mtext(side = 3, line = -1, paste(title, 'error vs controls on tree cover'))
+    fname = paste('figs/VCF_vs_', name, '_lims-scatter.png')
+    png(fname, height = 7, width = 7, res = 300, unit = 'in')
+	par(mar = c(3,3, 0.5, 0.5))
+	plot(c(0, 100), c(0,100), xlab = '', ylab = '')
+	lines(c(0, 100), c(0, 100), lty = 2, lwd = 2)
+	mtext(side = 1, line = 2, 'VCF Cover (%)')
+	mtext(side = 2, line = 2, 'Jules WOod Cover (%)')
+	mtext(side = 3, line = -1, paste(title, 'error vs controls on tree cover'))
 
-		points(VCF_TC[mask], JTC[mask], pch = 19, cex = 1.1)
-		for (i in which(mask[])) {				  
+	points(VCF_TC[mask], JTC[mask], pch = 19, cex = 1.1)
+	for (i in which(mask[])) {				  
 		
-			points(VCF_TC[i], JTC[i], pch = 19, col = pcols[i], cex = 0.8)
-			if (cexs[i] > 0)
-				points(VCF_TC[i], JTC[i], pch = 19, cex = cexs[i])
+	    points(VCF_TC[i], JTC[i], pch = 19, col = pcols[i], cex = 0.8)
+	    if (cexs[i] > 0) points(VCF_TC[i], JTC[i], pch = 19, cex = cexs[i])
 		
-		}
-	dev.off()#.gitWatermark()
+	}
+    dev.off()#.gitWatermark()
 }
 
 mapply(plotJulesVsVCFvsLim, layers2list  (JULES_TC), c('mort0', 'mort1', 'mortc', 'mortv'), Experiment_names)
