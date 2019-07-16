@@ -28,7 +28,6 @@ Experiment_names  = list(c("No Rainfall limitation", "No Rainfall distribution")
 ######################
 ## open	            ##
 ######################	
-## Inferened
 openJulesExperimentSet <- function(name, JULES_control, JULES_experiments) { 
     temp_file = paste0('temp/plot_jules_diff_from_control_new', name, '.Rd')
     if (file.exists(temp_file) & TRUE) {
