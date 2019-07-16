@@ -1,13 +1,11 @@
 ######################
-## cfg				##
+## cfg		    ##
 ######################
 source("cfg.r")
- 
 graphics.off()
 
-
 temp_file = 'temp/plot_mort_dat_x.Rd'
-grab_cache = TRUE
+grab_cache = FALSE
 
 fireMin = 0.0005
 treeMin = 0.0005
@@ -25,8 +23,17 @@ JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortv", "mortc", "m
 Experiment_names  = c("100% mortality", "PFT-specific", "PFT-specfic + crop masking", "mort 40%",
                       "low mort")
 
+
+
+JULES_experiments =  c("data/JULES-mort/mort1",
+                       paste0('../fireMIPbenchmarking/data/ModelOutputs/',
+                              c("JULES-ES-INFERNO-Emissions3/", "JULES-ES-INFERNO-Mort4.3/"),
+                              '/'))
+Experiment_names  = c("100% mortality", "CLM mortality","mort 40% for tree")
+
+
 ######################
-## open				##
+## open		    ##
 ######################	
 dat = loadInputData()
 
