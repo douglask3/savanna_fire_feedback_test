@@ -3,11 +3,14 @@
 ##################
 source("cfg.r")
 
+temp_file = 'temp/plot_jules_diff_from_control.Rd'
 limits = c(1, 10, 20, 30, 40, 50, 60, 70)
+cols = c('#f7fcf5', '#c7e9c0', '#74c476', '#238b45', '#00441b')
 cols = c("white", "#AAAA00", "#003300")
 
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
-dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
+dcols =c('#a00532','#c51b7d','#f1b6da','#f7f7f7',
+        '#b8e186','#4d9221','#245811')
 
 items = c(2:3, 5:6)
 
@@ -21,6 +24,9 @@ Experiment_names  = c("100% mortality", "PFT-specific + crop masking",
 JULES_experiments =  paste0("data/JULES-mort/", c("mort1",  "mortv", "mortc", "mortx"), '/')
 Experiment_names  = c("100% mortality", "PFT-specific", "PFT-specfic + crop masking", 
                       "low mort")
+                      
+JULES_experiments =  c("data/JULES-mort/mort1", '../jules_workshed/data/Emissions3/')
+Experiment_names  = c("Old INFERNO", "New INFERNO")
 ######################
 ## open				##
 ######################	
@@ -53,19 +59,31 @@ if (file.exists(temp_file) & TRUE) {
 
 mortExpD =  (Jules_TC_fire_on - Jules_TC_fire_off)
 mortExpD = lapply(layer.apply(mortExpD, function(i) c(i)), function(i) i[[1]])
+Jules_TC_fire_on = lapply(layer.apply(Jules_TC_fire_on, function(i) c(i)), function(i) i[[1]])
 #mortExpD[[1]] = mortExp[[1]] - fireOff
 #mortExpD[-1] = lapply(mortExp[-1], function(i) i - fireOff)
 
 graphics.off()
-png('figs/JULES_mort_maps.png', height = 5, width = 12, units = 'in', res = 300)
-    lmat = rbind(c(1, 0), c(2, 0), c(3, 4), c(5, 6), c(7, 7))
-    layout(lmat, heights = c(1, 0.25, 1, 1, 0.25))
+png('figs/JULES_mort_maps.png', height = 3.6, width = 12, units = 'in', res = 300)
+    lmat = rbind(c(1, 0), c(2, 0), c(3, 4), c(5, 5))
+    layout(lmat, heights = c(1, 0.3, 1, 0.3))
     par(mar = c(0, 0, 1, 0), oma = c(0, 1, 1.5, 1))
-    plotStandardMap(Jules_TC_fire_off, limits =  limits/100, cols =  cols, 'Control, no fire', mtext_line = -0)
-    add_raster_legend2(cols = cols, limits = limits,transpose = FALSE, srt = 0, plot_loc = c(0.2, 0.8, 0.7, 0.89)    , add = FALSE, 
-                       labelss = c(0, limits, 100))
+    plotStandardMap(Jules_TC_fire_off, limits =  limits/100, cols =  cols, 'No fire', mtext_line = 1)
+    add_raster_legend2(cols = cols, limits = limits,transpose = FALSE, srt = 0, plot_loc = c(0.1, 0.9, 0.7, 0.89)    , add = FALSE, 
+                       labelss = c(0, limits, 100), units = '%')
     mapply(plotStandardMap, mortExpD, MoreArgs = list(limits =  dlimits/100, cols =  dcols, mtext_line = -0), Experiment_names)
-    add_raster_legend2(cols = dcols, limits = dlimits, extend_min = TRUE, extend_max = TRUE, transpose = FALSE, srt = 0, plot_loc = c(0.35, 0.65, 0.7, 0.89), add = FALSE)
+    add_raster_legend2(units = '%', cols = dcols, limits = dlimits, extend_min = TRUE, extend_max = TRUE, transpose = FALSE, srt = 0, plot_loc = c(0.25, 0.75, 0.7, 0.89), add = FALSE)
+dev.off()
+
+
+png('figs/JULES_tree_maps.png', height = 3.3, width = 12, units = 'in', res = 300)
+    lmat = rbind(c(1, 0), c(2, 3), c(4,4))
+    layout(lmat, heights = c(1, 1, 0.3))
+    par(mar = c(0, 0, 1, 0), oma = c(0, 1, 1.5, 1))
+    plotStandardMap(Jules_TC_fire_off, limits =  limits/100, cols =  cols, 'No fire', mtext_line = 1)
+    mapply(plotStandardMap, Jules_TC_fire_on, MoreArgs = list(limits =  limits/100, cols =  cols, mtext_line = -0), Experiment_names)
+    add_raster_legend2(cols = cols, limits = limits,transpose = FALSE, srt = 0, plot_loc = c(0.25, 0.75, 0.7, 0.89)    , add = FALSE, 
+                       labelss = c(0, limits, 100), units = '%')
 dev.off()
     browser()
 fireOff = control - fireOff
