@@ -12,12 +12,17 @@ dcols = c("white", "#FF33FF", "#DD0033", "#330000")
 dcols = c("#ffffe5", "#d9f0a3", "#78c679", "#238443", "#004529", "#002211")
 dcols = rev(c('#a00532','#c51b7d','#f1b6da','#f7f7f7'))
 
+dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
+dcols = c("#1A001A", "#330033", "#662366", "#AA78AA", "#eed9ee", "#ffffe5", "#d9f0a3", "#78c679", "#238443", "#004529", "#002211")
+
 ########################################
 ## plot              			      ##
 ########################################
 
-plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly = FALSE) {
-    fname = paste0('figs/TreeCover_ensemble_summary-', fname, c('-diff', '-abs'), '.png')
+plotExps <- function(fname1, fname2, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly = FALSE) {
+    fname = paste0('figs/TreeCover_ensemble_summary-',
+                    fname1, fname2, c('-diff', '-abs'), '.png')
+    
 
     ExpIDp = 1:length(ExpID)
     if (!is.even(length(ExpID))) ExpIDp = c(ExpIDp, NaN)
@@ -30,15 +35,16 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
         lmat = rbind(1:2, 3,t(matrix(ExpIDp, nrow = 2)) + 3, max(ExpIDp, na.rm = TRUE) + 4)
         lmat[is.na(lmat)] = 0.0
 	
-        layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.3))
+        layout(lmat, heights = c(1, 0.33, rep(1, p_rows), 0.33))
         par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
     }
     if (obsOnly) obsTitle  = '' else obsTitle = 'VCF'
     if (plotFullModOnly) modTitle = '' else modTitle = 'reconstructed'
 	
-	if (!plotFullModOnly)
+    if (!plotFullModOnly)
         plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, obsTitle, mtext_line = 0.5)
-	if (obsOnly) return()
+    if (obsOnly) return()
+    
     plotStandardMap.sd(out[[1]], 100, limits = limits, cols = cols, modTitle, mtext_line = 0.5)
     if (plotFullModOnly) return()
     par(mar = c(0.5, 0, 0, 0))
@@ -47,14 +53,16 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
     par(mar = c(0, 0, 1.5, 0))
 
 	#mtext('Impact of ...', side = 1, line = 0, exp = NA)
-	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = expNames[ExpID],
+        txt = paste0(LETTERS[1:length(ExpID)], '  ', expNames[ExpID])
+	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = txt,
                MoreArgs = list(100, limits = dlimits, cols = dcols, 
                limit_error = c(0.05, 0.1, 0.25), ePatternThick = 0.4,
                mtext_line = 0.5))
 
         par(mar = rep(0,4))
-	    addStandardLegend(dout[[1]], dlimits, dcols, add = FALSE, extend_max = TRUE,
-                              plot_loc = c(0.25, 0.75, 0.7, 0.9))
+	    addStandardLegend(dout[[2]], dlimits, dcols, add = FALSE, extend_max = TRUE,
+                              extend_min = TRUE,
+                              plot_loc = c(0.1, 0.9, 0.7, 0.9))
         par(mar = c(0, 0, 1.5, 0))
     dev.off()#.gitWatermark()
 
@@ -63,7 +71,7 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
 	lmat = rbind(1:2, t(matrix(ExpIDp, nrow = 2)) + 2, max(ExpIDp, na.rm = TRUE) + 3)
 	lmat[is.na(lmat)] = 0.0
 		
-	layout(lmat, heights = c(1, rep(1, p_rows), 0.3))
+	layout(lmat, heights = c(1, rep(1, p_rows), 0.33))
 	par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
 	plotStandardMap(dats[[1]][['TreeCover']] * 100/0.8, limits = limits, cols = cols, 'VCF')
 	
@@ -76,21 +84,39 @@ plotExps <- function(fname, ExpID, out, dout, plotFullModOnly = FALSE, obsOnly =
     dev.off()#.gitWatermark()
 }
 
-PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = FALSE, obsOnly = FALSE) {
+PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = FALSE, obsOnly = FALSE, normalise = FALSE) {
     ########################################
     ## load and analyes  		  ##
     ######################################## 
-    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)	
+    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)
+    
     out = selectOutput(out)
     out = lapply(out, function(i) i/0.8)
-    dout = lapply(out[-1], function(i) i - out[[1]])
-       
-    plotExps_fun <- function(name, ExpID) {
-        fname = paste(name, ..., sep = '-') 
-        plotExps(fname, ExpID, out = out, dout = dout, plotFullModOnly = plotFullModOnly, obsOnly = obsOnly)
+    
+    if (normalise) {
+        nFun <- function(en, i) 
+            (i[[en]] - out[[1]][[en]])/max(addLayer(i[[en]], out[[1]][[en]]))
+
+        dout = lapply(out[-1], function(i)
+                layer.apply(1:nlayers(i), nFun, i))
+        out = lapply(out, function(i) i/out[[1]])
+        fnameN = "normalise"
+    } else {
+        dout = lapply(out[-1], function(i) i - out[[1]])
+        fnameN = ""
     }
 
-    plotExps_fun('mortalityAndExclusion', 5:12)
+    plotExps_fun <- function(name, ExpID) {
+        fname = paste(name, ..., sep = '-') 
+        plotExps(fname, fnameN, ExpID, out = out, dout = dout,
+                 plotFullModOnly = plotFullModOnly,
+                 obsOnly = obsOnly)
+    }
+
+    plotExps_fun('JULEScomparison', c(2, 5, 8:14))
+    plotExps_fun('mortalityAndExclusion', c(5, 8:14))
+    plotExps_fun('RainfallDist', c(6:8))
+
     
     if (obsOnly) return()
     if (plotFullModOnly) {
@@ -100,9 +126,9 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
         mtext(txt, line = 1)
         return(out[[1]])
     }
-    plotExps_fun('MAPvsNonClim', c(2,4))
-    plotExps_fun('allVars', 2:12)
-    plotExps_fun('Controls', c(2, 3, 12, 13))
+    #plotExps_fun('MAPvsNonClim', c(2,4))
+    #plotExps_fun('allVars', 2:14)
+    #plotExps_fun('Controls', c(2, 3, 15, 16))
 }
 
 #PlotAllExperiments(pr_dataset = 'GPCC', drought_var = 'MADM')
@@ -113,6 +139,7 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MConc')
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
+PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', normalise = TRUE)
 PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
 
 lmat = c(1, 0, 0, 0)

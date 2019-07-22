@@ -46,7 +46,8 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
     #nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
     #nlim = lapply(mlim, '/', nlim)
 
-    plotMap <- function(x, limits, fname = '', normalise = FALSE) {
+    plotMap <- function(x, limits, fname = '', normalise = FALSE,
+                        ePatternRes = 50, ePatternThick = 0.4) {
 	x = lapply(x, function(i) max.raster(i, na.rm = TRUE) * 
                                (i-min.raster(i, na.rm = TRUE))/
                                diff(range.raster(i, na.rm = TRUE)))
@@ -61,7 +62,8 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
 	plot_4way(xy[,1], xy[,2], pout[[1]], pout[[3]], pout[[2]], pout[[4]],
 			  x_range = c(-120, 160), y_range = c(-30, 30),
 			  cols = c(cols), limits = limits, 
-			  coast.lwd=par("lwd"),ePatternRes = 50, ePatternThick = 0.4,
+			  coast.lwd=par("lwd"),
+                          ePatternRes = ePatternRes, ePatternThick = ePatternThick,
 			  add_legend=FALSE, smooth_image=FALSE,smooth_factor=5, 
                           normalise = normalise)
         mask = raster('data/seamask.nc')
@@ -112,14 +114,14 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
     
     fname = paste0('figs/lim_pop_sen_maps', fname, '.png')
 
-    png(fname, width = 2.25, height = 2.7, units = 'in', res = 300) 
+    png(fname, width = 4.75, height = 2.7*2, units = 'in', res = 300) 
         layout(rbind(1, 2, 3, 4))
         par(mar = rep(0, 4), oma = c(0, 0, 1, 0))
-        plotMaps(mlim, NULL, limits_stn)
+        plotMaps(mlim, NULL, limits_stn, ePatternRes = 40, ePatternThick = 0.6)
         mtext(paste(LETTERS[1], '', 'Standard limitation'), line = -0.75)
-        plotMaps(nlim, NULL, limits_pot, FALSE)
+        plotMaps(nlim, NULL, limits_pot, FALSE, ePatternRes = 40, ePatternThick = 0.6)
         mtext(paste(LETTERS[1], '', 'Potential limitation'), line = -0.75)
-        plotMaps(sen, NULL, limits_sen)
+        plotMaps(sen, NULL, limits_sen, ePatternRes = 40, ePatternThick = 0.6)
         mtext(paste(LETTERS[2], '', 'Sensitivity'), line = -0.75)
     dev.off()
     browser()
