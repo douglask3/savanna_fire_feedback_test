@@ -27,11 +27,11 @@ sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
 sourceAllLibs('../rasterextrafuns/rasterExtras/R/')
 
 setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
-ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
+ens_dir = paste(outputs_dir, '/ensembles_noTempC_negDist/', sep = '')
 makeDir(ens_dir)
 
 
-ensemble_no = round(seq(1,240000, length.out = 51) )
+ensemble_no = 3000#round(seq(1,5000, length.out = 6) )
 grab_cache_default = TRUE
 
 sourceAllLibs('libs/')
@@ -40,10 +40,10 @@ sourceAllLibs('libs/plotting/')
 
 extent = c(-180, 180, -30, 30)
 
-pr_datasets  = c('MSWEP', 'CRU', 'GPCC', 'CMORPH')
-drought_vars = c('MADD', 'MADM', 'MConc', 'MDDM')
+pr_datasets  = c('MSWEP')#, 'CRU', 'GPCC', 'CMORPH')
+drought_vars = c('MADD')#, 'MADM', 'MConc', 'MDDM')
 
-paramFile = 'outputs/params'
+paramFile = 'outputs/params-negDist'
 
 
 plot_title = c('MAP', 'MAT', 'Stress', 'Exclusion')

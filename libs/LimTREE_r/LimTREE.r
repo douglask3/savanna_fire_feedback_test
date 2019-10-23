@@ -13,8 +13,8 @@ runLimTREE <- function(line, paramFile, dat = NULL, ...) {
 			params['min_mat'], params['max_mat'], 
                         params['trans_d'], params['p_fire'],
                         params['k_popden'], params['p_drought'],
-			params['min_maxTemp'], params['max_maxTemp'], params['p_maxTemp'],
-			params['v_drought'], params['v_maxTemp'], params['v_popDen'],
+			params['min_maxTemp'], params['max_minTemp'], params['q10_maxTemp'], params['q10_minTemp'],
+			params['v_drought'], params['v_maxTemp'], params['v_minTemp'], params['v_popDen'],
 			params['v_crop'], params['v_pas'],
 			params['MAP_x0'], params['MAP_k'], params['MAT_x0'], params['MAT_k'], 
 			params['SW_x0'], params['SW_k'], params['mort_x0'], params['mort_k'],
@@ -27,13 +27,13 @@ runLimTREE <- function(line, paramFile, dat = NULL, ...) {
 LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxTemp, popDen, 
                     urban, crop, pas,
 		    m_drought, min_mat, max_mat,
-                    d, p_fire, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
-		    v_drought, v_maxTemp, v_popDen, v_crop, v_pas,
+                    d, p_fire, k_popDen, p_drought, min_maxTemp, max_minTemp, q10_maxTemp, q10_minTemp,
+		    v_drought, v_maxTemp, v_minTemp, v_popDen, v_crop, v_pas,
 		    MAP0, MAPk, MAT0, MATk, SW0, SWk, Mort0, Mortk, Exc0, Exck, maxT,
-					includeSW = FALSE, ...) {
+					includeSW = TRUE, ...) {
 	
 	f_MAP  = LimMAP  (MAP, rain_drought, m_drought, MAP0 , MAPk, ...)
-	f_MAT  = LimMAT  (MAT, min_mat, max_mat, MAT0 , MATk, ...)
+	#f_MAT  = LimMAT  (MAT, min_mat, max_mat, MAT0 , MATk, ...)
 	
 	if (includeSW) f_SW   = LimSW(SW1, SW2  , d,  SW0  , SWk, ...)
 	else {
@@ -41,14 +41,16 @@ LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxT
 		f_SW[!is.na(f_SW)] = 1.0
 	}
 	
-	f_Mort = LimMort (fire, stress_drought, maxTemp, popDen, v_drought, v_maxTemp, v_popDen,
-					  p_fire, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,
-					  Mort0, -Mortk, ...)
+	f_Mort = LimMort (fire, stress_drought, maxTemp, MAT, popDen,
+                          v_drought, v_maxTemp, v_minTemp, v_popDen,
+			  p_fire, k_popDen, p_drought,
+                          min_maxTemp, max_minTemp, q10_maxTemp, q10_minTemp,
+			  Mort0, -Mortk, ...)
 						   
 	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck, ...)
 	
-	Tree = f_MAP * f_MAT * f_SW * f_Mort * f_Exc * maxT
-	
+	Tree = f_MAP * f_SW * f_Mort * f_Exc * maxT #  * f_MAT
+	browser()
 	return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
@@ -100,27 +102,29 @@ LimSW   <- function(SW1, SW2, d, ...)
 LimTREE.popDen <- function(popDen, k) 
 	1 - exp(popDen * (-1/k))
 	
-LimTREE.maxTemp <- function(maxTemp, mn, mx, p) {
-	maxTemp = (maxTemp - mn)/(mx - mn)
-	maxTemp[maxTemp < 0] = 0
-	maxTemp[maxTemp > 1] = 1
+LimTREE.Temp <- function(Temp, mn, q10) {
+        Temp = q10^(Temp - mn)
+	#maxTemp = (maxTemp - mn)/(mx - mn)
+	#maxTemp[maxTemp < 0] = 0
+	#maxTemp[maxTemp > 1] = 1
 	
-	maxTemp = maxTemp ^ p
+	#maxTemp = maxTemp ^ p
 	
-	return(maxTemp)
+	return(Temp)
 }
 
 
-LimMort <- function(fire, drought, maxTemp, popDen, v_drought, v_maxTemp, v_popDen,
-				    p_fire, k_popDen, p_drought, min_maxTemp, max_maxTemp, p_maxTemp,...) {
+LimMort <- function(fire, drought, maxTemp, minTemp, popDen, v_drought, v_maxTemp, v_minTemp, v_popDen,
+		    p_fire, k_popDen, p_drought, min_maxTemp, max_minTemp, q10_maxTemp, q10_minTemp, ...) {
 		
 	fire = fire^p_fire
 	
 	popDen  = LimTREE.popDen(popDen, k_popDen)
 	
-	maxTemp = LimTREE.maxTemp(maxTemp, min_maxTemp, max_maxTemp, p_maxTemp)
+	maxTemp = LimTREE.Temp(maxTemp     ,  min_maxTemp, q10_maxTemp)
+	minTemp = LimTREE.Temp(minTemp*(-1), -max_minTemp, q10_minTemp)
 	drought = drought^p_drought
-	LimList(c(fire, drought, maxTemp, popDen), c(v_drought, v_maxTemp, v_popDen), ...)
+	LimList(c(fire, drought, maxTemp, minTemp, popDen), c(v_drought, v_maxTemp, v_minTemp, v_popDen), ...)
 }
 
 LimExc  <- function(urban, crop, pas, v_crop, v_pas, ...)
