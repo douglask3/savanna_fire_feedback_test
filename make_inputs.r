@@ -7,12 +7,14 @@ MADM  = Mean Annual Prciep of Dryiest Month
 MConc = Mean Annual Seasonal Concentration"
 
 data_dir  = "../LimFIRE/outputs/"
-variables = c("TreeCover" = "treecover2000-2014.nc", "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc",
-			  "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc",
-			  "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc", "pas" = "pasture2000-2014.nc", 
-			  "PopDen" = "population_density2000-2014.nc", 
-			  "MAP_CRU" = "Prc2000-2014.nc", "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
-			  "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc")
+variables = c("TreeCover" = "treecover2000-2014.nc",
+              "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc",
+	      "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc",
+	      "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc",
+              "pas" = "pasture2000-2014.nc", 
+	      "PopDen" = "population_density2000-2014.nc", 
+	      "MAP_CRU" = "Prc2000-2014.nc", "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
+	      "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc")
 			  
 annualAverage <- function(...) mean(...)
 
@@ -43,8 +45,9 @@ sunshineHours <- function(r, Q00 = 1360, ...) {
 	cz[cz < 0] = 0
 	cz = cz * Q0
 	
-	SW1 = mean(cz)
-	SW2 = mean(cz * (1 - r/100))
+        r = r / 100
+	SW2 = mean(cz * r) # defuse
+	SW1 = mean(cz * (1 - r)) # direct
 	return(list(SW1, SW2))
 }
 
