@@ -84,12 +84,13 @@ plotExps <- function(fname1, fname2, ExpID, out, dout, plotFullModOnly = FALSE, 
     dev.off()#.gitWatermark()
 }
 
-PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = FALSE, obsOnly = FALSE, normalise = FALSE) {
+PlotAllExperiments <- function(pr_dataset, drought_var, ..., fnameExtra = '', 
+                               plotFullModOnly = FALSE, obsOnly = FALSE, normalise = FALSE) {
     ########################################
     ## load and analyes  		  ##
     ######################################## 
-    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)
     
+    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)
     out = selectOutput(out)
     out = lapply(out, function(i) i/0.8)
     
@@ -107,15 +108,15 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
     }
 
     plotExps_fun <- function(name, ExpID) {
-        fname = paste(name, ..., sep = '-') 
+        fname = paste(name, fnameExtra,..., sep = '-') 
         plotExps(fname, fnameN, ExpID, out = out, dout = dout,
                  plotFullModOnly = plotFullModOnly,
                  obsOnly = obsOnly)
     }
 
-    plotExps_fun('JULEScomparison', c(2, 5, 8:14))
+    #plotExps_fun('JULEScomparison', c(2, 5, 8:14))
     plotExps_fun('mortalityAndExclusion', c(5, 8:14))
-    plotExps_fun('RainfallDist', c(6:8))
+    #plotExps_fun('RainfallDist', c(6:8))
 
     
     if (obsOnly) return()
@@ -139,9 +140,11 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., plotFullModOnly = F
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MConc')
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
-PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', normalise = TRUE)
-PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD')
-
+#PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', normalise = TRUE)
+PlotAllExperiments(pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD')
+PlotAllExperiments(pr_dataset = 'MSWEP', andFire = TRUE, fnameExtra = 'withourFire', drought_var = 'MADD')
+PlotAllExperiments(pr_dataset = 'MSWEP', andFire = c(FALSE, TRUE), fnameExtra = 'FireInteraction', drought_var = 'MADD')
+#, andFire = c(F, T)
 lmat = c(1, 0, 0, 0)
 lmat = rbind(lmat, matrix(2:17, ncol = 4))
 lmat = rbind(lmat, max(lmat) + 1, max(lmat) + 2)
