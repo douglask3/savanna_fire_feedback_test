@@ -37,9 +37,11 @@ LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxT
 	
 	if (includeSW) f_SW   = LimSW(SW1, SW2  , d,  SW0  , SWk, ...)
 	else {
-		f_SW = f_MAT
+		f_SW = f_MAP
 		f_SW[!is.na(f_SW)] = 1.0
 	}
+    f_MAT = f_MAP
+    f_MAT[!is.na(f_MAT)] = 1.0
 	
 	f_Mort = LimMort (fire, stress_drought, maxTemp, MAT, popDen,
                           v_drought, v_maxTemp, v_minTemp, v_popDen,
@@ -50,7 +52,7 @@ LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxT
 	f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck, ...)
 	
 	Tree = f_MAP * f_SW * f_Mort * f_Exc * maxT #  * f_MAT
-	browser()
+	
 	return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
