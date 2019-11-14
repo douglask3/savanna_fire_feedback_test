@@ -4,17 +4,31 @@ source("make_precip_inputs.r")
 MADD  = Mean Annual Dry Days
 MADDM = Mean Annual Dry Days of the Driest Month
 MADM  = Mean Annual Prciep of Dryiest Month
-MConc = Mean Annual Seasonal Concentration"
+MConc = Mean Annual Seasonal Concentration
+"
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc",
-              "MAT" = "Tas2000-2014.nc", "MTWM" = "Tas2000-2014.nc",
-	      "SW" = "cld2000-2014.nc", "BurntArea" = "fire2000-2014.nc",
+              "MaxWind" = "../../savanna_fire_feedback_test/data/CRUNCEP.wspeed.r0d5.1997.2013.nc",
+              "MAT" = "Tas2000-2014.nc",
+              "MTWM" = "../data/cru_ts4.03/cru_ts4.03.1901.2018.tmx.dat.nc",
+              "MTCM" = "../data/cru_ts4.03/cru_ts4.03.1901.2018.tmn.dat.nc",
+	      "SW" = "cld2000-2014.nc",
+              "BurntArea_GFED4s" = "fire2000-2014.nc",
+              "BurntArea_GFED4" = "../../fireMIPbenchmarking/data/benchmarkData/GFED4.nc",
+              "BurntArea_meris" = "../../fireMIPbenchmarking/data/benchmarkData/meris_v2.nc",
+              "BurntArea_MODIS" = "../../fireMIPbenchmarking/data/benchmarkData/MODIS250_q_BA_regridded0.5.nc",
+              "BurntArea_MCD45" = "../../fireMIPbenchmarking/data/benchmarkData/MCD45.nc",
 	      "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc",
               "pas" = "pasture2000-2014.nc", 
 	      "PopDen" = "population_density2000-2014.nc", 
-	      "MAP_CRU" = "Prc2000-2014.nc", "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
-	      "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc")
+	      "MAP_CRU" = "Prc2000-2014.nc",
+              "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
+	      "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc",
+              "buffalo" = "../../savanna_fire_feedback_test/data/livestock/buffaloLivestock0.5.nc",
+              "cattle" = "../../savanna_fire_feedback_test/data/livestock/cattleLivestock0.5.nc",
+              "goat" = "../../savanna_fire_feedback_test/data/livestock/goatLivestock0.5.nc",
+              "sheep" = "../../savanna_fire_feedback_test/data/livestock/sheepLivestock0.5.nc")
 			  
 annualAverage <- function(...) mean(...)
 
@@ -30,6 +44,16 @@ annualAverageMax <- function(r, ...) {
 	ra = layer.apply(1:nyr, annualMax)
 	return(mean(ra))
 }
+
+temp_max <- function(r, ...) 
+   annualAverageMax(r[[1195:1362]])
+
+
+temp_min <- function(r, ...)
+    annualAverageMax(r[[1195:1362]]*(-1))*(-1)
+
+
+AllMax <- function(r, ...) r = max(r)
 
 sunshineHours <- function(r, Q00 = 1360, ...) {
 	midDay = 2 * pi * seq(15, 345, 30)/360
@@ -77,24 +101,53 @@ MConc = function(r, ...) {
 	return(out)
 }
 
-FUNS = c("TreeCover" = annualAverage, "MAT" = annualAverage, "MTWM" = annualAverageMax,
-		 "sunshine" = sunshineHours, "BurntArea" = annualAverage12, 
-		 "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage,"PopDen" = annualAverage, 
-		 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
-		 "MADM_CRU" = MADM, "MConc_CRU" = MConc)
+makeWind <- function(r, ...) 
+    max(r[[55:198]])
+
+layer1 <- function(r, ...) r[[1]]
+
+FUNS = c("TreeCover" = annualAverage, "MaxWind" = makeWind,
+         "MAT" = annualAverage,
+         "MTWM" = temp_max,
+         "MTCM" = temp_min, 
+	 "sunshine" = sunshineHours,
+         "BurntArea_GFED4s" = annualAverage12,
+         "BurntArea_GFED4"  = annualAverage12,
+         "BurntArea_meris"  = annualAverage12,
+         "BurntArea_MODIS"  = annualAverage12,
+         "BurntArea_MCD45"  = annualAverage12,
+	 "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage,
+         "PopDen" = annualAverage, 
+	 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
+	 "MADM_CRU" = MADM, "MConc_CRU" = MConc,
+         "buffalo" = layer1, "goat" = layer1, "cattle" = layer1, "sheep" = layer1)
 			  
 			  
-scaling = c("TreeCover" = 1/100, "MAT" = 1, "MTWM" = 1,
-			  "sunshine" = 1, "BurntArea" = 1,
-			  "urban" = 1/100, "crop" = 1/100, "pas" = 1/100, "PopDen" = 1,
-			  "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
-		      "MADM_CRU" = 1, "MConc_CRU" = 1)
+scaling = c("TreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
+            "MTCM" = 1,
+	    "sunshine" = 1,
+            "BurntArea_GFED4s" = 1,
+            "BurntArea_GFED4"  = 1,
+            "BurntArea_meris"  = 1,
+            "BurntArea_MODIS"  = 1,
+            "BurntArea_MCD45"  = 1,
+	    "urban" = 1, "crop" = 1, "pas" = 1, "PopDen" = 1,
+	    "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
+	    "MADM_CRU" = 1, "MConc_CRU" = 1,
+            "buffalo" = 1, "goat" = 1, "cattle" = 1, "sheep" = 1)
 			  
-MinPoint = c("TreeCover" = 0, "MAT" = 0, "MTWM" = 0,
-			  "sunshine" = 0, "BurntArea" = 0,
-			  "urban" = 0, "crop" = 0, "pas" = 0, "PopDen" = 0,
-			  "MAP_CRU" = 0, "MADD_CRU" = 1, "MDDM_CRU" = 1,
-		      "MADM_CRU" = 1, "MConc_CRU" = 1)
+MinPoint = c("TreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTWM" = 0,
+             "MTCM" = 0,
+	     "sunshine" = 0,
+             "BurntArea_GFED4s" = 0,
+             "BurntArea_GFED4"  = 0,
+             "BurntArea_meris"  = 0,
+             "BurntArea_MODIS"  = 0,
+             "BurntArea_MCD45"  = 0,
+	     "urban" = 0, "crop" = 0, "pas" = 0, "PopDen" = 0,
+	     "MAP_CRU" = 0, "MADD_CRU" = 1, "MDDM_CRU" = 1,
+	     "MADM_CRU" = 1, "MConc_CRU" = 1,
+             "buffalo" = 0, "goat" = 0, "cattle" = 0, "sheep" = 0)
 			  
 makeVar <- function(filename, FUN) {
 	print(filename)
@@ -108,10 +161,12 @@ ins = mapply(makeVar, variables, FUNS)
 ins_all = c(unlist(ins), unlist(pr_ins))
 
 mask = is.na(ins_all[[1]][[1]])
+
 for (i in ins_all[-1]) {
     i0 = i
     mask = raster::crop(mask, i)
     i = raster::crop(i, mask)
+    i = raster::resample(i, mask)
     mask = mask + is.na(i)
 }
 mask = mask > 3    
@@ -120,6 +175,7 @@ writeVar <- function(nme, r, sc, mp = 0.0) {
 	
 	writeSub <- function(nmei, ri) {
                 ri = raster::crop(ri, mask)
+                ri = raster::resample(ri, mask)
 		ri[mask] = NaN
 		ri[!mask & is.na(ri)] = mp
 		names(ri) = NULL
