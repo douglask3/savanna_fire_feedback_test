@@ -104,7 +104,11 @@ MConc = function(r, ...) {
 makeWind <- function(r, ...) 
     max(r[[55:198]])
 
-layer1 <- function(r, ...) r[[1]]
+layer1GT0 <- function(r, ...) {
+    r = r[[1]]
+    r[r<0] = 0.0
+    return(r)
+}
 
 FUNS = c("TreeCover" = annualAverage, "MaxWind" = makeWind,
          "MAT" = annualAverage,
@@ -120,7 +124,7 @@ FUNS = c("TreeCover" = annualAverage, "MaxWind" = makeWind,
          "PopDen" = annualAverage, 
 	 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
 	 "MADM_CRU" = MADM, "MConc_CRU" = MConc,
-         "buffalo" = layer1, "goat" = layer1, "cattle" = layer1, "sheep" = layer1)
+         "buffalo" = layer1GT0, "goat" = layer1GT0, "cattle" = layer1GT0, "sheep" = layer1GT0)
 			  
 			  
 scaling = c("TreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
