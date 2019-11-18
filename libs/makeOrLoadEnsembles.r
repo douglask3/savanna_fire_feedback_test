@@ -44,12 +44,13 @@ expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'Burnt area',
              'Land use', 'No Mort', 'Sensitivity')
 
 makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
+                                fire_dataset = "GFED_four_s",
                                 pr_dataset = 'MSWEP', drought_var = 'MADD',
                                 andFire = FALSE) {
     datsi = lapply(andFire, load_dats)
     
     run_member <- function(dati, andFirei, line) {
-        dname = paste0(ens_dir, pr_dataset, '_', drought_var, '/')
+        dname = paste0(ens_dir, fire_dataset, '_', pr_dataset, '_', drought_var, '/')
         makeDir(dname)	    
         dname = paste0(dname, 'sample_', line, '/')
         makeDir(dname)
@@ -59,7 +60,8 @@ makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
         makeDir(dname)
             
         fnames =  paste(dname, names(dati), '.nc', sep = '')
-        paramFile = paste0(paramFile, '_', pr_dataset, '_', drought_var, '.csv')
+        paramFile = paste0(paramFile, '_',
+                           fire_dataset, '_', pr_dataset, '_', drought_var, '.csv')
             
         run <- function(dat, fname) {
             pr_dat = dat[grepl(pr_dataset,names(dat))] 

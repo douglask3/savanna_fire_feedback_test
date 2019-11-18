@@ -4,20 +4,28 @@ runLimTREE <- function(line, paramFile, dat = NULL, ...) {
         
     params = read.csv(paramFile, stringsAsFactors=FALSE)[line,]
     params = unlist(params)
-	
+    
     out = LimTREE(dat[['MAP']], dat[['RainTerm_Drought']],
-                  dat[['MAT']], dat[['SW1']], dat[['SW2']], 
+                  dat[['SW1']], dat[['SW2']], 
                   dat[['BurntArea']], dat[['StressTerm_Drought']], dat[['MTWM']],
-                  dat[['PopDen']], dat[['urban']], dat[['crop']], dat[['pas']],
+                  dat[['MTCM']],
+                  dat[['PopDen']],
+                  dat[['buffalo']], dat[['cattle']], dat[['goat']], dat[['sheep']],
+                  dat[['urban']], dat[['crop']],
                   params['m_drought'],
                   params['min_mat'], params['max_mat'], 
                   params['trans_d'], params['p_fire'],
-                  params['k_popden'], params['p_drought'],
+                  params['k_pop'],
+                  params['k_buffalo'], params['k_cattle'], 
+                  params['k_goat'], params['k_sheep'],
+                  params['p_drought'],
                   params['min_maxTemp'], params['max_minTemp'],
                   params['q10_maxTemp'], params['q10_minTemp'],
                   params['v_drought'], params['v_maxTemp'], params['v_minTemp'],
-                  params['v_popDen'],
-                  params['v_crop'], params['v_pas'],
+                  params['v_pop'],
+                  params['v_buffalo'], params['v_cattle'],
+                  params['v_goat'], params['v_sheep'],
+                  params['v_crop'],
                   params['MAP_x0'], params['MAP_k'], params['MAT_x0'], params['MAT_k'], 
                   params['SW_x0'], params['SW_k'], params['mort_x0'], params['mort_k'],
                   params['ex_x0'], params['ex_k'],
@@ -26,15 +34,22 @@ runLimTREE <- function(line, paramFile, dat = NULL, ...) {
     return(out)
 }
 
-LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxTemp, popDen, 
-                    urban, crop, pas,
+LimTREE <- function(MAP, rain_drought, SW1, SW2, fire, stress_drought,
+                    maxTemp, minTemp,
+                    popDen, 
+                    buffalo, cattle, goat, sheep,
+                    urban, crop,
 		    m_drought, min_mat, max_mat,
-                    d, p_fire, k_popDen, p_drought, min_maxTemp, max_minTemp,
+                    d, p_fire,
+                    k_popDen, k_buffalo, k_cattle, k_goat, k_sheep,
+                    p_drought, min_maxTemp, max_minTemp,
                     q10_maxTemp, q10_minTemp,
-		    v_drought, v_maxTemp, v_minTemp, v_popDen, v_crop, v_pas,
+		    v_drought, v_maxTemp, v_minTemp,
+                    v_popDen, v_buffalo, v_cattle, v_goat, v_sheep,
+                    v_crop,
 		    MAP0, MAPk, MAT0, MATk, SW0, SWk, Mort0, Mortk, Exc0, Exck, maxT,
-					includeSW = TRUE, ...) {
-	
+		    includeSW = TRUE, ...) {
+    
     f_MAP  = LimMAP  (MAP, rain_drought, m_drought, MAP0 , MAPk, ...)
     #f_MAT  = LimMAT  (MAT, min_mat, max_mat, MAT0 , MATk, ...)
 	
@@ -47,16 +62,20 @@ LimTREE <- function(MAP, rain_drought, MAT, SW1, SW2, fire, stress_drought, maxT
     f_MAT = f_MAP
     f_MAT[!is.na(f_MAT)] = 1.0
 	
-    f_Mort = LimMort (fire, stress_drought, maxTemp, MAT, popDen,
-                      v_drought, v_maxTemp, v_minTemp, v_popDen,
-                      p_fire, k_popDen, p_drought,
+    f_Mort = LimMort (fire, stress_drought, maxTemp, minTemp, popDen,
+                      buffalo, cattle, goat, sheep,
+                      v_drought, v_maxTemp, v_minTemp,
+                      v_popDen, v_buffalo, v_cattle, v_goat, v_sheep,
+                      p_fire, 
+                      k_popDen, k_buffalo, k_cattle, k_goat, k_sheep,
+                      p_drought,
                       min_maxTemp, max_minTemp, q10_maxTemp, q10_minTemp,
                       Mort0, -Mortk, ...)
-						   
-    f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck, ...)
-	
+
+ 			   
+    f_Exc  = LimExc  (urban, crop, v_crop, Exc0, -Exck, ...)
+    	
     Tree = f_MAP * f_SW * f_Mort * f_Exc * maxT #  * f_MAT
-	
     return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
@@ -103,7 +122,7 @@ LimList <- function(x, v, ..., retutnVar = FALSE) {
 LimSW   <- function(SW1, SW2, d, ...)
     LimList(c(SW1, SW2), d, ...)
 	
-LimTREE.popDen <- function(popDen, k) 
+LimTREE.convertUnity <- function(popDen, k) 
     1 - exp(popDen * (-1/k))
 	
 LimTREE.Temp <- function(Temp, mn, q10) {
@@ -113,22 +132,34 @@ LimTREE.Temp <- function(Temp, mn, q10) {
 
 
 LimMort <- function(fire, drought, maxTemp, minTemp, popDen,
-                    v_drought, v_maxTemp, v_minTemp, v_popDen,
-		    p_fire, k_popDen, p_drought, min_maxTemp, max_minTemp,
+                    buffalo, cattle, goat, sheep,
+                    v_drought, v_maxTemp, v_minTemp,
+                    v_popDen, v_buffalo, v_cattle, v_goat, v_sheep,
+		    p_fire,
+                    k_popDen, k_buffalo, k_cattle, k_goat, k_sheep,
+                    p_drought, min_maxTemp, max_minTemp,
                     q10_maxTemp, q10_minTemp, ...) {
 		
     fire = fire^p_fire
 	
-    popDen  = LimTREE.popDen(popDen, k_popDen)
+    popDen   = LimTREE.convertUnity( popDen, k_popDen )
+    buffalo  = LimTREE.convertUnity(buffalo, k_buffalo)
+    cattle   = LimTREE.convertUnity( cattle, k_cattle )
+    goat     = LimTREE.convertUnity(   goat, k_goat   )
+    sheep    = LimTREE.convertUnity(  sheep, k_sheep  )
+
     maxTemp = LimTREE.Temp(maxTemp     ,  min_maxTemp, q10_maxTemp)
     minTemp = LimTREE.Temp(minTemp*(-1), -max_minTemp, q10_minTemp)
     drought = drought^p_drought
-    LimList(c(fire, drought, maxTemp, minTemp, popDen),
-            c(v_drought, v_maxTemp, v_minTemp, v_popDen), ...)
+    
+    LimList(c(fire, drought, maxTemp, minTemp,
+              popDen, buffalo, cattle, goat, sheep),
+            c(v_drought, v_maxTemp, v_minTemp,
+              v_popDen, v_buffalo, v_cattle, v_goat, v_sheep), ...)
 }
 
-LimExc  <- function(urban, crop, pas, v_crop, v_pas, ...)
-    LimList(c(urban, crop, pas), c(v_crop, v_pas), ...)
+LimExc  <- function(urban, crop, v_crop, ...)
+    LimList(c(urban, crop), c(v_crop), ...)
 
 
 
