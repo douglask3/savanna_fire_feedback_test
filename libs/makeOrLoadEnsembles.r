@@ -8,7 +8,8 @@ dats_info = list(control     = list(NULL),
                  noDroughtSTS= list(remove = c("StressTerm_Drought")),
                  noDrought   = list(remove = c("RainTerm_Drought",
                                                "StressTerm_Drought")),
-                 noTempMort  = list(remove = c("MTWM")),
+                 noHeatStres = list(remove = c("MTWM")),
+                 noColdStres = list(replace = c("MTCM" = 1000)),
                  noPop       = list(remove = c("PopDen")),
                  noUrban     = list(remove = c("urban")),
                  noCrop      = list(remove = c("crop")),
@@ -29,7 +30,7 @@ load_dats <- function(andFire = FALSE) {
         if (!exists("dats_fire"))
             dats_fire <<- lapply(dats_info, loadDat)
             
-        dats_out = dats_fire        
+        dats_out = dats_fire
     } else {
         if (!exists("dats")) 
             dats <<- lapply(dats_info, loadDat)            
@@ -39,9 +40,10 @@ load_dats <- function(andFire = FALSE) {
     return(dats_out)
 }
 			
+			
 expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'Burnt area',
              'Rainfall dist. on MAP', 'Rainfall dist. on Stress', 'Rainfall distribution', 
-             'Temperature stress', 'Population density', 
+             'Heat stress', 'Cold stress', 'Population density', 
              'Urban area', 'Cropland', 'Pasture', 'All human impacts',
              'Land use', 'No Mort', 'Sensitivity')
 
