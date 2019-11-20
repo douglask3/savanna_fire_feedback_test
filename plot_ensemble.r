@@ -84,7 +84,7 @@ plotExps <- function(fname1, fname2, ExpID, out, dout, plotFullModOnly = FALSE, 
     dev.off()#.gitWatermark()
 }
 
-PlotAllExperiments <- function(pr_dataset, drought_var, ..., fnameExtra = '', 
+PlotAllExperiments <- function(fire_dataset, pr_dataset, drought_var, ..., fnameExtra = '', 
                                plotFullModOnly = FALSE, obsOnly = FALSE, normalise = FALSE) {
     ########################################
     ## load and analyes  		  ##
@@ -115,7 +115,7 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., fnameExtra = '',
     }
 
     #plotExps_fun('JULEScomparison', c(2, 5, 8:14))
-    plotExps_fun('mortalityAndExclusion', c(5, 8:14))
+    plotExps_fun('mortalityAndExclusion', c(5, 8:15))
     #plotExps_fun('RainfallDist', c(6:8))
 
     
@@ -141,9 +141,9 @@ PlotAllExperiments <- function(pr_dataset, drought_var, ..., fnameExtra = '',
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
 #PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', normalise = TRUE)
-PlotAllExperiments(pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD')
-PlotAllExperiments(pr_dataset = 'MSWEP', andFire = TRUE, fnameExtra = 'withourFire', drought_var = 'MADD')
-PlotAllExperiments(pr_dataset = 'MSWEP', andFire = c(FALSE, TRUE), fnameExtra = 'FireInteraction', drought_var = 'MADD')
+PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD')
+PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = TRUE, fnameExtra = 'withourFire', drought_var = 'MADD')
+PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = c(FALSE, TRUE), fnameExtra = 'FireInteraction', drought_var = 'MADD')
 #, andFire = c(F, T)
 lmat = c(1, 0, 0, 0)
 lmat = rbind(lmat, matrix(2:17, ncol = 4))
