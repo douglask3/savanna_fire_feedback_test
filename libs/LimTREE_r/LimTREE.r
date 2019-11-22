@@ -1,7 +1,7 @@
 runLimTREE <- function(line, paramFile, dat = NULL, ...) {
     if (is.null(dat)) 
 	dat = loadInputData()
-        
+    browser()
     params = read.csv(paramFile, stringsAsFactors=FALSE)[line,]
     params = unlist(params)
     
@@ -74,8 +74,9 @@ LimTREE <- function(MAP, rain_drought, SW1, SW2, fire, stress_drought,
 
  			   
     f_Exc  = LimExc  (urban, crop, v_crop, Exc0, -Exck, ...)
-    	
+    
     Tree = f_MAP * f_SW * f_Mort * f_Exc * maxT #  * f_MAT
+    
     return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
@@ -90,7 +91,7 @@ logistic <- function(x, x0, k, sensitivity = FALSE) {
 }
 
 LimMAP <- function(MAP, drought, m_drought,...){
-    MAP = MAP + (1-drought) * (1/m_drought) * (exp(-m_drought * MAP)-1)
+    #MAP = MAP + (1-drought) * (1/m_drought) * (exp(-m_drought * MAP)-1)
     MAP = log(MAP)
     logistic(MAP, ...)
 }
@@ -119,11 +120,14 @@ LimList <- function(x, v, ..., retutnVar = FALSE) {
     return(out)
 }
 
-LimSW   <- function(SW1, SW2, d, ...)
-    LimList(c(SW1, SW2), d, ...)
-	
-LimTREE.convertUnity <- function(popDen, k) 
-    1 - exp(popDen * (-1/k))
+LimSW   <- function(SW1, SW2, d, ...) {
+    SW = (SW1 + d * SW2)/(1+d)
+    SW = logmin(SW)    
+    logistic(SW, ...)
+}
+
+LimTREE.convertUnity <- function(x, k) 
+    1 - exp(x * (-1/k))
 	
 LimTREE.Temp <- function(Temp, mn, q10) {
     Temp = q10^(Temp - mn)	
@@ -141,17 +145,17 @@ LimMort <- function(fire, drought, maxTemp, minTemp, popDen,
                     q10_maxTemp, q10_minTemp, ...) {
 		
     fire = fire^p_fire
-	
+    popDen0 = popDen
     popDen   = LimTREE.convertUnity( popDen, k_popDen )
     buffalo  = LimTREE.convertUnity(buffalo, k_buffalo)
     cattle   = LimTREE.convertUnity( cattle, k_cattle )
     goat     = LimTREE.convertUnity(   goat, k_goat   )
     sheep    = LimTREE.convertUnity(  sheep, k_sheep  )
-
+    
     maxTemp = LimTREE.Temp(maxTemp     ,  min_maxTemp, q10_maxTemp)
     minTemp = LimTREE.Temp(minTemp*(-1), -max_minTemp, q10_minTemp)
     drought = drought^p_drought
-    
+    browser()
     LimList(c(fire, drought, maxTemp, minTemp,
               popDen, buffalo, cattle, goat, sheep),
             c(v_drought, v_maxTemp, v_minTemp,
