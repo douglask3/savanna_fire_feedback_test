@@ -90,7 +90,7 @@ PlotAllExperiments <- function(fire_dataset, pr_dataset, drought_var, ..., fname
     ## load and analyes  		  ##
     ######################################## 
     
-    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)
+    out = makeOrLoadEnsembles(fire_dataset = fire_dataset, pr_dataset = pr_dataset, drought_var = drought_var, ...)
     out = selectOutput(out)
     out = lapply(out, function(i) i/0.8)
     
