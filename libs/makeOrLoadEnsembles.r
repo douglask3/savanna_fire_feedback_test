@@ -10,7 +10,8 @@ dats_info = list(control     = list(NULL),
                                                "StressTerm_Drought")),
                  noHeatStres = list(remove = c("MTWM")),
                  noColdStres = list(replace = c("MTCM" = 1000)),
-                 noPop       = list(remove = c("PopDen")),
+                 noPop       = list(remove = c("PopDen"),
+                                    fireNudge =  list("PopDen" = c('cD1', 'igntions_k'),                                                              "PopDen" = c('cD2', 'suppression_k'))),
                  noUrban     = list(remove = c("urban")),
                  noCrop      = list(remove = c("crop")),
                  noPas       = list(remove = c('buffalo', 'cattle', 'goat', 'sheep')),
@@ -52,7 +53,6 @@ makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
                                 pr_dataset = 'MSWEP', drought_var = 'MADD',
                                 andFire = FALSE) {
     datsi = lapply(andFire, load_dats)
-    
     run_member <- function(dati, andFirei, line) {
         dname = paste0(ens_dir, fire_dataset, '_', pr_dataset, '_', drought_var, '/')
         makeDir(dname)	    
@@ -75,6 +75,7 @@ makeOrLoadEnsembles <- function(grab_cache = grab_cache_default, invert = TRUE,
             dat['StressTerm_Drought'] = pr_dat[grepl(paste0("StressTerm_", drought_var), names(pr_dat))]
 
             runCache <- function() {                                                                            out = runLimTREE(line, paramFile, dat, sensitivity = FALSE)
+                
                 if (grepl('sensitivity', fname)) {					
                     grad =  runLimTREE(line, paramFile, dat, sensitivity = TRUE)
                     index = 1:(nlayers(grad) - 1)

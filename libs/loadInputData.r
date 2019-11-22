@@ -1,4 +1,4 @@
-loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
+loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL, fireNudge = NULL) {
 	
     files = list.files('data/driving_Data/')
     files = files[grepl('.nc', files)]
@@ -47,8 +47,20 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL) {
     }	
     #if (remove == "RainTerm_Drought") browser()
    
-    if (!is.null(remove))
-	for (i in remove) dat = replaceVar(dat, i, 0.0)
+    if (!is.null(remove)) {
+	
+        "if (!is.null(fireNudge)) {
+            nudge <- function(x, var) {
+                kc = conFire_params[, x[1]] * conFire_params[, x[2]]
+                kc = quantile(kc, c(0.05, 0.5, 0.95))
+                S = layer.apply(kc, function(i) exp(i * dat[[var]]))
+                return(S)
+            }
+            Ss = mapply(nudge, fireNudge, names(fireNudge))
+            browser()
+        }"
+        for (i in remove) dat = replaceVar(dat, i, 0.0)
+    }
     	
     if (!is.null(maxout))
 	for (i in maxout) dat = replaceVar(dat, i, 9E9)
