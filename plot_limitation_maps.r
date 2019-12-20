@@ -15,20 +15,21 @@ cols = c("FF", "BB","88", "44", "00")
 
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
 dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
-items = c(2:3, 5:6)
+items = c(2, 6, 5, 4)
 
 ########################################
 ## load and analyes  			      ##
 ########################################
 
-plot4pr_droughts <- function(pr_dataset, drought_var) {
-    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var)
+plot4pr_droughts <- function(fire_dataset, pr_dataset, drought_var) {
+    out = makeOrLoadEnsembles(fire_dataset = fire_dataset, pr_dataset = pr_dataset,
+                              drought_var = drought_var)
     lim = lapply(items, function(i) selectOutput(out, i)[[1]])
     sen = lapply(items, function(i)  tail(selectOutput(out, i), 1)[[1]])
-
+    
     xy = xyFromCell(lim[[1]], 1:length(lim[[1]]))
     mlim = lim
-
+    
     tot = lim[[1]] * lim[[2]] * lim[[3]] * lim[[4]]
     
     pot <- function(i) {
@@ -36,13 +37,13 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
         return((limi[[1]] * limi[[2]] * limi[[3]] - tot))        
     }    
     nlim = lapply(1:4, pot)
-    nlim[[2]] = nlim[[2]] * 10
+    #nlim[[2]] = nlim[[2]] * 10
     tot = nlim[[1]] + nlim[[2]] + nlim[[3]] + nlim[[4]]
     nlim = lapply(nlim, function(i) i/tot)
     
     mlim = lapply(lim, function(i) 1-i)
-    sen[[2]] = sen[[2]] * 10
-    mlim[[3]] = mlim[[3]] * 10
+    #sen[[2]] = sen[[2]] * 10
+    #mlim[[3]] = mlim[[3]] * 10
     #nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
     #nlim = lapply(mlim, '/', nlim)
 
@@ -127,6 +128,6 @@ plot4pr_droughts <- function(pr_dataset, drought_var) {
     browser()
 }
 
-plot4pr_droughts('MSWEP', 'MADD')
+plot4pr_droughts("GFED_four_s", 'MSWEP', 'MADD')
 #runAll_pr_droughts(plot4pr_droughts)
 
