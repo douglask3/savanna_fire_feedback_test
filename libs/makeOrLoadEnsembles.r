@@ -14,12 +14,13 @@ dats_info = list(control     = list(NULL),
                                     fireNudge =  list("PopDen" = c('cD1', 'igntions_k'),                                                              "PopDen" = c('cD2', 'suppression_k'))),
                  noUrban     = list(remove = c("urban")),
                  noCrop      = list(remove = c("crop")),
-                 noPas       = list(remove = c('buffalo', 'cattle', 'goat', 'sheep')),
+                 noPas       = list(remove = c('buffalo', 'cattle', 'goat', 'sheep', 'pas')),
                  noHumans    = list(remove = c("PopDen", "urban", "crop",
-                                               'buffalo', 'cattle', 'goat', 'sheep')),
+                                               'buffalo', 'cattle', 'goat', 'sheep', 'pas')),
                  noExclusion = list(remove = c("urban", "crop",
-                                                'buffalo', 'cattle', 'goat', 'sheep')),
-                 noMortality = list(remove = c("MTWM", "PopDen", "Drought", "BurntArea")),
+                                                'pas')),
+                 noMortality = list(remove = c("MTWM", "PopDen", "Drought", "BurntArea",
+                                               'buffalo', 'cattle', 'goat', 'sheep')),
                  sensitivity = list())
 
 load_dats <- function(andFire = FALSE) {
