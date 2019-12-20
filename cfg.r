@@ -36,10 +36,8 @@ drought_vars = c('MADD', 'MADM', 'MConc', 'MDDM')
 pr_datasets  = c('MSWEP')
 drought_vars = c('MADD')
 
-paramFile = 'outputs/params'
-
 ensemble_no = round(seq(1,240000, length.out = 101) )
-ensemble_no = round(seq(1,4200, length.out = 6) )
+ensemble_no = round(seq(1,1000, length.out = 6) )
 
 grab_cache_default = TRUE
 
@@ -49,11 +47,13 @@ sourceAllLibs('libs/plotting/')
 
 extent = c(-180, 180, -30, 30)
 
-
+fire_datasets = c("GFED_four_s")
 pr_datasets  = c('MSWEP')#, 'CRU', 'GPCC', 'CMORPH')
 drought_vars = c('MADD')#, 'MADM', 'MConc', 'MDDM')
 
-paramFile = 'outputs/params-negDist'
+paramFile = 'outputs/params-fullnewModel'
+
+conFire_params = read.csv('../LimFIRE/data/params.csv')
 
 
 plot_title = c('MAP', 'MAT', 'Stress', 'Exclusion')
