@@ -213,4 +213,4 @@ maskAndReout_pr <- function(r) {
     return(r)
 }
 
-dats = lapply(unlist(pr_ins), maskAndReout_pr)
+lapply(unlist(pr_ins), maskAndReout_pr)
