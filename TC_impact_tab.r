@@ -1,12 +1,13 @@
 source("cfg.r")
 graphics.off()
 
-expIDS = c(2, 3, 14, 13, 5, 6, 7, 8, 9, 10, 11, 12)
+expIDS = c(2, 3, 17, 16, 5, 8:15)
 
-TC_impact_tab <- function(pr_dataset, drought_var, ExpID = NULL, ...) {
+TC_impact_tab <- function(fire_dataset, pr_dataset, drought_var, ExpID = NULL, ...) {
     print(pr_dataset)
     print(drought_var)
-    out = makeOrLoadEnsembles(pr_dataset = pr_dataset, drought_var = drought_var, ...)
+    out = makeOrLoadEnsembles(fire_dataset = fire_dataset,
+                              pr_dataset = pr_dataset, drought_var = drought_var, ...)
     control = out[[1]]
     if (!is.null(ExpID)) Toff = out[ExpID] else Toff = out
 
@@ -33,15 +34,15 @@ TC_impact_tab <- function(pr_dataset, drought_var, ExpID = NULL, ...) {
     return(out)
 }
 
-outs = runAll_pr_droughts(TC_impact_tab)
+outs = runAll_fire_pr_droughts(TC_impact_tab)
 
 outs_out = c()
-for (i in outs) for (j in i) {
-    j = j[, expIDS]
-    j[2, ] = j[2,]/j[1,]
-    outs_out = cbind(outs_out, as.vector(j))
+for (i in outs) for (j in i) for (k in j) {
+    k = k[, expIDS]
+    k[2, ] = k[2,]/k[1,]
+    outs_out = cbind(outs_out, as.vector(k))
     colnames(outs_out) = c(head(colnames(outs_out), -1), 
-                           strsplit(rownames(j)[1], '_mean'))
+                           strsplit(rownames(k)[1], '_mean'))
 }
 
 rownames(outs_out) = paste(rep(expNames[expIDS], each = 2), c('mean', 'sd'))
