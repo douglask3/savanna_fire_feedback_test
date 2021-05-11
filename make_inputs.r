@@ -6,9 +6,11 @@ MADDM = Mean Annual Dry Days of the Driest Month
 MADM  = Mean Annual Prciep of Dryiest Month
 MConc = Mean Annual Seasonal Concentration
 "
+extent = c(-180, 180, -90, 90)
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc",
+              "nonTreeCover" = "nontree2000-2014.nc",
               "MaxWind" = "../../savanna_fire_feedback_test/data/CRUNCEP.wspeed.r0d5.1997.2013.nc",
               "MAT" = "Tas2000-2014.nc",
               "MTWM" = "../data/cru_ts4.03/cru_ts4.03.1901.2018.tmx.dat.nc",
@@ -110,7 +112,8 @@ layer1GT0 <- function(r, ...) {
     return(r)
 }
 
-FUNS = c("TreeCover" = annualAverage, "MaxWind" = makeWind,
+FUNS = c("TreeCover" = annualAverage, "nonTreeCover" = annualAverage,
+         "MaxWind" = makeWind,
          "MAT" = annualAverage,
          "MTWM" = temp_max,
          "MTCM" = temp_min, 
@@ -127,7 +130,7 @@ FUNS = c("TreeCover" = annualAverage, "MaxWind" = makeWind,
          "buffalo" = layer1GT0, "goat" = layer1GT0, "cattle" = layer1GT0, "sheep" = layer1GT0)
 			  
 			  
-scaling = c("TreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
+scaling = c("TreeCover" = 1, "nonTreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
             "MTCM" = 1,
 	    "sunshine" = 1,
             "BurntArea_GFED_four_s" = 1,
@@ -140,7 +143,7 @@ scaling = c("TreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
 	    "MADM_CRU" = 1, "MConc_CRU" = 1,
             "buffalo" = 1, "goat" = 1, "cattle" = 1, "sheep" = 1)
 			  
-MinPoint = c("TreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTWM" = 0,
+MinPoint = c("TreeCover" = 0, "nonTreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTWM" = 0,
              "MTCM" = 0,
 	     "sunshine" = 0,
              "BurntArea_GFED_four_s" = 0,
@@ -162,7 +165,7 @@ makeVar <- function(filename, FUN) {
 
 ins = mapply(makeVar, variables, FUNS)
 
-ins_all = c(unlist(ins), unlist(pr_ins))
+ins_all = c(unlist(ins))#, unlist(pr_ins))
 
 mask = is.na(ins_all[[1]][[1]])
 
@@ -175,6 +178,7 @@ for (i in ins_all[-1]) {
 }
 mask = mask > 3    
 
+n96_mask = raster('../UKESM-ConFire/data/n96e_orca1_mask.nc')
 writeVar <- function(nme, r, sc, mp = 0.0) {
 	
 	writeSub <- function(nmei, ri) {
@@ -187,7 +191,17 @@ writeVar <- function(nme, r, sc, mp = 0.0) {
 		print(fname)
 		ri =  crop(ri, extent(extent))
 		ri = ri * sc
-		ri = writeRaster.gitInfo(ri, fname, zname = 'layer',
+                
+		ri = writeRaster.gitInfo(ri, fname, varname = "layer",
+                                         comment = list(src_file = 'make_inputs.r'),  
+                                         overwrite = TRUE)
+
+                rr = convert_regular_2_pacific_centric(ri)
+                rr = raster::resample(rr, n96_mask)
+
+		fnamer = paste('data/driving_Data/N96/', nmei, '.nc', sep = '')
+                
+                rr = writeRaster.gitInfo(rr, fnamer, varname = nme,
                                          comment = list(src_file = 'make_inputs.r'),  
                                          overwrite = TRUE)
 		return(ri)
