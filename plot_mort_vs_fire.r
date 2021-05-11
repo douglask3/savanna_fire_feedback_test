@@ -47,7 +47,7 @@ if (file.exists(temp_file) & grab_cache) {
 	## Jules
 	Jules_TC_fire_off = openJulesTree(JULES_control, yrs = c(2002, 2008, 2014))
 	Jules_PFTs = openJulesTree(JULES_control, splitPFTs = TRUE, yrs = c(2002, 2008, 2014))
-	Jules_fire = layer.apply(JULES_experiments, openJulesTree,  1, "burnt_area_gb", yrs = c(2002, 2008, 2014)) * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
+	Jules_fire = layer.apply(JULES_experiments, openJulesTree,  NULL, 1, "burnt_area_gb", yrs = c(2002, 2008, 2014)) * 60 * 60 * 24 * 365 # Jules_TC_fire_off = openJulesTree(Jules_fire_off_LU_off_fname)
 	Jules_fire = raster::resample(Jules_fire, Jules_TC_fire_off)
 	Jules_TC_fire_on = layer.apply(JULES_experiments, openJulesTree, yrs = c(2002, 2008, 2014))
 		
