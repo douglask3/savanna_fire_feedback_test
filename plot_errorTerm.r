@@ -29,9 +29,9 @@ open_dr <- function(drv) {
     return(list(mn, out))
 }
 
-#dats = dats0 = lapply(dr_vars, open_dr)
-#mns = sapply(dats, function(i) i[[1]])
-#dats = lapply(dats, function(i) i[[2]])
+dats = dats0 = lapply(dr_vars, open_dr)
+mns = sapply(dats, function(i) i[[1]])
+dats = lapply(dats, function(i) i[[2]])
 mxs = mxs0 = rep(0, length(dats[[1]][[1]][[1]]))
 for (dat in dats) {
     mxsi = mxs0
