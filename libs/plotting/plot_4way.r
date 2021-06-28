@@ -53,7 +53,7 @@ plot_4way <- function(x, y, A, B, C, D, x_range = c(-180, 180), y_range = c(-90,
 		#C = Ci
 	}
 	
-    out = rasterFromXYZ(cbind(x, y, D))
+    out = rasterFromXYZ(cbind(x, y, A))
 	
     out = addLayer(out, rasterFromXYZ(cbind(x, y, B)),
                         rasterFromXYZ(cbind(x, y, C)),

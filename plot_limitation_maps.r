@@ -1,97 +1,168 @@
 ########################################
-## cfg							      ##
+## cfg          		      ##
 ########################################
 source("cfg.r")
 graphics.off()
 
-limits = c(1, 10, 20, 30, 40, 50, 60, 70)
+
+limits4 = c(0.2, 0.4, 0.6, 0.8)
+limits4 = c(0.33, 0.67)
+#limits4 = 0.5
+cols4 = c("FF", "BB","88", "44", "00")
+cols4 = c("FF", "88", "00")
+#cols4 = c("FF", "00")
+
+col4Labs = list(c('S', 's', ''), c('E', 'e', ''),  c('P', 'p', ''), c('T', 't', ''))
+
+
+limits = list(c(1, 2, 5, 10, 25, 50, 75, 90, 95, 98, 99),
+              c(1, 2, 5, 10, 20, 30, 40, 50, 60),
+              c(1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90))
+limits2 = c(0.2, 0.5, 1, 2,5, 10, 20)
 cols = c("white", "#AAAA00", "#003300")
 
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
 dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
 items = c(2:3, 5:6)
 
+summaryFile = "model_summary-nEns-11.nc"
+allPostDir = "data/sampled_posterior/attempt6//control//"
+controls = c(Stress = "mortality", Exclusion = "exclude", MAP = "map", Energy = "energy")
+limTypes = c("Standard limitation" = "standard",
+             "Potential limitation" = "potential", "Sensitivity" = "sensitivity")
+normalies = c(T, T, T, F)
+
 ########################################
 ## load and analyes  			      ##
 ########################################
 
-out = makeOrLoadEnsembles()
-lim = lapply(items, function(i) 1-selectOutput(out, i)[[1]])
-
-sen = lapply(items, function(i)  tail(selectOutput(out, i), 1)[[1]])
-
-
-limits = c(0.2, 0.4, 0.6, 0.8)
-cols = c("FF", "BB","88", "44", "00")
-	
-xy = xyFromCell(lim[[1]], 1:length(lim[[1]]))
-mlim = lim
-
-nlim = mlim[[1]] + mlim[[2]] + mlim[[3]] + mlim[[4]]
-nlim = lapply(mlim, '/', nlim)
-
-plotMap <- function(x, fname = '', normalise = FALSE) {
-	fname = paste('figs/limPlot', fname, '.png', sep = '')
-	png(fname, height = 6, width = 12, res = 300, unit = 'in')
+plotMap <- function(limType, limits, title = '',
+                    fname  = '', ids = c(3, 7), header = c('10%', '90%')) {
+    lim_varnames = paste0(limType, '_', controls)
+    lims = lapply(lim_varnames, function(v) brick(paste0(allPostDir, summaryFile), varname = v))
+    
+    fname = paste('figs/limPlot', fname, '-', limType, '.png', sep = '')
+    png(fname, height = 4.67, width = 12, res = 300, unit = 'in')
 	print(fname)
-	lmat = rbind(c(1,2),
-				 c(3,4),
-				 5,
-				 6)
+        if (limType == "standard") {
+            heights = c(1,1,1,0.5, 1)
+            r1 = c(10, 10, 11); r2 = 12
+        } else {
+            heights = c(1,1,1,1,0.5)
+            r1 = 10:12; r2 = c(13, 13, 14)
+        }
+        
+	layout(rbind(1:3, 4:6, 7:9, r1, r2), heights = heights)
+	par(mar = c(0.5, 0, 0.5, 0), oma = c(0,0,2.3, 0))	
 	
-	layout(lmat, heights = c(1,1,2,0.5))
-	par(mar = rep(0,4), oma = c(0,0,0.5, 0))	
-	x = lapply(x, function(i) max.raster(i, na.rm = TRUE) * (i-min.raster(i, na.rm = TRUE))/diff(range.raster(i, na.rm = TRUE)))
-	
-	x[c(1, 3)] = lapply(x[c(1, 3)], function(i) {i[1:20, 345:420][is.na(i[1:20, 345:420])] = max.raster(i, na.rm = TRUE); i})
-	x[c(2, 4)] = lapply(x[c(2, 4)], function(i) {i[1:20, 345:420][is.na(i[1:20, 345:420])] = quantile(i, 0.1); i})
-	
-	plotFun <- function(i, cols, title) {
-		plot_raster_from_raster(i, cols = cols, limits = seq(0.0, 1.0, 0.1), add_legend=FALSE, interior = FALSE)
-		addStandardLegend(i, rev(seq(0.0, 1.0, 0.1) * 100) , cols, units = '')
-		mtext(side = 3, adj = 0.2, title, line = -1.15, cex = 1.5)
-	}
-	
-	
-	mapply(plotFun, x, 
-			cols = list(c("white", '#00FFFF', '#000011'),
-			            c("white", '#888800', "#001100"),
-						c("white", "#FF00FF", "#110000"),
-						c("white", "black")), plot_title)
-	
-	
-	#2.5:4.5
-	pout = lapply(x, values)
-	
-	if (normalise) cols = rev(cols)
-	# if rev: c,m,y 
-	#		  c,m,y
-	pout[[2]] = pout[[2]] ^0.33
-	plot_4way(xy[,1], xy[,2], pout[[1]], pout[[3]], pout[[2]], pout[[4]],
-			  x_range = c(-180, 180), y_range = c(-30, 30),
-			  cols = 	c(cols), limits = c(0.2, 0.4, 0.6, 0.8), 
-			  coast.lwd=par("lwd"),ePatternRes = 35, ePatternThick = 1.0,
-			  add_legend=FALSE, smooth_image=FALSE,smooth_factor=5, normalise = normalise)
+	plotFun <- function(lim, title, addTotTitle, normalise) {
+            limx = lapply(c(3,7), function(x) lim[[x]]*100)
+            limx = lapply(limx, function(r) {r[r>9E9] = NaN; r})
+            limx = lapply(limx, function(r) {r[lims[[4]][[1]]>9E9] = NaN; r})
+            
+            if (normalise) {
+                mx = max(sapply(limx, max.raster, na.rm = TRUE))/100
+                limp = lapply(limx, '/', mx)
+            } else limp = limx
+            limp = c(limp, limp[[2]] - limp[[1]])
+	    FUN <- function(r, limitsi = limits)
+                plotStandardMap(r, cols = cols, limits = limitsi, interior = FALSE)
+            FUN(limp[[1]], limits)
+            #if (limType == "sensitivity") browser()
+            mtext(side = 2, title, line = -2)
+            if (addTotTitle) mtext(side = 3, header[1], line = 0)
+	    mtext(side = 2, adj = 0.5, title)
+            FUN(limp[[2]], limits)
+            
+            if (addTotTitle) mtext(side = 3, header[2], line = 0)
+            FUN(limp[[3]], limits2)  
+            if (addTotTitle) mtext(side = 3, 'Range%', line = 0)            
+            return(limx)          
+	}	
+	if (limType == "standard") index = 1:3 else index = 1:4
+	limsx = mapply(plotFun, lims[index], names(controls)[index],
+                      c(T, rep(F, length(lims)-1))[index],
+                       normalies[index], SIMPLIFY = FALSE)    
+        title(title, outer = TRUE, line = 1)    
+        addStandardLegend(lims[[1]][[1]], limits , cols, units = '', add = FALSE, 
+                          plot_loc = c(0.2, 0.8, 0.55, 0.7), maxLab = 100, srt = 45)      
+        addStandardLegend(lims[[1]][[1]], limits2 , cols, units = '', add = FALSE, 
+                          plot_loc = c(0.1, 0.9, 0.55, 0.7), extend_max = TRUE, srt = 45)
+    dev.off()
 
-	
-	#par(mar = c(3, 10, 0, 8))
-	add_raster_4way_legend(cols = cols ,limits = c(0.2, 0.4, 0.6, 0.8),
-					   labs = c('<- Moisture', 'Fuel ->', 'Igntions ->', 'Land Use'))
-	dev.off.gitWatermark()
+    
+    return(limsx)
 }	
-plotMaps <- function(x, fname, ...) {
-	plotStuff <- function(ID1, ext, FUN1, FUN2) {
-		fname = paste(fname, ext, sep = '-')
-		x[[ID1]] = FUN1(x[[ID1]])
-		x[-ID1] = lapply(x[-ID1], FUN2)
-		plotMap(x, fname, ...)
-	}
-	plotStuff(1, 'mean', mean, mean)
-	mapply(plotStuff, 1:4, paste('max', 1:4), MoreArgs = list( function(i) max(i),  function(i) min(i)))
-	mapply(plotStuff, 1:4, paste('min', 1:4), MoreArgs = list( function(i) min(i),  function(i) max(i)))
-	
+plotAllTypes <- function(...) 
+    mapply(plotMap, limTypes, limits, names(limTypes),
+            MoreArgs = list(...), SIMPLIFY = FALSE)
+
+plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
+#limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
+test = is.na(limsxs[[1]][[3]][[2]]) & !is.na(limsxs[[1]][[1]][[1]])
+limsxs[[1]][[3]][[2]][test] = 0.0
+
+plotFUN4ways <- function(rs, fname, title,
+                         normalise = FALSE, revcols = normalise, limits4Scale = 1) {
+    
+    limits4 = 1-limits4Scale*(1-limits4)
+    	
+    plotRanges <- function(i, topTitle) { 
+        plotRange <- function(id, sideTitle) {
+            #is = rep(3-i, 4)
+            if (revcols) {i1 = 3-i; i2 = i} else {i1 = i; i2 = 3-i}
+            is = rep(i1, 4)
+            is[id] = i2
+            print(is)
+            r = mapply(function(r, j) r[[j]], rs, is)
+            pout = lapply(r, values)
+            pout = lapply(pout, function(i) (100-i)/100)
+	    xy = xyFromCell(r[[1]], 1:length(pout[[1]]))
+            wow = pout[[4]]
+            if (revcols) {
+                cols4 = rev(cols4)
+                #pout[[4]] = 1 - pout[[4]]
+                pout[[4]] = 1-limits4Scale*(pout[[4]])
+            }
+            #browser()
+	    # if rev: c,m,y 
+	    #		  c,m,y
+            #pout[[2]] = pout[[2]]^0.33
+            #browser()
+            #dev.new()
+            
+            plot(c(-120, 160), c(-30, 30), axes = FALSE, xlab = '', ylab = '', type = 'n')      
+            yay = plot_4way(xy[,1], xy[,2], pout[[3]], pout[[1]], pout[[2]],pout[[4]],
+	             x_range = c(-180, 180), y_range = c(-30, 30),
+	             cols = c(cols4), limits = limits4, 
+	             coast.lwd=par("lwd"),ePatternRes = 30, ePatternThick = 0.5,
+	             add_legend=FALSE, smooth_image=FALSE,
+                      smooth_factor=5, normalise = normalise, add = TRUE)
+            if (i == 1) mtext(side = 2, sideTitle, line = -1)  
+                  
+        }
+	    #par(mar = c(3, 10, 0, 8))
+        plotRange(1, names(controls)[1])
+        mtext(side = 3, topTitle)
+        mapply(plotRange, 2:3, names(controls)[2:3])        
+    }
+    png(paste0("figs/lim4way-", fname, ".png"), height = 0.3+4*4/4, width = 0.1 + 12*3/4, res = 300, unit = 'in')
+        layout(rbind(cbind(1:3, 4:6), 7))
+        par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 1, 1, 0))
+        mapply(plotRanges, 1:2, c('10%', '90%'))
+        par(mar = c(0.5, 5, 0.25, 5))
+        legend4way(limits4, cols4, col4Labs, lbRt = 25)
+        title(title, outer = TRUE)
+    dev.off()
 }
 
-plotMaps(mlim, 'standard')
-plotMaps(nlim, 'potential')
-plotMaps(sen, 'sensitivity', TRUE)
+#png("figs/lim4way.png")
+#layout(rbind(cbind(1:4, 5:8), 9))
+#plotFUN4ways(limsxs[[2]], limTypes[2], 'yay', F)
+mapply(plotFUN4ways, limsxs, limTypes, names(limTypes), c(F, F, F), c(F, T, T), c(1, 1/3, 1/2))
+#add_raster_4way_legend(cols = cols4 ,limits = limits4,
+#			    labs = c('<- Moisture', 'Fuel ->', 'Igntions ->', 'Land Use'))
+
+#ev.off.gitWatermark()	
+
+
