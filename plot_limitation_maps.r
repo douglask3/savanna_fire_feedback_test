@@ -4,16 +4,12 @@
 source("cfg.r")
 graphics.off()
 
-
 limits4 = c(0.2, 0.4, 0.6, 0.8)
 limits4 = c(0.33, 0.67)
-#limits4 = 0.5
 cols4 = c("FF", "BB","88", "44", "00")
 cols4 = c("FF", "88", "00")
-#cols4 = c("FF", "00")
 
 col4Labs = list(c('S', 's', ''), c('E', 'e', ''),  c('P', 'p', ''), c('T', 't', ''))
-
 
 limits = list(c(1, 2, 5, 10, 25, 50, 75, 90, 95, 98, 99),
               c(1, 2, 5, 10, 20, 30, 40, 50, 60),
@@ -98,7 +94,7 @@ plotAllTypes <- function(...)
             MoreArgs = list(...), SIMPLIFY = FALSE)
 
 plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
-#limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
+limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
 test = is.na(limsxs[[1]][[3]][[2]]) & !is.na(limsxs[[1]][[1]][[1]])
 limsxs[[1]][[3]][[2]][test] = 0.0
 
@@ -124,12 +120,6 @@ plotFUN4ways <- function(rs, fname, title,
                 #pout[[4]] = 1 - pout[[4]]
                 pout[[4]] = 1-limits4Scale*(pout[[4]])
             }
-            #browser()
-	    # if rev: c,m,y 
-	    #		  c,m,y
-            #pout[[2]] = pout[[2]]^0.33
-            #browser()
-            #dev.new()
             
             plot(c(-120, 160), c(-30, 30), axes = FALSE, xlab = '', ylab = '', type = 'n')      
             yay = plot_4way(xy[,1], xy[,2], pout[[3]], pout[[1]], pout[[2]],pout[[4]],
@@ -156,13 +146,5 @@ plotFUN4ways <- function(rs, fname, title,
     dev.off()
 }
 
-#png("figs/lim4way.png")
-#layout(rbind(cbind(1:4, 5:8), 9))
-#plotFUN4ways(limsxs[[2]], limTypes[2], 'yay', F)
 mapply(plotFUN4ways, limsxs, limTypes, names(limTypes), c(F, F, F), c(F, T, T), c(1, 1/3, 1/2))
-#add_raster_4way_legend(cols = cols4 ,limits = limits4,
-#			    labs = c('<- Moisture', 'Fuel ->', 'Igntions ->', 'Land Use'))
-
-#ev.off.gitWatermark()	
-
 

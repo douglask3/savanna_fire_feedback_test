@@ -57,11 +57,6 @@ plot_dr <- function(dats, nm, mn, xaxs) {
         polygon(c(x, rev(x)), c(y, rev(y0)),
                 col =  make.transparent(cols[i,j], 0.0), border = cols[i,j])
     }
-    
-    #for (i in 1:nrow) for (j in 1:ncol)
-    #    polygon(x, dats[[i]][[j]], col = make.transparent(cols[i,j], 0.95), border = cols[i,j])
-    #for (i in nrow:1) for (j in ncol:1)
-    #    polygon(x, dats[[i]][[j]], col = make.transparent(cols[i,j], 0.95), border = cols[i,j])
     mtext.units(side = 3, adj = 0.9, paste('~mu~:', round(mn, 4)), lin = -1.5)
     grid()
 }
