@@ -1,14 +1,17 @@
 
-library(benchmarkMetrics)
 source("../gitProjectExtras/gitBasedProjects/R/sourceAllLibs.r")
+#library(benchmarkMetrics)
+sourceAllLibs("../benchmarkMetrics/benchmarkMetrics/R/")
 sourceAllLibs('../gitProjectExtras/gitBasedProjects/R/')
 source('../gitProjectExtras/package_git2r.r')
 config(repository(), user.name="Douglas Kelley", user.email="douglas.i.kelley@gmail.com")
 
 library(raster)
 library(ncdf4)
-library(rasterExtras)
-library(rasterPlot)
+#library(rasterExtras)
+sourceAllLibs('../rasterExtras/rasterExtras/R/')
+#library(rasterPlot)
+sourceAllLibs('../rasterPlot/rasterPlot/R/')
 library(plotrix)
 library(mapdata)
 library(mapplots)
@@ -23,6 +26,7 @@ data(worldHiresMapEnv)
 
 sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
 sourceAllLibs('../rasterextrafuns/rasterExtras/R/')
+sourceAllLibs('../benchmarkmetrics/benchmarkmetrics/R/')
 
 setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
