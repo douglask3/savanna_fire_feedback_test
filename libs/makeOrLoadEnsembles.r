@@ -4,6 +4,7 @@ dats_info = list(control     = list(NULL),
                  noClimOther = list(replace = c("MAT" = 30), 
                                     remove = c("MTWM", "Drought")),
                  nofire      = list(remove = c("BurntArea")),
+                 JULESfire   = list(replace = c("BurntArea" = "data/JULES-trendy-BurntArea.nc")),
                  noDroughtMAP= list(remove = c("RainTerm_Drought")),
                  noDroughtSTS= list(remove = c("StressTerm_Drought")),
                  noDrought   = list(remove = c("RainTerm_Drought",
@@ -43,7 +44,7 @@ load_dats <- function(andFire = FALSE) {
 }
 			
 			
-expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'Burnt area',
+expNames = c('Control', 'MAP', 'MAT', 'Non-MAP climate', 'Burnt area', 'JULESfire','JULESfire2',
              'Rainfall dist. on MAP', 'Rainfall dist. on Stress', 'Rainfall distribution', 
              'Heat stress', 'Cold stress', 'Population density', 
              'Urban area', 'Cropland', 'Pasture', 'All human impacts',

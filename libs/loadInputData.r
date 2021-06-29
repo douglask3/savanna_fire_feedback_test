@@ -24,6 +24,7 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL, fireNudg
     dat = c(dat, unlist(new_dat))
 	
     replaceVar <- function(dat, vname, replace) {
+       
         if (vname == "Drought") {
             for (i in droughtMetrics)
                 dat = replaceVar(dat, i, replace)
@@ -38,7 +39,11 @@ loadInputData <- function(remove = NULL, maxout = NULL, replace = NULL, fireNudg
             #if (vname == droughtMetrics[1]) browser()  
             vars = grepl(vname, names(dat))
             repl <- function(i) {
-                i[!is.na(i)] = replace
+                if (is.character(replace)) {
+                    rn = raster(replace)
+                    rn = raster::resample(rn, i)
+                    i = rn
+                } else i[!is.na(i)] = replace
                 return(i)
             }
             dat[vars] = lapply(dat[vars], repl)

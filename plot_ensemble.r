@@ -56,7 +56,7 @@ plotExps <- function(fname1, fname2, ExpID, out, dout, plotFullModOnly = FALSE, 
         txt = paste0(LETTERS[1:length(ExpID)], '  ', expNames[ExpID])
 	mapply(plotStandardMap.sd, dout[(ExpID - 1)], txt = txt,
                MoreArgs = list(100, limits = dlimits, cols = dcols, 
-               limit_error = c(0.05, 0.1, 0.25), ePatternThick = 0.4,
+               limit_error = c(0.05, 0.1, 0.25), ePatternThick = 0.25,
                mtext_line = 0.5))
 
         par(mar = rep(0,4))
@@ -95,9 +95,14 @@ PlotAllExperiments <- function(fire_dataset, pr_dataset, drought_var, ..., fname
     out = lapply(out, function(i) i/0.8)
     
     if (normalise) {
-        nFun <- function(en, i) 
-            (i[[en]] - out[[1]][[en]])/max(addLayer(i[[en]], out[[1]][[en]]))
-
+        nFun <- function(en, i) {
+            #if (en == 1) browser()
+            #(i[[en]]- - out[[5]][[en 
+            r = abs(i[[en]] - out[[1]][[en]])/max(addLayer(i[[en]], out[[1]][[en]]))
+            r[out[[5]][[en]] <0.01] = NaN
+            r
+        }
+        #browser()
         dout = lapply(out[-1], function(i)
                 layer.apply(1:nlayers(i), nFun, i))
         out = lapply(out, function(i) i/out[[1]])
@@ -113,10 +118,13 @@ PlotAllExperiments <- function(fire_dataset, pr_dataset, drought_var, ..., fname
                  plotFullModOnly = plotFullModOnly,
                  obsOnly = obsOnly)
     }
+    #browser()
+    plotExps_fun('JULEScomparison', c(2, 5, 9:15))
+    plotExps_fun('JULEScomparison2', c(2, 5, 10:11, 16))
+    plotExps_fun('mortalityAndExclusion', c(5, 9:16))
+    plotExps_fun('fireExps', c(5,6))
 
-    #plotExps_fun('JULEScomparison', c(2, 5, 8:14))
-    plotExps_fun('mortalityAndExclusion', c(5, 8:15))
-    #plotExps_fun('RainfallDist', c(6:8))
+    #plotExps_fun('RainfallDist', c(7:9))
 
     
     if (obsOnly) return()
@@ -141,7 +149,8 @@ PlotAllExperiments <- function(fire_dataset, pr_dataset, drought_var, ..., fname
 #PlotAllExperiments(pr_dataset = 'CMORPH', drought_var = 'MDDM')
 
 #PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', normalise = TRUE)
-PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD')
+#PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD')
+PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = FALSE, drought_var = 'MADD', normalise = TRUE)
 PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = TRUE, fnameExtra = 'withourFire', drought_var = 'MADD')
 PlotAllExperiments(fire_dataset = 'GFED_four_s', pr_dataset = 'MSWEP', andFire = c(FALSE, TRUE), fnameExtra = 'FireInteraction', drought_var = 'MADD')
 #, andFire = c(F, T)
@@ -152,7 +161,7 @@ lmat = rbind(lmat, max(lmat) + 1, max(lmat) + 2)
 png('figs/VCF_vs_mod.png', height = 2.2*2, width = 4.75*2, units = 'in', res = 300)
     layout(lmat, heights = c(1, 1, 1, 1, 1, 0.4, 0.4))
     par(mar = c(0, 0, 1.5, 0), oma = c(0, 0, 1.5, 0))
-    PlotAllExperiments(pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
+    PlotAllExperiments(fire_dataset = 'GFED_four_s',pr_dataset = 'MSWEP', drought_var = 'MADD', obsOnly = TRUE)
     mtext('A VCF', line = 1)
 
     out = runAll_pr_droughts(PlotAllExperiments, plotFullModOnly = TRUE)
