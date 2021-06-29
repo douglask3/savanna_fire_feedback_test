@@ -26,6 +26,6 @@ plotStandardMap.sd <- function(x, sc = 1, ..., e = NULL,
                                limit_error = c(0.05, 0.1), ePatternThick = 0.5) {
     if (is.null(e)) e = sd.raster(x)
     plotStandardMap(mean(x) * sc, e = e,
-                    ePatternRes = 50, ePatternThick = ePatternThick, 
+                    ePatternRes = 70, ePatternThick = ePatternThick, 
                     limits_error = limit_error,...)
 }
