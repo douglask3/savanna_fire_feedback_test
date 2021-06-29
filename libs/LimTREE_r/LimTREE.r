@@ -75,8 +75,9 @@ LimTREE <- function(MAP, rain_drought, SW1, SW2, fire, stress_drought,
     			   
     f_Exc  = LimExc  (urban, crop, pas, v_crop, v_pas, Exc0, -Exck, ...)
     
+    f_SW  = raster::resample(f_SW , f_MAP)
+    f_Exc = raster::resample(f_Exc, f_MAP)
     Tree = f_MAP * f_SW * f_Mort * f_Exc * maxT #  * f_MAT
-    
     return(addLayer(Tree, f_MAP, f_MAT, f_SW, f_Mort, f_Exc))
 }
 
