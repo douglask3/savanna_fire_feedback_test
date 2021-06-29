@@ -6,7 +6,7 @@ MADDM = Mean Annual Dry Days of the Driest Month
 MADM  = Mean Annual Prciep of Dryiest Month
 MConc = Mean Annual Seasonal Concentration
 "
-extent = c(-180, 180, -90, 90)
+extent = c(-180, 180, -30, 30)
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc",
