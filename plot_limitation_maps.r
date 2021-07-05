@@ -22,7 +22,9 @@ dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#0033
 items = c(2:3, 5:6)
 
 summaryFile = "model_summary-nEns-11.nc"
-allPostDir = "data/sampled_posterior/attempt6//control//"
+#summaryFile = "model_summary-nEns-6.nc"
+allPostDir = "data/sampled_posterior/attempt15//control//"
+#allPostDir = "data/sampled_posterior/attempt10//control//"
 controls = c(Stress = "mortality", Exclusion = "exclude", MAP = "map", Energy = "energy")
 limTypes = c("Standard limitation" = "standard",
              "Potential limitation" = "potential", "Sensitivity" = "sensitivity")
@@ -40,7 +42,7 @@ plotMap <- function(limType, limits, title = '',
     fname = paste('figs/limPlot', fname, '-', limType, '.png', sep = '')
     png(fname, height = 4.67, width = 12, res = 300, unit = 'in')
 	print(fname)
-        if (limType == "standard") {
+        if (limType == "standardxx") {
             heights = c(1,1,1,0.5, 1)
             r1 = c(10, 10, 11); r2 = 12
         } else {
@@ -75,7 +77,7 @@ plotMap <- function(limType, limits, title = '',
             if (addTotTitle) mtext(side = 3, 'Range%', line = 0)            
             return(limx)          
 	}	
-	if (limType == "standard") index = 1:3 else index = 1:4
+	if (limType == "standardX") index = 1:3 else index = 1:4
 	limsx = mapply(plotFun, lims[index], names(controls)[index],
                       c(T, rep(F, length(lims)-1))[index],
                        normalies[index], SIMPLIFY = FALSE)    
@@ -93,13 +95,13 @@ plotAllTypes <- function(...)
     mapply(plotMap, limTypes, limits, names(limTypes),
             MoreArgs = list(...), SIMPLIFY = FALSE)
 
-plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
-limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
+#plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
+#limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
 test = is.na(limsxs[[1]][[3]][[2]]) & !is.na(limsxs[[1]][[1]][[1]])
 limsxs[[1]][[3]][[2]][test] = 0.0
 
-plotFUN4ways <- function(rs, fname, title,
-                         normalise = FALSE, revcols = normalise, limits4Scale = 1) {
+plotFUN4ways <- function(rs, fname, title,  normalise = FALSE, 
+                        revcols = normalise, limits4Scale = 1, maxOnly = FALSE) {
     
     limits4 = 1-limits4Scale*(1-limits4)
     	
@@ -122,29 +124,42 @@ plotFUN4ways <- function(rs, fname, title,
             }
             
             plot(c(-120, 160), c(-30, 30), axes = FALSE, xlab = '', ylab = '', type = 'n')      
-            yay = plot_4way(xy[,1], xy[,2], pout[[3]], pout[[1]], pout[[2]],pout[[4]],
+            yay = plot_4way(xy[,1], xy[,2], pout[[3]], pout[[1]], pout[[2]], pout[[4]],
 	             x_range = c(-180, 180), y_range = c(-30, 30),
 	             cols = c(cols4), limits = limits4, 
 	             coast.lwd=par("lwd"),ePatternRes = 30, ePatternThick = 0.5,
 	             add_legend=FALSE, smooth_image=FALSE,
                       smooth_factor=5, normalise = normalise, add = TRUE)
-            if (i == 1) mtext(side = 2, sideTitle, line = -1)  
+            #browser()
+            if (i == (1+maxOnly)) mtext(side = 2 + maxOnly, line = -1 + maxOnly, 
+                              paste0(c('', 'Max. ')[maxOnly+1], sideTitle))  
                   
         }
 	    #par(mar = c(3, 10, 0, 8))
         plotRange(1, names(controls)[1])
-        mtext(side = 3, topTitle)
+        if (!maxOnly) mtext(side = 3, topTitle)
         mapply(plotRange, 2:3, names(controls)[2:3])        
     }
-    png(paste0("figs/lim4way-", fname, ".png"), height = 0.3+4*4/4, width = 0.1 + 12*3/4, res = 300, unit = 'in')
-        layout(rbind(cbind(1:3, 4:6), 7))
-        par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 1, 1, 0))
-        mapply(plotRanges, 1:2, c('10%', '90%'))
-        par(mar = c(0.5, 5, 0.25, 5))
-        legend4way(limits4, cols4, col4Labs, lbRt = 25)
-        title(title, outer = TRUE)
+    
+    png(paste0("figs/lim4way-", fname, ".png"), height = maxOnly*0.3 + 0.3+4*4/4, 
+        width = 0.1 + (2-maxOnly) *6*3/4, res = 300, unit = 'in')
+        if (maxOnly) {
+            layout(1:4)
+            ri = 2
+        } else {
+            layout(rbind(cbind(1:3, 4:6), 7))
+            ri  = 1:2
+        }
+        par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 1, 1 + maxOnly, 0))
+        mapply(plotRanges, ri, c('10%', '90%')[ri])
+        if (!maxOnly) par(mar = c(0.5, 5, 0.25, 5))
+        legend4way(limits4, cols4, col4Labs, lbRt = 25, strcex = 1 - 0.33 *maxOnly)
+        title(title, outer = TRUE, line = maxOnly*0.67)
+   
     dev.off()
 }
 
-mapply(plotFUN4ways, limsxs, limTypes, names(limTypes), c(F, F, F), c(F, T, T), c(1, 1/3, 1/2))
+#mapply(plotFUN4ways, limsxs, limTypes, names(limTypes), c(F, F, F), c(F, T, T), c(1, 1/3, 1/2))
+mapply(plotFUN4ways, limsxs, paste0("max-", limTypes), names(limTypes), 
+       c(F, F, F), c(F, T, T), c(1, 1/3, 1/2), maxOnly = TRUE)
 
