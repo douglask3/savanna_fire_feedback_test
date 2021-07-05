@@ -4,8 +4,9 @@ raster.NaN <- function(...) {
     r
 }  
 
-brick.NaN <- function(...) {
+brick.NaN <- function(..., layers = NULL) {
     r = brick(...)
+    if (!is.null(layers)) r = r[[layers]]
     r[max(r)>9E9] = NaN
     r
 }
