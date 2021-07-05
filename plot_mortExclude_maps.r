@@ -7,15 +7,19 @@ graphics.off()
 cols = c('#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506')
 limits = c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 40)
 
-summaryFileC = "model_summary-nEns-20.nc"
-summaryFileE = "model_summary-nEns-diff20.nc"
-PostDir = "data/sampled_posterior/attempt12"
+summaryFileC = "model_summary-nEns-111.nc"
+summaryFileE = "model_summary-nEns-diff111.nc"
+PostDir = "data/sampled_posterior/attempt15"
 
 conID  = "control"
-expIDs = c("Burnt area" = "noFire", "Wind" = "noWind",
-            "Rainfall\ndistribution" = "noDrought", "Population\ndensity" = "noPop")
+expIDs = c("Burnt\narea" = "noFire", "Heat\nStress" = "noTasMort","Wind" = "noWind",
+            "Rainfall\ndistribution" = "noDrought", "Population\ndensity" = "noPop",
+            "Urban\narea" = "noUrban", "Cropland\narea" = "noCrop", "Pasture\narea" = "noPas")
 obsFile = 'data/driving_Data/TreeCover.nc'   
+
+#model_summary-nEns-diff101.nc
 openDat <- function(id, summaryFile) {
+    if (id == "noDrought" || id == "noPop") summaryFile = "model_summary-nEns-diff101.nc"
     brick.NaN(paste0(PostDir, '/', id, '/', summaryFile),
               varname = "tree_cover_mean")[[c(3, 7)]]
 }
@@ -45,11 +49,13 @@ plotExp <- function(r, nm) {
     text(x = 78, y = -27.5, d, xpd = NA)
 }
 
+png("figs/MortExcMap.png", height = 8, width = 7.2, res = 300, units = 'in')
 layout(rbind(t(matrix(1:16, nrow = 2)), 17))
 par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 2, 2, 0))
 mapply(plotExp, experiments, names(experiments))
-
+par(mar = rep(0, 4))
 addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
                   plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE) 
+dev.off()
 
 
