@@ -23,12 +23,17 @@ names(cntr_varnames) = c("Sim.", "MAP", "Energy", "Mortality", "Exclusion")
 #model_summary-nEns-diff101.nc
 openDat <- function(id, summaryFile, vanme = "tree_cover_mean") {
     print(id)
-    #if (id == "noDrought" || id == "noPop") summaryFile = "model_summary-nEns-diff101.nc"
+    print(vanme)
+    if (vanme == "potential_energy") {
+        out1 = openDat(id, summaryFile, "potential_sw")
+        out2 = openDat(id, summaryFile, "potential_mat")
+        return(1-(1-out1)*(1-out2))
+    }
     brick.NaN(paste0(PostDir, '/', id, '/', summaryFile),
               varname = vanme, layers = c(3, 7))
 }
 
-#control = lapply(cntr_varnames, function(i) openDat(conID, summaryFileC, i))
+control = lapply(cntr_varnames, function(i) openDat(conID, summaryFileC, i))
 obs = raster::resample(raster(obsFile), control[[1]])/0.8
 biomes = raster::resample(biomes, control[[1]])
 #experiments = lapply(expIDs, openDat, summaryFileE)
