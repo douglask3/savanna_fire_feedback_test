@@ -16,6 +16,8 @@ limits = list(c(1, 2, 5, 10, 25, 50, 75, 90, 95, 98, 99),
               c(1, 2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90))
 limits2 = c(0.2, 0.5, 1, 2,5, 10, 20)
 cols = c("white", "#AAAA00", "#003300")
+cols = c('#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476',
+         '#41ab5d','#238b45','#006d2c','#00441b')
 
 dlimits = c(-40, -20, -10, -5, -2, -1, 1, 2, 5, 10, 20, 40)
 dcols = c("#330000", "#DD0033", "#FF33FF", "white", "#FFFF00", "#00FF00", "#003300")
@@ -38,43 +40,51 @@ plotMap <- function(limType, limits, title = '',
                     fname  = '', ids = c(3, 7), header = c('10%', '90%')) {
     lim_varnames = paste0(limType, '_', controls)
     lims = lapply(lim_varnames, function(v) brick(paste0(allPostDir, summaryFile), varname = v))
-    
+    if (limType == "potential") {
+        temp = lapply(paste0(limType, '_', c("sw", "mat")), 
+                      function(v) brick(paste0(allPostDir, summaryFile), varname = v))
+        lims[[4]] = 100*(1-(1-temp[[1]])*(1-temp[[2]]))
+    }
+   
     fname = paste('figs/limPlot', fname, '-', limType, '.png', sep = '')
-    png(fname, height = 4.67, width = 12, res = 300, unit = 'in')
+    png(fname, height = 4.33, width = 7.2, res = 300, unit = 'in')
 	print(fname)
-        if (limType == "standardxx") {
-            heights = c(1,1,1,0.5, 1)
-            r1 = c(10, 10, 11); r2 = 12
-        } else {
-            heights = c(1,1,1,1,0.5)
-            r1 = 10:12; r2 = c(13, 13, 14)
-        }
+        #if (limType == "standardxx") {
+        #    heights = c(1,1,1,0.5, 1)
+        #    r1 = c(10, 10, 11); r2 = 12
+        #} else {
+        #    heights = c(1,1,1,1,0.5)
+        #    r1 = 10:12; r2 = c(13, 13, 14)
+        #}
         
-	layout(rbind(1:3, 4:6, 7:9, r1, r2), heights = heights)
+	layout(rbind(1:2, 3:4, 5:6, 7:8, 9), heights = c(1,1,1,1,0.5))
 	par(mar = c(0.5, 0, 0.5, 0), oma = c(0,0,2.3, 0))	
 	
 	plotFun <- function(lim, title, addTotTitle, normalise) {
             limx = lapply(c(3,7), function(x) lim[[x]]*100)
             limx = lapply(limx, function(r) {r[r>9E9] = NaN; r})
             limx = lapply(limx, function(r) {r[lims[[4]][[1]]>9E9] = NaN; r})
-            
+            if (title == "MAP") {
+                test = is.na(limx[[2]]) + !is.na(limx[[1]])
+                limx[[2]][test] = limx[[1]][test]
+            }
             if (normalise) {
                 mx = max(sapply(limx, max.raster, na.rm = TRUE))/100
                 limp = lapply(limx, '/', mx)
             } else limp = limx
             limp = c(limp, limp[[2]] - limp[[1]])
 	    FUN <- function(r, limitsi = limits)
-                plotStandardMap(r, cols = cols, limits = limitsi, interior = FALSE)
+                plotStandardMap(r, cols = cols, limits = limitsi)
             FUN(limp[[1]], limits)
             #if (limType == "sensitivity") browser()
-            mtext(side = 2, title, line = -2)
+            mtext(side = 2, title, line = -1.5)
             if (addTotTitle) mtext(side = 3, header[1], line = 0)
 	    mtext(side = 2, adj = 0.5, title)
             FUN(limp[[2]], limits)
             
             if (addTotTitle) mtext(side = 3, header[2], line = 0)
-            FUN(limp[[3]], limits2)  
-            if (addTotTitle) mtext(side = 3, 'Range%', line = 0)            
+            #FUN(limp[[3]], limits2)  
+            #if (addTotTitle) mtext(side = 3, 'Range%', line = 0)            
             return(limx)          
 	}	
 	if (limType == "standardX") index = 1:3 else index = 1:4
@@ -84,8 +94,8 @@ plotMap <- function(limType, limits, title = '',
         title(title, outer = TRUE, line = 1)    
         addStandardLegend(lims[[1]][[1]], limits , cols, units = '', add = FALSE, 
                           plot_loc = c(0.2, 0.8, 0.55, 0.7), maxLab = 100, srt = 45)      
-        addStandardLegend(lims[[1]][[1]], limits2 , cols, units = '', add = FALSE, 
-                          plot_loc = c(0.1, 0.9, 0.55, 0.7), extend_max = TRUE, srt = 45)
+        #addStandardLegend(lims[[1]][[1]], limits2 , cols, units = '', add = FALSE, 
+        #                  plot_loc = c(0.1, 0.9, 0.55, 0.7), extend_max = TRUE, srt = 45)
     dev.off()
 
     
@@ -95,7 +105,7 @@ plotAllTypes <- function(...)
     mapply(plotMap, limTypes, limits, names(limTypes),
             MoreArgs = list(...), SIMPLIFY = FALSE)
 
-#plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
+plotAllTypes(fname = '10-90', ids = c(3, 7), header = c('10%', '90%'))
 #limsxs = plotAllTypes(fname = '25-75', ids = c(4, 6), header = c('25%', '75%'))
 test = is.na(limsxs[[1]][[3]][[2]]) & !is.na(limsxs[[1]][[1]][[1]])
 limsxs[[1]][[3]][[2]][test] = 0.0
