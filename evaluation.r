@@ -128,16 +128,7 @@ x = bins[-1] - diff(bins)  /2
 
 rrs = hist(rrNull, breaks = bins, plot = FALSE)$count
 rrs = rrs/max(rrs)
-polygonDist <- function(x, y1, y2 = NULL, ...) {
-    if (is.null(y2)) {
-        xs = c(x[1], x, tail(x, 1)) 
-        ys = c(0, y1, 0)
-    } else {
-        xs = c(x, rev(x))
-        ys = c(y1, rev(y2))
-    }
-    polygon(xs, ys, ...)
-}
+    
 
 
 cols = apply(colsDats, 1, make_col_vector, limits = 1:length(ba_dats))
