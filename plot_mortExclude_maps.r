@@ -4,7 +4,9 @@
 source("cfg.r")
 graphics.off()
 
-cols = c('#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506')
+cols = c('#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929',
+         '#ec7014','#cc4c02','#993404','#662506')
+
 limits = c(0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 40)
 
 summaryFileC = "model_summary-nEns-111.nc"
@@ -21,7 +23,7 @@ obsFile = 'data/driving_Data/TreeCover.nc'
 openDat <- function(id, summaryFile) {
     if (id == "noDrought" || id == "noPop") summaryFile = "model_summary-nEns-diff101.nc"
     brick.NaN(paste0(PostDir, '/', id, '/', summaryFile),
-              varname = "tree_cover_mean")[[c(3, 7)]]
+              varname = "tree_cover_mean", layers = c(3, 7))
 }
 
 control = 100*openDat(conID, summaryFileC)
