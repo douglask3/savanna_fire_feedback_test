@@ -6,7 +6,7 @@ MADDM = Mean Annual Dry Days of the Driest Month
 MADM  = Mean Annual Prciep of Dryiest Month
 MConc = Mean Annual Seasonal Concentration
 "
-extent = c(-180, 180, -90, 90)
+extent = c(-180, 180, -30, 30)
 
 data_dir  = "../LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc",
@@ -21,6 +21,16 @@ variables = c("TreeCover" = "treecover2000-2014.nc",
               "BurntArea_meris" = "../../fireMIPbenchmarking/data/benchmarkData/meris_v2.nc",
               "BurntArea_MODIS" = "../../fireMIPbenchmarking/data/benchmarkData/MODIS250_q_BA_regridded0.5.nc",
               "BurntArea_MCD_forty_five" = "../../fireMIPbenchmarking/data/benchmarkData/MCD45.nc",
+              "BurntArea_GFED_four_s_1stHalf" = "fire2000-2014.nc",
+              "BurntArea_GFED_four_1stHalf" = "../../fireMIPbenchmarking/data/benchmarkData/GFED4.nc",
+              "BurntArea_meris_1stHalf" = "../../fireMIPbenchmarking/data/benchmarkData/meris_v2.nc",
+              "BurntArea_MODIS_1stHalf" = "../../fireMIPbenchmarking/data/benchmarkData/MODIS250_q_BA_regridded0.5.nc",
+              "BurntArea_MCD_forty_five_1stHalf" = "../../fireMIPbenchmarking/data/benchmarkData/MCD45.nc",
+              "BurntArea_GFED_four_s_2ndHalf" = "fire2000-2014.nc",
+              "BurntArea_GFED_four_2ndHalf" = "../../fireMIPbenchmarking/data/benchmarkData/GFED4.nc",
+              "BurntArea_meris_2ndHalf" = "../../fireMIPbenchmarking/data/benchmarkData/meris_v2.nc",
+              "BurntArea_MODIS_2ndHalf" = "../../fireMIPbenchmarking/data/benchmarkData/MODIS250_q_BA_regridded0.5.nc",
+              "BurntArea_MCD_forty_five_2ndHalf" = "../../fireMIPbenchmarking/data/benchmarkData/MCD45.nc",
 	      "urban" = "urban_area2000-2014.nc", "crop" = "cropland2000-2014.nc",
               "pas" = "pasture2000-2014.nc", 
 	      "PopDen" = "population_density2000-2014.nc", 
@@ -35,6 +45,19 @@ variables = c("TreeCover" = "treecover2000-2014.nc",
 annualAverage <- function(...) mean(...)
 
 annualAverage12 <- function(...) 12 * annualAverage(...)
+
+
+annualAverage12_1stHalf <- function(r, ...) {
+    r0=r
+    r = r[[1:floor(nlayers(r)/2)]]
+    browser()   
+    12 * annualAverage(r, ...)
+}
+
+annualAverage12_2ndHalf <- function(r, ...)  {
+    r = r[[(floor(nlayers(r)/2)+1):nlayers(r)]]
+    12 * annualAverage(r, ...)
+}
 
 annualAverageMax <- function(r, ...) {
 	nyr = nlayers(r)/12
@@ -123,6 +146,16 @@ FUNS = c("TreeCover" = annualAverage, "nonTreeCover" = annualAverage,
          "BurntArea_meris"  = annualAverage12,
          "BurntArea_MODIS"  = annualAverage12,
          "BurntArea_MCD_forty_five"  = annualAverage12,
+         "BurntArea_GFED_four_s_1stHalf" = annualAverage12_1stHalf,
+         "BurntArea_GFED_four_1stHalf"  = annualAverage12_1stHalf,
+         "BurntArea_meris_1stHalf"  = annualAverage12_1stHalf,
+         "BurntArea_MODIS_1stHalf"  = annualAverage12_1stHalf,
+         "BurntArea_MCD_forty_five_1stHalf"  = annualAverage12_1stHalf,
+         "BurntArea_GFED_four_s_2ndHalf" = annualAverage12_2ndHalf,
+         "BurntArea_GFED_four_2ndHalf"  = annualAverage12_2ndHalf,
+         "BurntArea_meris_2ndHalf"  = annualAverage12_2ndHalf,
+         "BurntArea_MODIS_2ndHalf"  = annualAverage12_2ndHalf,
+         "BurntArea_MCD_forty_five_2ndHalf"  = annualAverage12_2ndHalf,
 	 "urban" = annualAverage, "crop" = annualAverage, "pas" = annualAverage,
          "PopDen" = annualAverage, 
 	 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
@@ -138,7 +171,17 @@ scaling = c("TreeCover" = 1, "nonTreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM
             "BurntArea_meris"  = 1,
             "BurntArea_MODIS"  = 1,
             "BurntArea_MCD_forty_five"  = 1,
-	    "urban" = 1, "crop" = 1, "pas" = 1, "PopDen" = 1,
+            "BurntArea_GFED_four_s_1stHalf" = 1,
+            "BurntArea_GFED_four_1stHalf"  = 1,
+            "BurntArea_meris_1stHalf"  = 1,
+            "BurntArea_MODIS_1stHalf"  = 1,
+            "BurntArea_MCD_forty_five_1stHalf"  = 1,
+            "BurntArea_GFED_four_s_2ndHalf" = 1,
+            "BurntArea_GFED_four_2ndHalf"  = 1,
+            "BurntArea_meris_2ndHalf"  = 1,
+            "BurntArea_MODIS_2ndHalf"  = 1,
+            "BurntArea_MCD_forty_five_2ndHalf"  = 1,	    
+            "urban" = 1, "crop" = 1, "pas" = 1, "PopDen" = 1,
 	    "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
 	    "MADM_CRU" = 1, "MConc_CRU" = 1,
             "buffalo" = 1, "goat" = 1, "cattle" = 1, "sheep" = 1)
@@ -150,7 +193,17 @@ MinPoint = c("TreeCover" = 0, "nonTreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTW
              "BurntArea_GFED_four"  = 0,
              "BurntArea_meris"  = 0,
              "BurntArea_MODIS"  = 0,
-             "BurntArea_MCD_forty_five"  = 0,
+             "BurntArea_MCD_forty_five_1stHalf"  = 0,
+             "BurntArea_GFED_four_s_1stHalf" = 0,
+             "BurntArea_GFED_four_1stHalf"  = 0,
+             "BurntArea_meris_1stHalf"  = 0,
+             "BurntArea_MODIS_1stHalf"  = 0,
+             "BurntArea_MCD_forty_five_1stHalf"  = 0,
+             "BurntArea_GFED_four_s_2ndHalf" = 0,
+             "BurntArea_GFED_four_2ndHalf"  = 0,
+             "BurntArea_meris_2ndHalf"  = 0,
+             "BurntArea_MODIS_2ndHalf"  = 0,
+             "BurntArea_MCD_forty_five_2ndHalf"  = 0,
 	     "urban" = 0, "crop" = 0, "pas" = 0, "PopDen" = 0,
 	     "MAP_CRU" = 0, "MADD_CRU" = 1, "MDDM_CRU" = 1,
 	     "MADM_CRU" = 1, "MConc_CRU" = 1,
@@ -178,7 +231,7 @@ for (i in ins_all[-1]) {
 }
 mask = mask > 3    
 
-n96_mask = raster('../UKESM-ConFire/data/n96e_orca1_mask.nc')
+#n96_mask = raster('../UKESM-ConFire/data/n96e_orca1_mask.nc')
 writeVar <- function(nme, r, sc, mp = 0.0) {
 	
 	writeSub <- function(nmei, ri) {
@@ -196,10 +249,10 @@ writeVar <- function(nme, r, sc, mp = 0.0) {
                                          comment = list(src_file = 'make_inputs.r'),  
                                          overwrite = TRUE)
 
-                rr = convert_regular_2_pacific_centric(ri)
-                rr = raster::resample(rr, n96_mask)
+                rr = ri#rr = convert_regular_2_pacific_centric(ri)
+                rr = raster::resample(rr, mask)
 
-		fnamer = paste('data/driving_Data/N96/', nmei, '.nc', sep = '')
+		fnamer = paste('data/driving_Data_new/', nmei, '.nc', sep = '')
                 
                 rr = writeRaster.gitInfo(rr, fnamer, varname = nme,
                                          comment = list(src_file = 'make_inputs.r'),  
