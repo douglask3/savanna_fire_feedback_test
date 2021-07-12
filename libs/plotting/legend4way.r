@@ -1,6 +1,6 @@
 
-
-legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt = 45) {
+legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt = 45,
+                       strcex = 1) {
     nl = length(limits) + 1
     di = 1/(2*(nl-1))
     plot(c(0, 9), c(0, 9*y2xR), xlab = '', ylab = '', type = 'n', axes = FALSE)
@@ -8,7 +8,7 @@ legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt
     addBlock <- function(x, y, col, txt = '', dx = di, dy = di, txtCol = 'black', ...) {
         polygon(x + dx * c(-1, 1, 1, -1, -1), y + dy * c(-1, -1, 1, 1, -1), col = col, ...)
         
-        text(txt, x = x, y = y, col = txtCol)
+        text(txt, x = x, y = y, col = txtCol, cex = strcex)
     }
 
     xs = ys = zs = xs0 = ys0 = seq(0, 1, length.out = nl)
@@ -28,8 +28,10 @@ legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt
         txt = mkTxt(xi, atxt, yi)
         mapply(addBlock, xs+offx, ys+offy, colss, txt)
         
-        text(x = xs0[-1] - diff(xs0)/2 + offx, y=offy-di, round(limits,2) , adj = c(0.5, 2))
-        text(x = offx-di, ys0[-1] - diff(ys0)/2 + offy, round(limits,2), adj = c(1.5, 0.5))
+        text(x = xs0[-1] - diff(xs0)/2 + offx, y=offy-di, round(limits,2) ,
+             adj = c(0.5, 2), cex = strcex)
+        text(x = offx-di, ys0[-1] - diff(ys0)/2 + offy, round(limits,2),
+             adj = c(1.5, 0.5), cex = strcex)
     }   
     addBlocks(1, 1, 1, 3)
     addBlocks(3.5, 1, 2, 2)
@@ -46,20 +48,20 @@ legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt
 
 
 
-    text('Not\nlimited', x = 0.5, y = 0.5, srt = -lbRt, xpd = NA)
-    text('Stress/Exclude\nco-limited', x = 2.5, y = 2.5, srt = -lbRt, xpd = NA)
-    text('Stress\nlimited', x = 0.5, y = 2.5, srt = lbRt, xpd = NA)
-    text('Exclude\nlimited', x = 2.5, y = 0.5, srt = lbRt, xpd = NA)
+    text('Not\nlimited', x = 0.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
+    text('Stress/Exclude\nco-limited', x = 2.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
+    text('Stress\nlimited', x = 0.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
+    text('Exclude\nlimited', x = 2.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
 
 
-    text('MAP\nlimited', x = 5.5, y = 0.5, srt = -lbRt, xpd = NA)
-    text('All\nlimited', x = 7.5, y = 2.5, srt = -lbRt, xpd = NA)
-    text('Stress/MAP\nco-limited', x = 5.5, y = 2.5, srt = lbRt, xpd = NA)
-    text('Exclude/MAP\nco-limited', x = 7.5, y = 0.5, srt = lbRt, xpd = NA)
+    text('MAP\nlimited', x = 5.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
+    text('All\nlimited', x = 7.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
+    text('Stress/MAP\nco-limited', x = 5.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
+    text('Exclude/MAP\nco-limited', x = 7.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
     #colss = paste0('#', cols[xi], cols[1], cols[yi])
     #mapply(addBlock, xs+3, ys+3, colss)
 
     points(rep(8.5, 3), zs+1, pch = 19, cex = seq(0, 1, 0.5))
-    text(x = rep(8.6, 3), y = zs+1, rev(col4Labs[[4]]), adj = 0, xpd = NA)
+    text(x = rep(8.6, 3), y = zs+1, rev(col4Labs[[4]]), adj = 0, xpd = NA, cex = strcex)
 }
 
