@@ -44,20 +44,20 @@ plotExp <- function(r, nm) {
     
     diffs = layer.apply(r, diff)
     d = paste0(round(unlist(diffs), 2), collapse = '-', '%')
-    text(x = 78, y = -17.5, d, xpd = NA)
+    #text(x = 78, y = -17.5, d, xpd = NA)
 
     for (i in 1:2) diffs[[i]] = diff(r[[i]], control[[i]] * scale[[i]])*100
     d = paste0(round(unlist(diffs), 2), collapse = '-', '%')
-    text(x = 78, y = -27.5, d, xpd = NA)
+    #text(x = 78, y = -27.5, d, xpd = NA)
 }
 
-png("figs/MortExcMap.png", height = 8, width = 7.2, res = 300, units = 'in')
-layout(rbind(t(matrix(1:16, nrow = 2)), 17))
-par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 2, 2, 0))
-mapply(plotExp, experiments, names(experiments))
-par(mar = rep(0, 4))
-addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
-                  plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE) 
-dev.off()
 
+png("figs/MortExcMap.png", height = 8, width = 7.2, res = 300, units = 'in')
+    layout(rbind(t(matrix(1:16, nrow = 2)), 17))
+    par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 2, 2, 0))
+    mapply(plotExp, experiments, names(experiments))
+    par(mar = rep(0, 4))
+    addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
+                      plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE) 
+dev.off()
 
