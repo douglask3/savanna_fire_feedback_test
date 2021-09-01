@@ -41,16 +41,16 @@ ba = brick.NaN("data/sampled_posterior/attempt15/firePlus1pc/model_summary-nEns-
 png("figs/baPlus0.01_map.png", height = 3.67, width = 5, res = 300, units = 'in')
     layout(rbind(1, 2, 3, 4), heights = c(1, 0.3, 1, 0.3))
     par(mar = rep(0.75, 4), oma = c(0, 0, 1, 0))
-    plotStandardMap(-ba[[1]]*100, '10%',limits = impact_limits, cols = impact_cols)
+    plotStandardMap(-ba[[1]]*100, '90%',limits = impact_limits, cols = impact_cols)
     par(mar = c(0.5, 0, 0, 0))
     legFun(ba[[1]]*100, impact_limits, impact_cols, 1, extend_max = TRUE)
 
     par(mar = rep(0.75, 4))
-    plotStandardMap(-ba[[2]]*100, '90%' ,limits = impact_limits/20, cols = impact_cols)
+    plotStandardMap(-ba[[2]]*100, '10%' ,limits = impact_limits/20, cols = impact_cols)
     par(mar = c(0.5, 0, 0, 0))
     legFun(ba[[1]]*100, impact_limits/20, impact_cols, 1, extend_max = TRUE)
 dev.off()
-
+browser()
 
 openMod <- function(id, summaryFile = summaryFileE) 
     brick.NaN(paste0(PostDir, '/', id, '/', summaryFile),
