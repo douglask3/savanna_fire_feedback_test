@@ -3,7 +3,7 @@ source("../gitProjectExtras/gitBasedProjects/R/sourceAllLibs.r")
 #library(benchmarkMetrics)
 sourceAllLibs("../benchmarkMetrics/benchmarkMetrics/R/")
 sourceAllLibs('../gitProjectExtras/gitBasedProjects/R/')
-source('../gitProjectExtras/package_git2r.r')
+#source('../gitProjectExtras/package_git2r.r')
 config(repository(), user.name="Douglas Kelley", user.email="douglas.i.kelley@gmail.com")
 
 library(raster)
