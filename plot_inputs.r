@@ -1,9 +1,9 @@
-ource("cfg.r")
+source("cfg.r")
 graphics.off()
 
 dats = dats[[1]]
 
-            
+         
 plot_inputs_figure <- function(..., mtext_line = -0.9) {
     selectNotNone <- function(r, x) {
         select <- function(i) 
