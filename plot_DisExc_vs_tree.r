@@ -23,6 +23,8 @@ scales = c(100, 1, 1, 1, 1, 1, 100, 100)
 units  = c('%', '~DEG~C',"m~s-1~", "", "people ~m-2~", "% cover", "% cover", "% cover")
 logXs  = c(F, F, F, F, T, F, F, F)
 
+percentiles = seq(0.1, 0.9, 0.1)
+
 obsFile = 'data/driving_Data/TreeCover.nc'
 
 samples = list.files(paste0(PostDir, '/', conID), recursive = TRUE)
@@ -32,7 +34,6 @@ index = read.csv(paste0(PostDir, '/', conID, '/', index_file))
 samples = samples[index[,2]]
 
 mask = !is.na(raster.NaN(paste0(PostDir, conID, '/',samples[]), varname = "tree_cover_mean"))
-
 loadDat <- function(expID, datFile, bins, scale, sample = NULL) {
     if (expID == "noFire") {
         if (is.null(sample)) return(NULL)
@@ -57,10 +58,11 @@ loadDat <- function(expID, datFile, bins, scale, sample = NULL) {
     return(list(dat, mask, ids, cnts))
 }
 
-
 plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm = FALSE, 
-                    units = '', title = '', yaxis = FALSE, mnY = 0, mxY = 100, logY = FALSE) {
+                    units = '', title = '', yaxis = FALSE, mnY = 0, mxY = 100, logY = FALSE,
+                    addNos = FALSE) {
     print(expID)
+    #if (addNos) dev.new()
     if (logX) exp( seq(log(mnDat), log(mxDat), length.out = 101)) 
     bins = seq(mnDat, mxDat, length.out = 101)
    
@@ -106,7 +108,7 @@ plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm 
 
     qrtsCN = lapply(samples, qrts4Sample)
     
-    percentiles = seq(0.1, 0.9, 0.1)
+    
     qrqr <- function(i) {
         qrt = sapply(qrtsCN, function(smp) smp[[1]][i,])
         apply(qrt, 1, quantile, percentiles, na.rm = TRUE)
@@ -126,9 +128,18 @@ plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm 
     }
 
     nq = length(percentiles)
-    addQrts <- function(i, id1, id2, col = 'black') 
+    addQrts <- function(i, id1, id2, col = 'black') {
         polygonNAsplit(binX, qrts[[id1]][i,], qrts[[id2]][nq-i+1,], 
                    col = make.transparent(col, 0.85), border = NA)
+        
+        if (addNos && col != "black" && i == 1) {
+            lines(c(60, 60), c(-9E9, 9E9), lty = 2)
+            lines(c(60, 60), c(1E-9, 9E9), lty = 2)
+            ns = round(range(apply(qrts[[id1]][,60:100], 1, mean, na.rm = TRUE)), 2)
+            text(80, par("yaxp")[2] - diff(par("yaxp")[1:2])/5, 
+                 paste(ns, collapse = '-'))
+        }
+    }
     lapply(1:nq, addQrts, 1, 3)
     lapply(1:nq, addQrts, 2, 2, '#880000')
 
@@ -151,12 +162,12 @@ plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm 
 
 if (T) {
 png("figs/potential_mortEx_curves.png", height = 7.2, width = 7.2, res = 300, units = 'in')
-par(mfrow = c(3, 3), mar = c(3.5, 0.5, 0.5, 0.5), oma = c(2, 2, 0, 0))
+par(mfrow = c(3, 3), mar = c(3.5, 0.5, 0.5, 0.5), oma = c(2, 3, 0, 0))
 
 mapply(plotEXP, expIDs, datFiles, scales, mnDats, mxDats, logXs, F, units, names(expIDs),
        head(rep(c(T, F, F), 3), -1))
 
-plot(c(0, 1), c(0, 1), type = 'n', axes = FALSE)
+plot(c(0, 1), c(0, 1), type = 'n', axes = FALSE, xlab = '', ylab = '')
 
 pc = percentiles/1.6 + 0.4
 for (i in 1:(length(pc)))  {
@@ -168,6 +179,7 @@ for (i in 1:(length(pc)))  {
 text(x = 0.35, y = pc[1], 'IQR', adj = c(0.5, 1.5))
 text(x = 0.8, y = pc[1], 'Median', adj = c(0.5, 1.5))
 text(x = 0.15, y = pc, paste(percentiles*100, '%'), ad = 1.3)
+mtext(side = 2, outer = TRUE, "% tree cover removed", line = 1.67)
 dev.off()
 #polygonNAsplit(binX, qrts[[1]][2,], qrts[[3]][1,], col = '#666666')
 #polygonNAsplit(binX, qrts[[2]][2,], qrts[[2]][1,], col = 'red')
@@ -188,6 +200,6 @@ png("figs/potential_mortEx_curves_norm.png", height = 7.2*2/3, width = 7.2*2/3,
 par(mfrow = c(2, 2), mar = c(3.5, 0.5, 0.5, 0.5), oma = c(2, 2, 0, 0))
 
 mapply(plotEXP, expIDs, datFiles, scales, mnDats, mxDats, F, T, units, names(expIDs),
-       rep(c(T, F), 2), mnY = 0.001, mxY = 10, logY = TRUE)
+       rep(c(T, F), 2), mnY = 0.001, mxY = 10, logY = TRUE, addNos = TRUE)
 
 dev.off()
