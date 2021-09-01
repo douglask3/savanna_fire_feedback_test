@@ -28,6 +28,11 @@ sourceAllLibs('../rasterextrafuns/rasterPlotFunctions/R/')
 sourceAllLibs('../rasterextrafuns/rasterExtras/R/')
 sourceAllLibs('../benchmarkmetrics/benchmarkmetrics/R/')
 
+index_file =  "index-nEns-101-from-101.csv"
+PostDir = "data/sampled_posterior/attempt15/"
+
+conID  = "control"
+
 setupProjectStructure(dirn = c("outputs", "data", "temp", "figs"))
 ens_dir = paste(outputs_dir, '/ensembles_noSW/', sep = '')
 makeDir(ens_dir)
