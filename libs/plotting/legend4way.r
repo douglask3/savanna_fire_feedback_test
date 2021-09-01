@@ -27,10 +27,13 @@ legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt
         colss = paste0('#', cols[acol], cols[yi], cols[xi])
         txt = mkTxt(xi, atxt, yi)
         mapply(addBlock, xs+offx, ys+offy, colss, txt)
-        
-        text(x = xs0[-1] - diff(xs0)/2 + offx, y=offy-di, round(limits,2) ,
+       
+        if (all(abs(1:length(limits) - limits*(length(limits)+1)) < 0.02))
+            limLabs = paste0(1:length(limits), '/', length(limits)+1)  
+        else limLabs = round(limits, 2)
+        text(x = xs0[-1] - diff(xs0)/2 + offx, y=offy-di, limLabs ,
              adj = c(0.5, 2), cex = strcex)
-        text(x = offx-di, ys0[-1] - diff(ys0)/2 + offy, round(limits,2),
+        text(x = offx-di, ys0[-1] - diff(ys0)/2 + offy, limLabs,
              adj = c(1.5, 0.5), cex = strcex)
     }   
     addBlocks(1, 1, 1, 3)
@@ -48,16 +51,16 @@ legend4way <- function(limits, cols, clabs, labdOrder = c(1:3), y2xR = 0.3, lbRt
 
 
 
-    text('Not\nlimited', x = 0.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
-    text('Stress/Exclude\nco-limited', x = 2.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
-    text('Stress\nlimited', x = 0.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
-    text('Exclude\nlimited', x = 2.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
+    #text('Not\nlimited', x = 0.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
+    #text('Stress/Exclude\nco-limited', x = 2.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
+    #text('Stress\nlimited', x = 0.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
+    #text('Exclude\nlimited', x = 2.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
 
 
-    text('MAP\nlimited', x = 5.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
-    text('All\nlimited', x = 7.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
-    text('Stress/MAP\nco-limited', x = 5.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
-    text('Exclude/MAP\nco-limited', x = 7.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
+    #text('MAP\nlimited', x = 5.5, y = 0.5, srt = -lbRt, xpd = NA, cex = strcex)
+    #text('All\nlimited', x = 7.5, y = 2.5, srt = -lbRt, xpd = NA, cex = strcex)
+    #text('Stress/MAP\nco-limited', x = 5.5, y = 2.5, srt = lbRt, xpd = NA, cex = strcex)
+    #text('Exclude/MAP\nco-limited', x = 7.5, y = 0.5, srt = lbRt, xpd = NA, cex = strcex)
     #colss = paste0('#', cols[xi], cols[1], cols[yi])
     #mapply(addBlock, xs+3, ys+3, colss)
 
