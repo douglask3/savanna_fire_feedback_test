@@ -30,7 +30,8 @@ summaryFile = "model_summary-nEns-11.nc"
 #summaryFile = "model_summary-nEns-6.nc"
 allPostDir = "data/sampled_posterior/attempt15//control//"
 #allPostDir = "data/sampled_posterior/attempt10//control//"
-controls = c(Stress = "mortality", Exclusion = "exclude", MAP = "map", Energy = "energy")
+controls = c(Stress = "mortality", "Human pressure " = "exclude", MAP = "map", 
+            Energy = "energy")
 limTypes = c("Standard limitation" = "standard",
              "Potential limitation" = "potential", "Sensitivity" = "sensitivity")
 normalies = c(T, T, T, F)
@@ -50,7 +51,7 @@ plotMap <- function(limType, limits, title = '',
     }
    
     fname = paste('figs/limPlot', fname, '-', limType, '.png', sep = '')
-    png(fname, height = 4.33*5/4.5, width = 7.2, res = 300, unit = 'in')
+    png(fname, height = 4.33*5/4.1, width = 7.2, res = 300, unit = 'in')
 	print(fname)
         #if (limType == "standardxx") {
         #    heights = c(1,1,1,0.5, 1)
@@ -61,7 +62,7 @@ plotMap <- function(limType, limits, title = '',
         #}
         
 	layout(rbind(1:2, 3:4, 5:6, 7, 8:9, 10), heights = c(1,1,1,0.5, 1,0.5))
-	par(mar = c(0.5, 0, 0.5, 0), oma = c(0,0,2.3, 0))	
+	par(mar = c(0.5, 0, 0.5, 0), oma = c(0.3,0.8,2., 0))	
 	
 	plotFun <- function(lim, title, addTotTitle, normalise, limits) {
             limx = lapply(c(3,7), function(x) lim[[x]]*100)
@@ -81,9 +82,9 @@ plotMap <- function(limType, limits, title = '',
             
             FUN(limp[[1]], limits)
             #if (limType == "sensitivity") browser()
-            mtext(side = 2, title, line = -1.5)
+            mtext(side = 2, title, line = -2, adj = 0.1)
             if (addTotTitle) mtext(side = 3, header[1], line = 0)
-	    mtext(side = 2, adj = 0.5, title)
+	    #mtext(side = 2, adj = 0.0, title)
             FUN(limp[[2]], limits)
             
             if (addTotTitle) mtext(side = 3, header[2], line = 0)
@@ -97,14 +98,17 @@ plotMap <- function(limType, limits, title = '',
                        c(T, rep(F, length(lims)-1))[index],
                        normalies[index], MoreArgs = list(limits = limits[[1]]), 
                        SIMPLIFY = FALSE) 
-        addStandardLegend(lims[[1]][[1]], limits[[1]] , cols, units = '', add = FALSE, 
+        par(mar = rep(0, 4))
+        addStandardLegend(lims[[1]][[1]], limits[[1]] , cols, units = '%', add = FALSE, 
                           plot_loc = c(0.2, 0.8, 0.55, 0.7), maxLab = 100, srt = 45) 
+        par(mar = c(0.5, 0, 0.5, 0))
         if (limType != "standardX") {
             plotFun(lims[[4]], names(controls)[4],
                     F, T, limits = limits[[2]])
         }
-        title(title, outer = TRUE, line = 1)    
-        addStandardLegend(lims[[1]][[1]], limits[[2]] , cols, units = '', add = FALSE, 
+        title(title, outer = TRUE, line = 0.5)    
+        par(mar = rep(0, 4))
+        addStandardLegend(lims[[1]][[1]], limits[[2]] , cols, units = '%', add = FALSE, 
                           plot_loc = c(0.2, 0.8, 0.55, 0.7), maxLab = 100, srt = 45)      
         #addStandardLegend(lims[[1]][[1]], limits2 , cols, units = '', add = FALSE, 
         #                  plot_loc = c(0.1, 0.9, 0.55, 0.7), extend_max = TRUE, srt = 45)
