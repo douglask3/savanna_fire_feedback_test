@@ -133,11 +133,12 @@ plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm 
                    col = make.transparent(col, 0.85), border = NA)
         
         if (addNos && col != "black" && i == 1) {
-            lines(c(60, 60), c(-9E9, 9E9), lty = 2)
-            lines(c(60, 60), c(1E-9, 9E9), lty = 2)
-            ns = round(range(apply(qrts[[id1]][,60:100], 1, mean, na.rm = TRUE)), 2)
-            text(80, par("yaxp")[2] - diff(par("yaxp")[1:2])/5, 
-                 paste(ns, collapse = '-'))
+            #lines(c(60, 60), c(-9E9, 9E9), lty = 2)
+            #lines(c(60, 60), c(1E-9, 9E9), lty = 2)
+            #ns = round(range(apply(qrts[[id1]][,60:100], 1, mean, na.rm = TRUE)), 2)
+            #text(80, par("yaxp")[2] - diff(par("yaxp")[1:2])/5, 
+            #     paste(ns, collapse = '-'))
+            lines(c(0, 100), c(1, 1), lty = 2)
         }
     }
     lapply(1:nq, addQrts, 1, 3)
@@ -201,5 +202,5 @@ par(mfrow = c(2, 2), mar = c(2, 0.5, 0.5, 0.5), oma = c(2, 2, 1, 0))
 
 mapply(plotEXP, expIDs, datFiles, scales, mnDats, mxDats, F, T, units, names(expIDs),
        rep(c(T, F), 2), mnY = 0.001, mxY = 10, logY = TRUE, addNos = TRUE)
-mtext('%', side = 1, outer = TRUE, line = 0.67)
+mtext('% burnt area/land use', side = 1, outer = TRUE, line = 0.67)
 dev.off()
