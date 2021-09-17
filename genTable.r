@@ -6,8 +6,8 @@ graphics.off()
 
 biomes = raster("data/biomAssigned.nc")
 
-summaryFileC = "model_summary-nEns-10.nc"
-summaryFileE = "model_summary-nEns-diff10.nc"
+summaryFileC = "model_summary-nEns-111.nc"
+summaryFileE = "model_summary-nEns-diff111.nc"
 PostDir = "data/sampled_posterior/attempt15/"
 
 conID  = "control"
@@ -58,9 +58,9 @@ run4ConID <- function(dpr) {
         treeArea <- function(r) sum.raster(r * rarea, na.rm = TRUE)/srarea
         sumDat <- function(dat, norm = NULL) {        
             out = 100* unlist(layer.apply(dat, treeArea))
-            if (any(out/norm)>1) browser()
+            
             if (length(out) > 1 && !is.null(norm) && any(norm != out))
-                out = rbind(out, 100*out/norm)
+                out = rbind(out, 100*out/(out+norm))
             if (length(out)==1) out = c(out, NaN)
             if (is.null(dim(out))) names(out) = c("10%", "90%")
             else rownames(out) = c("land", "forest")
@@ -68,13 +68,13 @@ run4ConID <- function(dpr) {
             return(out)
         }
         norm = sumDat(dats[[2]])
-    
+        
         out = lapply(dats, sumDat, norm)
     
         out = do.call(rbind, out)
         colnames(out) = paste0(nme, '-', colnames(out))
         rownames(out) = c(rownames(out)[1:2],
-                          paste0(rep(c(names(cntr_varnames), names(experiments)), each = 2), 
+                          paste0(rep(c(names(cntr_varnames)[-1], names(experiments)), each = 2), 
                                  '-', rownames(out)[3:nrow(out)]))
         #browser()
         out
@@ -89,6 +89,7 @@ run4ConID <- function(dpr) {
 }
 
 dprs = list.dirs(paste0(PostDir, conID), full.names=FALSE)
-
+run4ConID('')
+browser()
 outs = lapply(dprs[-1], run4ConID)
 
