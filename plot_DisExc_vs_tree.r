@@ -160,7 +160,7 @@ plotEXP <- function(expID, datFile, scale, mnDat, mxDat, logX = FALSE, selfNorm 
     linesBW(c(binX[1] - diff(binX[1:2]), binX), cnts)
 }
 
-if (T) {
+if (F) {
 png("figs/potential_mortEx_curves.png", height = 7.2, width = 7.2, res = 300, units = 'in')
 par(mfrow = c(3, 3), mar = c(3.5, 0.5, 0.5, 0.5), oma = c(2, 3, 0, 0))
 
@@ -192,14 +192,14 @@ datFiles = paste0('data/driving_Data/TROPICS/',
 mnDats = list(0, 0,   0,   0)
 mxDats = list(100, 40, 100, 100)
 scales = c(100, 1, 100, 100)
-units  = c('%', "% cover", "% cover", "% cover")
+units  = ''#c('%', "% cover", "% cover", "% cover")
 logXs  = F
 
 png("figs/potential_mortEx_curves_norm.png", height = 7.2*2/3, width = 7.2*2/3, 
      res = 300, units = 'in')
-par(mfrow = c(2, 2), mar = c(3.5, 0.5, 0.5, 0.5), oma = c(2, 2, 0, 0))
+par(mfrow = c(2, 2), mar = c(2, 0.5, 0.5, 0.5), oma = c(2, 2, 1, 0))
 
 mapply(plotEXP, expIDs, datFiles, scales, mnDats, mxDats, F, T, units, names(expIDs),
        rep(c(T, F), 2), mnY = 0.001, mxY = 10, logY = TRUE, addNos = TRUE)
-
+mtext('%', side = 1, outer = TRUE, line = 0.67)
 dev.off()
