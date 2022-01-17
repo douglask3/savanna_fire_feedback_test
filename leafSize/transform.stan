@@ -1,6 +1,7 @@
 functions{
   real customProb(real x, real mu, real sigma, real lmu, real lsigma){
-    return(1/(sigma) * exp(-(0.5) * pow((mu - x)/sigma, 2)) * 1/(1+exp(-lsigma*(x-lmu))));
+//    return(1/(sigma) * exp(-(0.5) * pow((mu - x)/sigma, 2)) * 1/(1+exp(-lsigma*(x-lmu))));
+    return(log(1/sigma) - 0.5 * pow((mu - x)/sigma, 2) + log(1) - log(1 + exp(-lsigma*(x-lmu))));
   }
 }
 data{
