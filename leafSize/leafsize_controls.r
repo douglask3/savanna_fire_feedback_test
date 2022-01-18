@@ -13,7 +13,8 @@ nwarmup = 250
 niter = 2000
 nrefresh = 250
 
-nsiteMin = 200
+## for for sites with more than this number of samples
+nsiteMin = 50
 
 ###############
 ## open      ##
@@ -53,15 +54,15 @@ run4Site <- function(siteID) {
                
 siteIDs = unique(sites)
 test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
-siteIDs = siteIDs[test][1:2]
-browser()
+siteIDs = siteIDs[test]#[1:2]
+
 out = lapply(siteIDs, run4Site)
 
 nplots = length(siteIDs)
 nrow = floor(sqrt(nplots))
 ncol = ceiling(nplots/nrow)
 
-#par(mfrow = c(nrow, ncol), mar = rep(0.1, 4))
+par(mfrow = c(nrow, ncol), mar = c(1.5, 0.1, 0.1, 0.1))
 
 logistic <- function(x, x0 = 0, k = 1) 
     1/(1 + exp(-k*(x - x0)))
@@ -76,26 +77,34 @@ plotSite <- function(siteID, pfile) {
     y = ls[['density']]/max(ls[['density']])
     x = ls[['mids']]
 
-    xrange = range(c(x, log10(exp(climMean))))
-    plot(x, y, type = 'h', axes = FALSE, xlim = xrange)
+    xrange = range(c(x, log10(exp(climMean)+2)))
+    plot(x, y, type = 'h', axes = FALSE, xlim = xrange, ylim = c(0, 1))
     axis(1, at = (-(20):20), 10^(-(20):20))
-    #browser()
 
-    xp = seq(xrange[1], xrange[2], length.out = 100)
+    xmod = seq(-20, 20, 0.1)
+    xp = log10(exp(xmod))
     addMod <- function(p) {
-        y = logistic(log(10^xp), climMean, -p['climSigma'])
-        lines(xp, y, col = '#0000FF01', lwd = 2)
-        if (min(y) > 0.9) browser()
-        y = dnorm(log(10^xp), p['lsMu'], p['lsSigma'])
-        polygon(xp, y, border = NA, col = '#FF000001')
-        #browser()
+        yclim = logistic(xmod, climMean, -p['climSigma'])
+        lines(xp, yclim, col = '#0000FF01', lwd = 2)
+        
+        ybio = dnorm(xmod, p['lsMu'], p['lsSigma'])
+        ybio = 0.67*ybio/max(ybio)
+        if (sample(c(T,F), 1, prob = c(0.1, 0.9)))
+            polygon(xp, ybio, border = NA, col = '#FF000005')   
+
+        1-sqrt(sum(ybio*ybio*yclim))/sqrt(sum(ybio*ybio))
     }
-    apply(ps, 1, addMod)
+    climImpact = apply(ps, 1, addMod)
+    climImpact = round(quantile(100*climImpact, c(.05, 0.95)), 2)
+    mtext(side = 1, line = -5, adj = 0.1, paste0(climImpact[1], '-', climImpact[2], '%'))    
+    addHistLine <- function(x, y, ...) 
+        mapply(function(i, j, ...) lines(c(i, i), c(0, j), ...), x, y)
+
+    addHistLine(x, y)
     lsMuRng = quantile(log10(exp(ps[['lsMu']])), c(0.1, 0.9))
     points(lsMuRng, y = c(-0.0, -0.0), xpd = TRUE, pch = 19)
     lines(lsMuRng, c(0, 0))
-    
-    plot(x, y, type = 'h', add = TRUE)
+    return(climImpact)
     
 }
 
