@@ -8,13 +8,13 @@ source("libs/return_multiple_from_functions.r")
 
 grab_cache = TRUE
 filename = "data/leafsize_datasample.csv"
-nchains = 10
+nchains = 3
 nwarmup = 250
 niter = 2000
 nrefresh = 250
 
 ## for for sites with more than this number of samples
-nsiteMin = 50
+nsiteMin = 200
 
 ###############
 ## open      ##
@@ -27,6 +27,7 @@ sites = dat[['site.f']]
 ###############
 ## run       ##
 ###############
+
 selectDat <- function(siteID) {
     test = sites == siteID
     leafSize = log(leafSizes[test])
@@ -34,29 +35,47 @@ selectDat <- function(siteID) {
     return(list(leafSize, climMean))
 }
 
-run4Site <- function(siteID) {
-    ofile = paste('outputs/rstan_contraints_for_site', siteID, nchains, nwarmup, niter, '.csv',
-                  sep = '-')
+runBayesian <- function(file, data, init, ...)  {
+    #data[[2]] = data[[2]]/(1+exp(0.3*(data[[2]]+5)))
+    #browser()
+    fit = stan(file = file, data = data,
+               chains = nchains,  warmup = nwarmup, iter = niter, cores = 1, refresh = 250,
+               init = rep(list(init), nchains),
+               control = list(max_treedepth = 10, adapt_delta = 0.95))
+}
+runBayesian.prescribedClim <- function(leafSize, climMean) 
+    runBayesian("leafSize/prescribedClim.stan", 
+                list(n = length(leafSize), LS = leafSize, cMu = climMean),
+                list(lsMu = mean(leafSize), lsSigma = sd(leafSize), climSd = 1))
+
+
+runBayesian.varyingClim <- function(leafSize, climMean) 
+    runBayesian("leafSize/varyingClim.stan", 
+                list(n = length(leafSize), LS = leafSize),
+                list(lsMu = mean(leafSize), lsSigma = sd(leafSize),
+                     cMu = climMean, climSd = 1))
+
+
+run4Site <- function(siteID, FUN = runBayesian.prescribedClim, tname = "precribed") {
+    ofile = paste('outputs/rstan_contraints_for_site', tname,   
+                  siteID, nchains, nwarmup, niter, '.csv', sep = '-')
     if (file.exists(ofile) && grab_cache) return(ofile)
        
     c(leafSize, climMean) := selectDat(siteID)
-    fit = stan(file = "leafSize/transform.stan",
-               data = list(n = length(leafSize), LS = leafSize, cMu = climMean),
-               chains = nchains,  warmup = nwarmup, iter = niter, cores = 1, refresh = 250,
-               init = rep(list(list(lsMu = mean(leafSize), 
-                                    lsSigma = sd(leafSize), climSd = 1)), nchains),
-                control = list(max_treedepth = 10, adapt_delta = 0.95))
+    fit = FUN(leafSize, climMean)
     params = data.frame(rstan::extract(fit))
     
     write.csv(params, file = ofile)
     return(ofile)
 } 
+
                
 siteIDs = unique(sites)
 test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
-siteIDs = siteIDs[test]#[1:2]
+siteIDs = siteIDs[test][1:2]
 
-out = lapply(siteIDs, run4Site)
+outPrescribed = lapply(siteIDs, run4Site)
+outVarying = lapply(siteIDs, run4Site, runBayesian.varyingClim, "varying")
 
 nplots = length(siteIDs)
 nrow = floor(sqrt(nplots))
@@ -70,6 +89,7 @@ logistic <- function(x, x0 = 0, k = 1)
 plotSite <- function(siteID, pfile) {
     ps = read.csv(pfile)
     ps = ps[sample(1:nrow(ps), 1000),]
+    browser()
     c(leafSize, climMean) := selectDat(siteID)
     leafSize = log10(exp(leafSize))
     ls = hist(leafSize, length(leafSize)/10, plot = FALSE)
@@ -84,6 +104,11 @@ plotSite <- function(siteID, pfile) {
     xmod = seq(-20, 20, 0.1)
     xp = log10(exp(xmod))
     addMod <- function(p) {
+        #browser()
+        if (!is.na(p['cMu'])) {
+            lines(c(climMean, climMean), c(0, 1), col = 'blue', lwd = 2, lty = 2)
+            climMean = p['cMu']
+        }
         yclim = logistic(xmod, climMean, -p['climSigma'])
         lines(xp, yclim, col = '#0000FF01', lwd = 2)
         
@@ -107,6 +132,7 @@ plotSite <- function(siteID, pfile) {
     return(climImpact)
     
 }
+mapply(plotSite, siteIDs, outVarying)
+#mapply(plotSite, siteIDs, outPrescribed)
 
-mapply(plotSite, siteIDs, out)
 
