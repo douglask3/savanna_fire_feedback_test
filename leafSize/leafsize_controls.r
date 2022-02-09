@@ -8,9 +8,9 @@ source("libs/return_multiple_from_functions.r")
 
 grab_cache = TRUE
 filename = "data/leafsize_datasample.csv"
-nchains = 3
+nchains = 10
 nwarmup = 250
-niter = 2000
+niter = 10000
 nrefresh = 250
 
 ## for for sites with more than this number of samples
@@ -72,7 +72,7 @@ run4Site <- function(siteID, FUN = runBayesian.prescribedClim, tname = "precribe
                
 siteIDs = unique(sites)
 test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
-siteIDs = siteIDs[test][1:2]
+siteIDs = siteIDs[test][1:3]
 
 outPrescribed = lapply(siteIDs, run4Site)
 outVarying = lapply(siteIDs, run4Site, runBayesian.varyingClim, "varying")
@@ -81,7 +81,8 @@ nplots = length(siteIDs)
 nrow = floor(sqrt(nplots))
 ncol = ceiling(nplots/nrow)
 
-par(mfrow = c(nrow, ncol), mar = c(1.5, 0.1, 0.1, 0.1))
+
+par(mfcol = c(nplots, 2), mar = c(1.5, 0.1, 0.1, 0.1))
 
 logistic <- function(x, x0 = 0, k = 1) 
     1/(1 + exp(-k*(x - x0)))
@@ -89,7 +90,7 @@ logistic <- function(x, x0 = 0, k = 1)
 plotSite <- function(siteID, pfile) {
     ps = read.csv(pfile)
     ps = ps[sample(1:nrow(ps), 1000),]
-    browser()
+    
     c(leafSize, climMean) := selectDat(siteID)
     leafSize = log10(exp(leafSize))
     ls = hist(leafSize, length(leafSize)/10, plot = FALSE)
@@ -104,11 +105,11 @@ plotSite <- function(siteID, pfile) {
     xmod = seq(-20, 20, 0.1)
     xp = log10(exp(xmod))
     addMod <- function(p) {
-        #browser()
-        if (!is.na(p['cMu'])) {
-            lines(c(climMean, climMean), c(0, 1), col = 'blue', lwd = 2, lty = 2)
+        
+        lines(log10(exp(c(climMean, climMean))), c(0, 1), col = 'blue', lwd = 2, lty = 2)
+        if (!is.na(p['cMu'])) 
             climMean = p['cMu']
-        }
+        
         yclim = logistic(xmod, climMean, -p['climSigma'])
         lines(xp, yclim, col = '#0000FF01', lwd = 2)
         
@@ -132,7 +133,8 @@ plotSite <- function(siteID, pfile) {
     return(climImpact)
     
 }
+mapply(plotSite, siteIDs, outPrescribed)
+
 mapply(plotSite, siteIDs, outVarying)
-#mapply(plotSite, siteIDs, outPrescribed)
 
 
