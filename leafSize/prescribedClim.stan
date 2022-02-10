@@ -39,14 +39,14 @@ climSigma ~ lognormal(climsd, 1);
 
 for (i in 1:ns) {
     nfact[i] = 0.0;
-    for (j in 1:100) {
-        nfact[i] += customProb((j-50.0)/2.50, lsMu, lsSigma,  cMu[i], -climSigma);  
+    for (j in 1:101) {
+        nfact[i] += exp(customProb((j-51.0)/2.50, lsMu, lsSigma,  cMu[i], -climSigma));  
     }
 }
 
 for (i in 1:nl) {   
     ID = siteIDs[i];
-    target += customProb(LS[i], lsMu, lsSigma,  cMu[ID], -climSigma) - nfact[ID];
+    target += customProb(LS[i], lsMu, lsSigma,  cMu[ID], -climSigma) - log(nfact[ID]);
 }
 }
 

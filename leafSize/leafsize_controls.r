@@ -6,6 +6,9 @@ library(fields)
 library(rstan)
 source("libs/return_multiple_from_functions.r")
 
+doGlobal = TRUE
+doSites  = FALSE
+
 grab_cache = TRUE
 filename ="data/leafsize_datasample.csv"
 nchains = 3
@@ -61,7 +64,7 @@ runBayesian.prescribedClim <- function(leafSize, climMean) {
               list(nl = length(leafSize), ns =length(climMean), 
                    LS = leafSize, siteIDs = sites, cMu = climMean, #
                    LSmean = mean(leafSize), LSsd = sd(leafSize), climsd = 1),
-              list(lsMu = mean(leafSize), lsSigma = sd(leafSize), climSigma = 1))
+              list(lsMu = mean(leafSize)))#, lsSigma = sd(leafSize)))#, climSigma = 1))
 }
 
 runBayesian.varyingClim <- function(leafSize, climMean) 
@@ -81,21 +84,23 @@ run4Site <- function(siteID, FUN = runBayesian.prescribedClim, tname = "precribe
   fit = FUN(leafSize, climMean)
   
   params = data.frame(rstan::extract(fit))
-  browser()
+  
   write.csv(params, file = ofile)
   return(ofile)
 } 
 
-#siteIDs = unique(sites)
-#test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
-#siteIDs = siteIDs[test]
-#
-outGlobal = run4Site(NaN)
-browser()
-#outPrescribed = lapply(siteIDs, run4Site)
 
+if (doGlobal) 
+    outGlobal = run4Site(NaN)
+
+if (doSites) {
+    siteIDs = unique(sites)
+    test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
+    siteIDs = siteIDs[test]
+    outPrescribed = lapply(siteIDs, run4Site)
+}
+browser()
 plotSite <- function(siteID, pfile) {
-  rm(test,climImpact,climMean)
   
   ps = read.csv(pfile)
   ps = ps[sample(1:nrow(ps), 1000),]
