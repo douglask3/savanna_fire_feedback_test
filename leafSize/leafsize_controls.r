@@ -5,9 +5,10 @@ library(reldist)
 library(fields)
 library(rstan)
 source("libs/return_multiple_from_functions.r")
+#source("cfg.r")
 
 doGlobal = TRUE
-doSites  = FALSE
+doSites  = TRUE
 
 grab_cache = TRUE
 filename ="data/leafsize_datasample.csv"
@@ -39,30 +40,35 @@ sites = sapply(sites, function(i) which (siteIDs == i))
 
 selectDat <- function(siteID = NaN) {
     if (!is.na(siteID)) {
-        browser()
         test = sites == siteID
         leafSizes = leafSizes[test]
-        climMeans  = climMean[test]
+        climMeans  = climMeans[siteID]
+        sitesi = sites[test]
+        sitesi = sapply(sitesi, function(i) which(unique(sitesi) == i))
+        if (length(leafSizes) > 1 && length(climMeans) == 1) {
+            climMeans = c(climMeans, climMeans)
+            sitesi[length(sitesi)] = 2
+        }
     }
-    
+    else sitesi = sites 
     leafSize = log(leafSizes)
     climMean = log(climMeans)
-    return(list(leafSize, climMean))
+    return(list(leafSize, climMean, sitesi))
 }
 
 runBayesian <- function(file, data, init, ...)  {
   fit = stan(file = file, data = data,
              chains = nchains,  warmup = nwarmup, iter = niter, cores = 3, refresh = 250,
-             init = rep(list(init), nchains),
+             #init = rep(list(init), nchains),
              control = list(max_treedepth = 10, adapt_delta = 0.95))
 }
 
-runBayesian.prescribedClim <- function(leafSize, climMean) 
+runBayesian.prescribedClim <- function(leafSize, climMean, sitesi = sites) 
   runBayesian("leafSize/prescribedClim.stan", 
               list(nl = length(leafSize), ns =length(climMean), 
-                   LS = leafSize, siteIDs = sites, cMu = climMean, #
-                   LSmean = mean(leafSize), LSsd = sd(leafSize), climsd = 1),
-              list(lsMu = mean(leafSize), lsSigma = sd(leafSize), climSigma = 1))
+                   LS = leafSize, siteIDs = sitesi, cMu = as.vector(climMean), #
+                   LSmean = mean(leafSize), LSsd = sd(leafSize), climsd = 1))
+              #list(lsMu = mean(leafSize), lsSigma = sd(leafSize), climSigma = 1))
 
 
 runBayesian.varyingClim <- function(leafSize, climMean) 
@@ -76,9 +82,9 @@ run4Site <- function(siteID, FUN = runBayesian.prescribedClim, tname = "precribe
                 siteID, nchains, nwarmup, niter, '.csv', sep = '-')
   if (file.exists(ofile) && grab_cache) return(ofile)
   
-  c(leafSize, climMean) := selectDat(siteID)
-  
-  fit = FUN(leafSize, climMean)
+  c(leafSize, climMean, sitesi) := selectDat(siteID)
+ 
+  fit = FUN(leafSize, climMean, sitesi = sitesi)
   params = data.frame(rstan::extract(fit))
   
   write.csv(params, file = ofile)
@@ -93,7 +99,7 @@ if (doSites) {
     siteIDs = unique(sites)
     test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
     siteIDs = siteIDs[test]
-    outPrescribed = lapply(siteIDs, run4Site)
+    outSites = lapply(siteIDs, run4Site)
 }
 
 
