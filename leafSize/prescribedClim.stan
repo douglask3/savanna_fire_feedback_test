@@ -23,6 +23,7 @@ parameters{
 real lsMu; //mean bio leaf size
 real<lower = 0.001> lsSigma; // sd bio leaf size
 real<lower = 0.001> climSigma; //sd climate constraint
+real<lower = 0.001> climLS0; // limiting amount on ls when at clim constraint.
 //real<lower = 0> sigma; // overall error
 }
 
@@ -31,22 +32,25 @@ real<lower = 0.001> climSigma; //sd climate constraint
 model{
 vector[ns] nfact;
 real x;
+vector[ns] x0;
 int ID;
 
 lsMu ~ normal(LSmean, 1);
 lsSigma ~ lognormal(LSsd, 1);
 climSigma ~ lognormal(climsd, 1);
+climLS0 ~ uniform(0, 1);
 
 for (i in 1:ns) {
     nfact[i] = 0.0;
+    x0[i] = cMu[i] + log((1.0/climLS0) - 1.0)/ climSigma;
     for (j in 1:101) {
-        nfact[i] += exp(customProb((j-51.0)/2.50, lsMu, lsSigma,  cMu[i], -climSigma));  
+        nfact[i] += exp(customProb((j-51.0)/2.50, lsMu, lsSigma,  x0[i], -climSigma));  
     }
 }
 
 for (i in 1:nl) {   
     ID = siteIDs[i];
-    target += customProb(LS[i], lsMu, lsSigma,  cMu[ID], -climSigma) - log(nfact[ID]);
+    target += customProb(LS[i], lsMu, lsSigma,  x0[ID], -climSigma) - log(nfact[ID]);
 }
 }
 

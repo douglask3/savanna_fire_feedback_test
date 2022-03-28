@@ -1,7 +1,7 @@
 ###############
 ## set up    ##
 ###############
-library(reldist)
+#library(reldist)
 library(fields)
 library(rstan)
 source("libs/return_multiple_from_functions.r")
@@ -24,11 +24,16 @@ nsiteMin = 1
 logistic <- function(x, x0 = 0, k = 1) 
   1/(1 + exp(-k*(x - x0)))
 
+logisticX <- function(x, x0 = 0, k = 1, ystar = 0.5) {
+    x0 = x0[i] + log((1.0/ystar) - 1.0)/ k
+    logistic(x, x0, k)
+}
 
 ###############
 ## open      ##
 ###############
 dat =  read.csv(filename)
+     
 dat = dat[order(dat[,'site.f']),]
 
 sites = dat[['site.f']]
@@ -96,12 +101,12 @@ if (doGlobal)
     outGlobal = run4Site(NaN)
 
 if (doSites) {
-    siteIDs = unique(sites)
+    siteIDs = unique(sites)[1:30]
     test = sapply(siteIDs, function(siteID) sum(sites == siteID) > nsiteMin)
     siteIDs = siteIDs[test]
     outSites = lapply(siteIDs, run4Site)
 }
-
+browser()
 
 climMeanMap = log(10^raster("data/leafsie_clim.nc"))
 
@@ -119,7 +124,8 @@ model <- function(eNo = 1, climMean) {
     
     if (file.exists(tfileAll)) return(brick(tfileAll))
     
-    c(climSigma, bioMean, bioSigma) := ps[eNo, c('climSigma', 'lsMu', 'lsSigma')]
+    c(climSigma, bioMean, bioSigma, climLS0) := 
+        ps[eNo, c('climSigma', 'lsMu', 'lsSigma', 'climLS0')]
     
     frequency_ls <- function(ls) {
         
@@ -127,7 +133,7 @@ model <- function(eNo = 1, climMean) {
                       'freqOfLS', ls, '.nc', sep = '-')
         
         if (file.exists(tfile) ) return(raster(tfile))
-        out = dnorm(ls, bioMean, bioSigma) * logistic(ls, climMean, -climSigma)
+        out = dnorm(ls, bioMean, bioSigma) * logisticX(ls, climMean, -climSigma, climLS0)
         writeRaster(out, overwrite = TRUE, file = tfile)
     }
     
@@ -255,7 +261,7 @@ plotGLobalSite <- function(id) {
 
     obs =  log(leafSizes[which(sites == id)])
     climMean = log(climMeans[id])
-    yclim = logistic(xp, climMean, -pss[1, 'climSigma'])
+    yclim = logisticX(xp, climMean, -pss[1, 'climSigma'], -pss[1, 'climLS0'])
     
     polygon0 <- function(x, y,...) polygon(c(x[1], x, tail(x, 1)), c(0, y, 0), ...)
     
