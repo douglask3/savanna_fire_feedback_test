@@ -1,6 +1,7 @@
 ########################################
 ## cfg							      ##
 ########################################
+source("../gitProjectExtras/gitBasedProjects/R/sourceAllLibs.r")
 source("cfg.r")
 graphics.off()
 
@@ -35,7 +36,7 @@ processProduct <- function(product) {
             } else if (vname == "06_seasonal_concentration_final" || vname == "06_seasoanl_concentration_final") vname = "MConc"
             else browser()
         
-        filename = paste0(data_dir, '/driving_Data/', vname, '_',product,'.nc') 		
+        filename = paste0(data_dir, '/driving_Data_TROPICS/', vname, '_',product,'.nc') 		
         names(r) = NULL
         r = writeRaster(r, filename, overwrite = TRUE)
 										  
