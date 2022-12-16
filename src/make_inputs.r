@@ -1,4 +1,7 @@
-source("make_precip_inputs.r")
+source("../gitProjectExtras/gitBasedProjects/R/sourceAllLibs.r")
+
+sourceAllLibs('../benchmarkmetrics/benchmarkMetrics/R/')
+source("src/make_precip_inputs.r")
 
 "
 MADD  = Mean Annual Dry Days
@@ -8,11 +11,12 @@ MConc = Mean Annual Seasonal Concentration
 "
 extent = c(-180, 180, -30, 30)
 
-data_dir  = "../LimFIRE/outputs/"
+data_dir  = "data/LimFIRE/outputs/"
 variables = c("TreeCover" = "treecover2000-2014.nc",
               "nonTreeCover" = "nontree2000-2014.nc",
-              "MaxWind" = "../../savanna_fire_feedback_test/data/CRUNCEP.wspeed.r0d5.1997.2013.nc",
+              "MaxWind" = "../../CRUNCEP.wspeed.r0d5.1997.2013.nc",
               "MAT" = "Tas2000-2014.nc",
+              "GDD0" = "Tas2000-2014.nc",
               "MTWM" = "../data/cru_ts4.03/cru_ts4.03.1901.2018.tmx.dat.nc",
               "MTCM" = "../data/cru_ts4.03/cru_ts4.03.1901.2018.tmn.dat.nc",
 	      "SW" = "cld2000-2014.nc",
@@ -37,10 +41,13 @@ variables = c("TreeCover" = "treecover2000-2014.nc",
 	      "MAP_CRU" = "Prc2000-2014.nc",
               "MADD_CRU" = "Wet2000-2014.nc", "MDDM_CRU" = "Wet2000-2014.nc",
 	      "MADM_CRU" = "Prc2000-2014.nc", "MConc_CRU" = "Prc2000-2014.nc",
-              "buffalo" = "../../savanna_fire_feedback_test/data/livestock/buffaloLivestock0.5.nc",
-              "cattle" = "../../savanna_fire_feedback_test/data/livestock/cattleLivestock0.5.nc",
-              "goat" = "../../savanna_fire_feedback_test/data/livestock/goatLivestock0.5.nc",
-              "sheep" = "../../savanna_fire_feedback_test/data/livestock/sheepLivestock0.5.nc")
+        "soil_ph" = "../../soildata.nc",
+              "soil_P" = "../../soildata.nc",
+              "soil_N" = "../../soildata.nc")
+              #"buffalo" = "../../savanna_fire_feedback_test/data/livestock/buffaloLivestock0.5.nc",
+              #"cattle" = "../../savanna_fire_feedback_test/data/livestock/cattleLivestock0.5.nc",
+              #"goat" = "../../savanna_fire_feedback_test/data/livestock/goatLivestock0.5.nc",
+              #"sheep" = "../../savanna_fire_feedback_test/data/livestock/sheepLivestock0.5.nc")
 			  
 annualAverage <- function(...) mean(...)
 
@@ -50,7 +57,7 @@ annualAverage12 <- function(...) 12 * annualAverage(...)
 annualAverage12_1stHalf <- function(r, ...) {
     r0=r
     r = r[[1:floor(nlayers(r)/2)]]
-    browser()   
+    #browser()   
     12 * annualAverage(r, ...)
 }
 
@@ -76,6 +83,26 @@ temp_max <- function(r, ...)
 
 temp_min <- function(r, ...)
     annualAverageMax(r[[1195:1362]]*(-1))*(-1)
+
+GDD <- function(r, base = 5, ...) {
+    if (base != 0) r = r - base
+    day <- function(d) {
+        print(d)
+        mn1 = 1+floor((d-1)/30)
+        mn2 = 1+ceiling((d-1)/30)
+        if (mn1 == mn2) out = r[[mn1]]  
+        else {
+            d1 = (d-(mn1-1)*30)/30
+            d2 = ((mn2-1)*30-d)/30
+            out = r[[mn1]]*d2 + r[[mn2]]*d1
+        }
+        out[out<0] = 0
+        return(out)
+    }
+    gdd = day(1)
+    for (d in 2:(nlayers(r)*1)) gdd = gdd + day(d)
+    gdd = gdd * 365/d
+}
 
 
 AllMax <- function(r, ...) r = max(r)
@@ -135,9 +162,15 @@ layer1GT0 <- function(r, ...) {
     return(r)
 }
 
+raster_l1 <- function(r) r[[1]]
+raster_l2 <- function(r) r[[2]]
+raster_l3 <- function(r) r[[3]]
+
+
 FUNS = c("TreeCover" = annualAverage, "nonTreeCover" = annualAverage,
          "MaxWind" = makeWind,
          "MAT" = annualAverage,
+         "GDD0" = GDD,
          "MTWM" = temp_max,
          "MTCM" = temp_min, 
 	 "sunshine" = sunshineHours,
@@ -160,11 +193,12 @@ FUNS = c("TreeCover" = annualAverage, "nonTreeCover" = annualAverage,
          "PopDen" = annualAverage, 
 	 "MAP_CRU" = annualAverage12, "MADD_CRU" = MADD, "MDDM_CRU" = MDDM,
 	 "MADM_CRU" = MADM, "MConc_CRU" = MConc,
-         "buffalo" = layer1GT0, "goat" = layer1GT0, "cattle" = layer1GT0, "sheep" = layer1GT0)
+         soil_ph = raster_l1, soil_P = raster_l3, soil_N = raster_l2)
+ #        "buffalo" = layer1GT0, "goat" = layer1GT0, "cattle" = layer1GT0, "sheep" = layer1GT0)
 			  
 			  
-scaling = c("TreeCover" = 1, "nonTreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM" = 1,
-            "MTCM" = 1,
+scaling = c("TreeCover" = 1, "nonTreeCover" = 1, "MaxWind" = 1, 
+            "MAT" = 1, "GDD0" = 1, "MTWM" = 1,  "MTCM" = 1,
 	    "sunshine" = 1,
             "BurntArea_GFED_four_s" = 1,
             "BurntArea_GFED_four"  = 1,
@@ -184,10 +218,11 @@ scaling = c("TreeCover" = 1, "nonTreeCover" = 1, "MaxWind" = 1, "MAT" = 1, "MTWM
             "urban" = 1, "crop" = 1, "pas" = 1, "PopDen" = 1,
 	    "MAP_CRU" = 1, "MADD_CRU" = 1, "MDDM_CRU" = 1,
 	    "MADM_CRU" = 1, "MConc_CRU" = 1,
-            "buffalo" = 1, "goat" = 1, "cattle" = 1, "sheep" = 1)
+            soil_ph = 1, soil_P = 1, soil_N = 1)
+            #"buffalo" = 1, "goat" = 1, "cattle" = 1, "sheep" = 1)
 			  
-MinPoint = c("TreeCover" = 0, "nonTreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTWM" = 0,
-             "MTCM" = 0,
+MinPoint = c("TreeCover" = 0, "nonTreeCover" = 0, "MaxWind" = 0, 
+             "MAT" = 0, "GGD0" = 0, "MTWM" = 0, "MTCM" = 0,
 	     "sunshine" = 0,
              "BurntArea_GFED_four_s" = 0,
              "BurntArea_GFED_four"  = 0,
@@ -207,7 +242,8 @@ MinPoint = c("TreeCover" = 0, "nonTreeCover" = 0, "MaxWind" = 0, "MAT" = 0, "MTW
 	     "urban" = 0, "crop" = 0, "pas" = 0, "PopDen" = 0,
 	     "MAP_CRU" = 0, "MADD_CRU" = 1, "MDDM_CRU" = 1,
 	     "MADM_CRU" = 1, "MConc_CRU" = 1,
-             "buffalo" = 0, "goat" = 0, "cattle" = 0, "sheep" = 0)
+             soil_ph = 0, soil_P = 0, soil_N = 0)
+             #"buffalo" = 0, "goat" = 0, "cattle" = 0, "sheep" = 0)
 			  
 makeVar <- function(filename, FUN) {
 	print(filename)
@@ -240,22 +276,22 @@ writeVar <- function(nme, r, sc, mp = 0.0) {
 		ri[mask] = NaN
 		ri[!mask & is.na(ri)] = mp
 		names(ri) = NULL
-		fname = paste('data/driving_Data/', nmei, '.nc', sep = '')
+		fname = paste('data/driving_Data_TROPICS/', nmei, '.nc', sep = '')
 		print(fname)
 		ri =  crop(ri, extent(extent))
 		ri = ri * sc
                 
 		ri = writeRaster.gitInfo(ri, fname, varname = "layer",
-                                         comment = list(src_file = 'make_inputs.r'),  
+                                         comment = list(src_file = 'src/make_inputs.r'),  
                                          overwrite = TRUE)
 
                 rr = ri#rr = convert_regular_2_pacific_centric(ri)
                 rr = raster::resample(rr, mask)
-
-		fnamer = paste('data/driving_Data_new/', nmei, '.nc', sep = '')
+                rr = crop(rr, extent(extent))
+		fnamer = paste('data/driving_Data_TROPICS/', nmei, '.nc', sep = '')
                 
                 rr = writeRaster.gitInfo(rr, fnamer, varname = nme,
-                                         comment = list(src_file = 'make_inputs.r'),  
+                                         comment = list(src_file = 'src/make_inputs.r'),  
                                          overwrite = TRUE)
 		return(ri)
 	}
@@ -272,10 +308,11 @@ mapply(writeVar, names(variables), ins, scaling, MinPoint)
 maskAndReout_pr <- function(r) {
     fname = filename(r)
     r = raster::crop(r, mask)
+    r = raster::crop(mask, extent)
     r[mask] = NaN
     r = writeRaster.gitInfo(r, fname, zname = 'layer',
                             comment = list(source='Based on data the amazing Li G processed for me. Regridded for 0.25 to 0.5', 
-                                           src_file = 'make_inputs.r'), 
+                                           src_file = 'src/make_inputs.r'), 
                             overwrite = TRUE)
     return(r)
 }
