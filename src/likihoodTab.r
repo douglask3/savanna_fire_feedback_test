@@ -1,3 +1,4 @@
+library(R.utils)
 source("cfg.r")
 graphics.off()
 options(scipen = 999)
@@ -12,7 +13,8 @@ conID  = "control"
 cVariables = c("potential_map", "potential_mortality",  "potential_exclude")
 expIDs = c("Burnt\narea" = "noFire", "Heat\nstress" = "noTasMort", "Wind" = "noWind",
             "Rainfall\ndistribution" = "noDrought", "Population\ndensity" = "noPop",
-            "Urban\narea" = "noUrban", "Cropland\narea" = "noCrop", "Pasture\narea" = "noPas")
+            "Urban\narea" = "noUrban", "Cropland\narea" = "noCrop", "Pasture\narea" = "noPas",
+            "No Humans\nFire" = "noHumans_noFire")
 
 samples = list.files(paste0(PostDir, '/', conID), recursive = TRUE)
 samples = samples[grepl('sample', samples)]
@@ -26,6 +28,21 @@ biomes = raster::resample(raster('data/biomAssigned.nc'),
 
 nexp = length(expIDs)
 ncon = length(cVariables)
+
+
+raster.NaN.gzip <- function(file, ...) {
+    rezip = FALSE
+    if (!file.exists(file)) {
+        gfile = gunzip(paste0(file, '.gz'), remove = FALSE)
+        rezip = TRUE
+    }
+    dat = raster.NaN(file, ...)
+    if (rezip) 
+        if (file.exists(paste0(file, '.gz'))) file.remove(file)
+
+    return(dat)
+}
+
 openCompareSample <- function(sample, biomeN = NULL, mask = NULL, andControls = TRUE) {
     print(sample)
     tfile = paste0(paste0("temp/beats-", paste0(strsplit(sample, '/')[[1]],  collapse = '-')),
@@ -38,7 +55,7 @@ openCompareSample <- function(sample, biomeN = NULL, mask = NULL, andControls = 
     print(biomeN)
     print(which(samples==sample))
     openDat <- function(id, varname = "tree_cover_mean") {
-        dat = raster.NaN(paste0(PostDir, id, '/', sample), varname = varname)
+        dat = raster.NaN.gzip(paste0(PostDir, id, '/', sample), varname = varname)
         if (!is.null(mask)) return(sum(dat[mask], na.rm = TRUE))
         else return(sum.raster(dat, na.rm = TRUE))
     }
@@ -88,15 +105,14 @@ whereBeat <- function(ids, newplot = TRUE, map = TRUE) {
         else {nme = "temp/whichBeat-corr"; ext = '.Rd'}
         tfile = paste0(c(nme, ids, strsplit(sample, '/')[[1]], ext), 
                        collapse = '-')
-        
+       
         if (file.exists(tfile)) {
             if (map) return(raster(tfile)) else { load(tfile); return(dat)}
         }
         print(ids)
         print(which(samples==sample))
-        forID <- function(id)
-            dat = raster.NaN(paste0(PostDir, id, '/', sample), varname = "tree_cover_mean")
-        
+        forID <- function(id) 
+            raster.NaN.gzip(paste0(PostDir, id, '/', sample), varname = "tree_cover_mean")               
         dat = layer.apply(ids, forID)
         if (map) {
             dat = which.max(dat)
