@@ -5,16 +5,20 @@ source("cfg.r")
 graphics.off()
 
 biomes = raster("data/biomAssigned.nc")
+dc = raster("data/deci.nc")
+dc[is.na(dc)] = NaN
 
 summaryFileC = "model_summary-nEns-111.nc"
-summaryFileE = "model_summary-nEns-diff111.nc"
+summaryFileE = "model_summary-nEns-diff1001.nc"
+summaryFileD = "model_summary-nEns-difffromNoHumans1001.nc"
 PostDir = "data/sampled_posterior/attempt15/"
 
 conID  = "control"
 expIDs = c("Burnt\narea" = "noFire", "Heat\nStress" = "noTasMort","Wind" = "noWind",
             "Rainfall\ndistribution" = "noDrought", "Population\ndensity" = "noPop",
-            "Urban\narea" = "noUrban", "Cropland\narea" = "noCrop", "Pasture\narea" = "noPas",
-            "No Humans" = "noHumans")
+           # "Urban\narea" = "noUrban", 
+            "Cropland\narea" = "noCrop", "Pasture\narea" = "noPas",
+            "No Humans" = "noHumans", "No Humans\nFire" = "noHumans_noFire")
 obsFile = 'data/driving_Data/TreeCover.nc'   
 
 cntr_varnames = c("tree_cover_mean",
@@ -25,14 +29,17 @@ openDat <- function(id, summaryFile, vanme = "tree_cover_mean", dpr = "") {
     print(id)
     print(vanme)
     print(dpr)
+    
     #if (dpr !="") browser()
     if (vanme == "potential_energy") {
         out1 = openDat(id, summaryFile, "potential_sw", dpr)
         out2 = openDat(id, summaryFile, "potential_mat", dpr)
         return(1-(1-out1)*(1-out2))
     }
-    brick.NaN(paste0(PostDir, '/', id, '/', dpr, '/', summaryFile),
-              varname = vanme, layers = c(3, 7))
+    file = paste0(PostDir, '/', id, '/', dpr, '/', summaryFile)
+    if (length(file) > 1) file = file[tail(which(file.exists(file)), 1)]
+    print(file)
+    brick.NaN(file, varname = vanme, layers = c(3, 7))
 }
 run4ConID <- function(dpr) {
     outFile = paste0("outputs/biomeShifts-", dpr, ".csv")
@@ -43,17 +50,22 @@ run4ConID <- function(dpr) {
     control = lapply(cntr_varnames, function(i) openDat(conID, summaryFileC, i, dpr = dpr))
     obs = raster::resample(raster(obsFile), control[[1]])/0.8
     biomes = raster::resample(biomes, control[[1]])
-    experiments = lapply(expIDs, openDat, summaryFileE, dpr = dpr)
+    dc = raster::resample(dc, control[[1]])
+    experiments = lapply(expIDs, openDat, c(summaryFileE, summaryFileD), dpr = dpr)
 
     dats = c("Obs." = obs, control, experiments)
 
 
     no4Biome <- function(biome = 1, nme) {
+        w = dats[[1]]
+        w[] = 1
         if (biome>1) {
             mask = biomes != biome       
             dats = lapply(dats, function(i) {i[mask] = NaN; i})
+        } else if (biome == 0) {
+            w = dc
         }
-        rarea = raster::area(dats[[1]], na.rm = TRUE)
+        rarea = raster::area(dats[[1]], na.rm = TRUE) * w
         srarea = sum.raster(rarea, na.rm = TRUE)
         treeArea <- function(r) sum.raster(r * rarea, na.rm = TRUE)/srarea
         sumDat <- function(dat, norm = NULL) {        
@@ -80,7 +92,7 @@ run4ConID <- function(dpr) {
         out
     }
 
-    out = mapply(no4Biome, c(1:6, 8),c("Global", "Wet Forests", " Dry Forest", "Savanna/grass", "Mediterranean", "Summergreen Forests/woodland", "Desert/shrub") , SIMPLIFY = FALSE)
+    out = mapply(no4Biome, c(1, 0, 2:6, 8),c("Global", "Seasonal", "Wet Forests", " Dry Forest", "Savanna/grass", "Mediterranean", "Summergreen Forests/woodland", "Desert/shrub") , SIMPLIFY = FALSE)
     out = do.call(cbind, out)
     out = round(out, 2)
 
