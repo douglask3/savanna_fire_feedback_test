@@ -38,8 +38,8 @@ openDat <- function(id, summaryFile) {
             test = substr(file, nchar(file)-7, nchar(file)-3) == 
                     substr(summaryFile, nchar(summaryFile)-4, nchar(summaryFile))
             
-            if(!any(test) || sum(test) > 1) browser()
-            file = file[test]
+            if(!any(test) || sum(test) > 1) file  = file[2] 
+                else  file = file[test]
         }
     }
     #if (id == "noDrought_noFire") browser()
@@ -85,8 +85,8 @@ png("figs/MortExcMap.png", height = 8, width = 7.2, res = 300, units = 'in')
 dev.off()
 
 expIDs = c("Burnt\narea" = "noFire",
-           "Without\nrainfall\ndistribution" = "noDrought_noFire",
-           "Without\nhuman\nimpacts" = "noHumans_noFire")
+           "Without\nhuman\nimpacts" = "noHumans_noFire",
+           "Without\nhamans" = "nofire_humanless")
 
 print("=====")
 limits = c(0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20)
@@ -99,3 +99,19 @@ png("figs/FireMortMaps.png", height = 4, width = 7.2, res = 300, units = 'in')
     addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
                       plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE) 
 dev.off()
+
+
+png("figs/FireMortMaps-diff.png", height = 4.3, width = 7.2, res = 300, units = 'in')
+    layout(rbind(1:2, 3, 4:5, 6:7, 8), heights = c(1, 0.3, 1, 1, 0.3))
+    par(mar = c(0.5, 0, 0.5, 0), oma = c(0, 4, 2, 0))
+    plotExp(experiments[[1]], names(experiments)[1])
+    addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
+                      plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE)
+    dexperiments = lapply(experiments[-1], function(i) i - experiments[[1]])
+    limits = c(0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2)
+    mapply(plotExp, dexperiments, names(experiments)[-1])
+    par(mar = rep(0, 4))
+    addStandardLegend(obs, limits, cols, units = '%', srt = 0, add = FALSE,
+                      plot_loc = c(0.2, 0.8, 0.73, 0.8), extend_max = TRUE) 
+dev.off()
+
